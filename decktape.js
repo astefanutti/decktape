@@ -5,7 +5,7 @@ var page = require("webpage").create(),
 page.viewportSize = {width: 1280, height: 720};
 //printer.paperSize = {width: "1280px", height: "720px", margin: "0px"};
 
-page.open("file:///D:/github/phantomjs/bin/slides.html", function(status) {
+page.open("file:///Users/astefanutti/Development/phantomjs/slides.html", function(status) {
     if (status !== "success") {
         console.log("Unable to load the address!");
         phantom.exit(1);
@@ -23,8 +23,6 @@ var printSlide = function() {
             nextSlide();
             printSlide();
         } else {
-            console.log("Printing slide " + currentSlideIndex() + "/" + totalSlides + "...");
-            printer.printPage(page);
             phantom.exit();
         }
     }, 1000);
