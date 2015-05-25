@@ -29,11 +29,18 @@ var printSlide = function() {
 };
 
 var slideCount = function() {
-    return page.evaluate(function() { return Dz.slides.length; });
+    return page.evaluate(function() {
+        var count = 0;
+        for (var i = 0; i < Dz.slides.length; i++) {
+            var fragments = Dz.slides[i].$$('.incremental > *').length;
+            count += fragments ? fragments + 1 : 1;
+        }
+        return count;
+    });
 };
 
 var isLastSlide = function() {
-    return page.evaluate(function() { return Dz.idx == Dz.slides.length; });
+    return page.evaluate(function() { return Dz.idx == Dz.slides.length && Dz.step == Dz.slides[Dz.idx - 1].$$('.incremental > *').length; });
 };
 
 var nextSlide = function() {
@@ -41,5 +48,5 @@ var nextSlide = function() {
 };
 
 var currentSlideIndex = function() {
-    return page.evaluate(function() { return Dz.idx; });
+    return page.evaluate(function() { return Dz.idx + "." + Dz.step; });
 };
