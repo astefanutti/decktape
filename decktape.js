@@ -92,28 +92,22 @@ function leftPadding(str, len, char) {
     return p.join('').concat(str);
 }
 
-// TODO: package and load backend specific methods as modules
 // TODO: support backend auto-detection
 // TODO: backend fallback manual support
+var dzslides = require("./plugins/dzslides");
+
 var slideCount = function() {
-    return page.evaluate(function() {
-        var count = 0;
-        for (var i = 0; i < Dz.slides.length; i++) {
-            var fragments = Dz.slides[i].$$('.incremental > *').length;
-            count += fragments ? fragments + 1 : 1;
-        }
-        return count;
-    });
+    return page.evaluate(dzslides.slideCount);
 };
 
 var isLastSlide = function() {
-    return page.evaluate(function() { return Dz.idx == Dz.slides.length && Dz.step == Dz.slides[Dz.idx - 1].$$('.incremental > *').length; });
+    return page.evaluate(dzslides.isLastSlide);
 };
 
 var nextSlide = function() {
-    return page.evaluate(function() { Dz.forward(); });
+    return page.evaluate(dzslides.nextSlide);
 };
 
 var currentSlideIndex = function() {
-    return page.evaluate(function() { return Dz.idx + "." + Dz.step; });
+    return page.evaluate(dzslides.currentSlideIndex);
 };
