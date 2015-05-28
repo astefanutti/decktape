@@ -40,6 +40,24 @@ printer.outputFileName = opts.filename;
 
 var currentSlide, totalSlides;
 
+page.onLoadStarted = function() {
+    console.log("Loading page " + opts.url + "...");
+};
+
+page.onResourceTimeout = function(request) {
+    console.log("+- Request timeout: " + JSON.stringify(request));
+};
+
+page.onResourceError = function(resourceError) {
+    console.log("+- Unable to load resource from URL: " + resourceError.url);
+    console.log("|_ Error code: " + resourceError.errorCode);
+    console.log("|_ Description: " + resourceError.errorString);
+};
+
+page.onLoadFinished = function(status) {
+    console.log("Loading page finished with status: " + status);
+};
+
 page.open(opts.url, function(status) {
     if (status !== "success") {
         console.log("Unable to load the address: " + opts.url);
