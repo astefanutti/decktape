@@ -9,7 +9,6 @@ var process = {
     }
 };
 
-// TODO: add proxy setting option
 var opts = require("./libs/nomnom")
     .nocolors()
     .script("phantomjs decktape.js")
@@ -41,7 +40,7 @@ printer.outputFileName = opts.filename;
 var currentSlide, totalSlides;
 
 page.onLoadStarted = function() {
-    console.log("Loading page " + opts.url + "...");
+    console.log("Loading page " + opts.url + " ...");
 };
 
 page.onResourceTimeout = function(request) {
@@ -96,7 +95,7 @@ function progressBar() {
     cols.push(leftPadding(currentSlide, totalSlides.toString().length, ' '));
     cols.push('/');
     cols.push(totalSlides);
-    cols.push(")...");
+    cols.push(") ...");
     return cols.join('');
 }
 
