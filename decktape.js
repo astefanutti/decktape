@@ -62,8 +62,7 @@ page.open(opts.url, function(status) {
         console.log("Unable to load the address: " + opts.url);
         phantom.exit(1);
     } else {
-        currentSlide = 1;
-        totalSlides = slideCount();
+        configure();
         printer.begin();
         printSlide();
     }
@@ -75,7 +74,6 @@ function printSlide() {
         printer.printPage(page);
         if (!isLastSlide()) {
             nextSlide();
-            currentSlide++;
             printSlide();
         } else {
             printer.end();
@@ -111,20 +109,28 @@ function leftPadding(str, len, char) {
 
 // TODO: support backend auto-detection
 // TODO: backend fallback manual support
-var dzslides = require("./plugins/dzslides");
+var decktape = require("./plugins/dzslides");
+
+var configure = function() {
+    currentSlide = 1;
+    totalSlides = slideCount();
+    if (typeof decktape.configure === "function")
+        return page.evaluate(deck.configure);
+};
 
 var slideCount = function() {
-    return page.evaluate(dzslides.slideCount);
+    return page.evaluate(decktape.slideCount);
 };
 
 var isLastSlide = function() {
-    return page.evaluate(dzslides.isLastSlide);
+    return page.evaluate(decktape.isLastSlide);
 };
 
 var nextSlide = function() {
-    return page.evaluate(dzslides.nextSlide);
+    currentSlide++;
+    return page.evaluate(decktape.nextSlide);
 };
 
 var currentSlideIndex = function() {
-    return page.evaluate(dzslides.currentSlideIndex);
+    return page.evaluate(decktape.currentSlideIndex);
 };
