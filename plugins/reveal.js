@@ -28,7 +28,8 @@ Reveal.prototype = {
     },
 
     currentSlideIndex : function() {
-        return Reveal.getCurrentSlide();
+        var indices = Reveal.getIndices();
+        return '/' + indices.h + (indices.v ? '/' + indices.v + (indices.f ? '/' + indices.f : '') : '');
     }
 };
 
