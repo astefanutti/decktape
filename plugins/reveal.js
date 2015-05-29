@@ -3,6 +3,14 @@ function Reveal() {
 
 Reveal.prototype = {
 
+    getName : function() {
+        return "Reveal JS";
+    },
+
+    isActive : function() {
+        return typeof Reveal !== "undefined";
+    },
+
     configure : function() {
         Reveal.configure({ controls: false, progress: false });
     },
@@ -11,8 +19,8 @@ Reveal.prototype = {
         return Reveal.getTotalSlides();
     },
 
-    isLastSlide : function() {
-        return Reveal.isLastSlide();
+    hasNextSlide : function() {
+        return !Reveal.isLastSlide();
     },
 
     nextSlide : function() {

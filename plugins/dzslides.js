@@ -3,6 +3,14 @@ function DZSlides() {
 
 DZSlides.prototype = {
 
+    getName : function() {
+        return "DZ Slides";
+    },
+
+    isActive : function() {
+        return typeof Dz !== "undefined";
+    },
+
     slideCount : function() {
         var count = 0;
         for (var i = 0; i < Dz.slides.length; i++) {
@@ -12,8 +20,8 @@ DZSlides.prototype = {
         return count;
     },
 
-    isLastSlide : function() {
-        return Dz.idx == Dz.slides.length && Dz.step == Dz.slides[Dz.idx - 1].$$('.incremental > *').length;
+    hasNextSlide : function() {
+        return !(Dz.idx == Dz.slides.length && Dz.step == Dz.slides[Dz.idx - 1].$$('.incremental > *').length);
     },
 
     nextSlide : function() {

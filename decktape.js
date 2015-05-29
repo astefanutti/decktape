@@ -1,6 +1,7 @@
 var page = require("webpage").create(),
     printer = require("printer").create(),
-    system = require('system');
+    system = require("system"),
+    fs = require("fs");
 
 // Node to PhantomJS bridging required for nomnom
 var process = {
@@ -37,8 +38,6 @@ page.viewportSize = { width: opts.width, height: opts.height };
 printer.paperSize = { width: opts.width + "px", height: opts.height + "px", margin: "0px" };
 printer.outputFileName = opts.filename;
 
-var currentSlide, totalSlides;
-
 page.onLoadStarted = function() {
     console.log("Loading page " + opts.url + " ...");
 };
@@ -62,22 +61,29 @@ page.open(opts.url, function(status) {
         console.log("Unable to load the address: " + opts.url);
         phantom.exit(1);
     } else {
-        configure();
+        var plugin = detectActivePlugin();
+        if (!plugin) {
+            // TODO: backend fallback manual support
+            console.log("No DeckTape plugin supported for the address:" + opts.url);
+            phantom.exit(1);
+        }
+        console.log(plugin.getName() + " DeckTape plugin activated");
+        configure(plugin);
         printer.begin();
-        printSlide();
+        printSlide(plugin);
     }
 });
 
-function printSlide() {
+function printSlide(plugin) {
     window.setTimeout(function() {
-        system.stdout.write('\r' + progressBar());
+        system.stdout.write('\r' + progressBar(plugin));
         printer.printPage(page);
-        if (!isLastSlide()) {
-            nextSlide();
-            printSlide();
+        if (hasNextSlide(plugin)) {
+            nextSlide(plugin);
+            printSlide(plugin);
         } else {
             printer.end();
-            system.stdout.write("\nPrinted " + totalSlides + " slides\n");
+            system.stdout.write("\nPrinted " + plugin.totalSlides + " slides\n");
             phantom.exit();
         }
     }, 1000);
@@ -85,14 +91,14 @@ function printSlide() {
 }
 
 // TODO: add progress bar, duration, ETA and file size
-function progressBar() {
+function progressBar(plugin) {
     var cols = [];
     cols.push("Printing slide # ");
-    cols.push(leftPadding(currentSlideIndex(), totalSlides.toString().length + 2, ' '));
+    cols.push(leftPadding(currentSlideIndex(plugin), plugin.totalSlides.toString().length + 2, ' '));
     cols.push(" (");
-    cols.push(leftPadding(currentSlide, totalSlides.toString().length, ' '));
+    cols.push(leftPadding(plugin.currentSlide, plugin.totalSlides.toString().length, ' '));
     cols.push('/');
-    cols.push(totalSlides);
+    cols.push(plugin.totalSlides);
     cols.push(") ...");
     return cols.join('');
 }
@@ -107,30 +113,40 @@ function leftPadding(str, len, char) {
     return p.join('').concat(str);
 }
 
-// TODO: support backend auto-detection
-// TODO: backend fallback manual support
-var decktape = require("./plugins/dzslides");
+function detectActivePlugin() {
+    var plugins = fs.list("plugins/");
+    for (var i = 0; i < plugins.length; i++) {
+        if (!fs.isFile("plugins/" + plugins[i]))
+            continue;
+        var matches = plugins[i].match(/^(.*)\.js$/);
+        if (!matches)
+            continue;
+        var plugin = require("./plugins/" + matches[1]);
+        if (page.evaluate(plugin.isActive))
+            return plugin;
+    }
+}
 
-var configure = function() {
-    currentSlide = 1;
-    totalSlides = slideCount();
-    if (typeof decktape.configure === "function")
-        return page.evaluate(deck.configure);
+var configure = function(plugin) {
+    plugin.currentSlide = 1;
+    plugin.totalSlides = slideCount(plugin);
+    if (typeof plugin.configure === "function")
+        return page.evaluate(plugin.configure);
 };
 
-var slideCount = function() {
-    return page.evaluate(decktape.slideCount);
+var slideCount = function(plugin) {
+    return page.evaluate(plugin.slideCount);
 };
 
-var isLastSlide = function() {
-    return page.evaluate(decktape.isLastSlide);
+var hasNextSlide = function(plugin) {
+    return page.evaluate(plugin.hasNextSlide);
 };
 
-var nextSlide = function() {
-    currentSlide++;
-    return page.evaluate(decktape.nextSlide);
+var nextSlide = function(plugin) {
+    plugin.currentSlide++;
+    return page.evaluate(plugin.nextSlide);
 };
 
-var currentSlideIndex = function() {
-    return page.evaluate(decktape.currentSlideIndex);
+var currentSlideIndex = function(plugin) {
+    return page.evaluate(plugin.currentSlideIndex);
 };
