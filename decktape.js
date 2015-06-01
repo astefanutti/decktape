@@ -83,7 +83,7 @@ function printSlide(plugin) {
             printSlide(plugin);
         } else {
             printer.end();
-            system.stdout.write("\nPrinted " + plugin.totalSlides + " slides\n");
+            system.stdout.write("\nPrinted " + plugin.currentSlide + " slides\n");
             phantom.exit();
         }
     }, 1000);
@@ -96,9 +96,9 @@ function progressBar(plugin) {
     cols.push("Printing slide ");
     cols.push(padding('#' + currentSlideIndex(plugin), 8, ' ', false));
     cols.push(" (");
-    cols.push(padding(plugin.currentSlide, plugin.totalSlides.toString().length, ' '));
+    cols.push(padding(plugin.currentSlide, plugin.totalSlides ? plugin.totalSlides.toString().length : 3, ' '));
     cols.push('/');
-    cols.push(plugin.totalSlides);
+    cols.push(plugin.totalSlides ? plugin.totalSlides : " ?");
     cols.push(") ...");
     return cols.join('');
 }
@@ -110,7 +110,7 @@ function padding(str, len, char, left) {
     var p = [];
     while (l-- > 0)
         p.push(char);
-    return typeof left === "undefined" || left ?
+    return left === undefined || left ?
         p.join('').concat(str) :
         str.concat(p.join(''));
 }

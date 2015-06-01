@@ -16,7 +16,8 @@ Reveal.prototype = {
     },
 
     slideCount : function() {
-        return Reveal.getTotalSlides();
+        // getTotalSlides API is only available starting reveal.js version 3.0.0
+        return typeof Reveal.getTotalSlides === "function" ? Reveal.getTotalSlides() : undefined;
     },
 
     hasNextSlide : function() {
