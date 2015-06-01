@@ -30,7 +30,11 @@ Reveal.prototype = {
 
     currentSlideIndex : function() {
         var indices = Reveal.getIndices();
-        return '/' + indices.h + (indices.v ? '/' + indices.v + (indices.f ? '/' + indices.f : '') : '');
+        var id = Reveal.getCurrentSlide().getAttribute("id");
+        if (typeof id === "string" && id.length)
+            return '/' + id;
+        else
+            return '/' + indices.h + (indices.v ? '/' + indices.v + (indices.f ? '/' + indices.f : '') : '');
     }
 };
 

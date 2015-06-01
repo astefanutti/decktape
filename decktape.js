@@ -93,13 +93,17 @@ function printSlide(plugin) {
 // TODO: add progress bar, duration, ETA and file size
 function progressBar(plugin) {
     var cols = [];
+    var index = currentSlideIndex(plugin);
     cols.push("Printing slide ");
-    cols.push(padding('#' + currentSlideIndex(plugin), 8, ' ', false));
+    cols.push(padding('#' + index, 8, ' ', false));
     cols.push(" (");
     cols.push(padding(plugin.currentSlide, plugin.totalSlides ? plugin.totalSlides.toString().length : 3, ' '));
     cols.push('/');
     cols.push(plugin.totalSlides ? plugin.totalSlides : " ?");
     cols.push(") ...");
+    // erase overflowing slide fragments
+    cols.push(padding("", plugin.progressBarOverflow - Math.max(index.length + 1 - 8, 0), ' ', false));
+    plugin.progressBarOverflow = Math.max(index.length + 1 - 8, 0);
     return cols.join('');
 }
 
@@ -130,6 +134,7 @@ function detectActivePlugin() {
 }
 
 var configure = function(plugin) {
+    plugin.progressBarOverflow = 0;
     plugin.currentSlide = 1;
     plugin.totalSlides = slideCount(plugin);
     if (typeof plugin.configure === "function")
