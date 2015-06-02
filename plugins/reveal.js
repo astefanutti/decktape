@@ -16,6 +16,7 @@ Reveal.prototype = {
     },
 
     slideCount : function() {
+        // TODO: the getTotalSlides API does not report the number of slides accurately as it does not take stacks and some index-less fragments into account
         // getTotalSlides API is only available starting reveal.js version 3.0.0
         return typeof Reveal.getTotalSlides === "function" ? Reveal.getTotalSlides() : undefined;
     },
@@ -34,7 +35,7 @@ Reveal.prototype = {
         if (typeof id === "string" && id.length)
             return '/' + id;
         else
-            return '/' + indices.h + (indices.v ? '/' + indices.v + (indices.f ? '/' + indices.f : '') : '');
+            return '/' + indices.h + (indices.v > 0 ? '/' + indices.v : '');
     }
 };
 
