@@ -31,6 +31,10 @@ var opts = require("./libs/nomnom")
         height: {
             default: 720,
             help: "Height of the slides deck"
+        },
+        pause: {
+            default: 1000,
+            help: "Duration in milliseconds before the next slide is exported"
         }
     } ).parse(system.args);
 
@@ -52,6 +56,7 @@ page.onResourceError = function(resourceError) {
     console.log("|_ Description: " + resourceError.errorString);
 };
 
+// FIXME: PhantomJS is emitting this event for both pages and frames
 page.onLoadFinished = function(status) {
     console.log("Loading page finished with status: " + status);
 };
@@ -86,8 +91,9 @@ function printSlide(plugin) {
             system.stdout.write("\nPrinted " + plugin.currentSlide + " slides\n");
             phantom.exit();
         }
-    }, 1000);
-    // TODO: add a function per backend to wait until a particular condition instead of a timeout
+    }, opts.pause);
+    // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
+    // TODO: add a plugin optional function to wait until a particular condition instead of a pause
 }
 
 // TODO: add progress bar, duration, ETA and file size
