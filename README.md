@@ -2,9 +2,9 @@
 
 DeckTape is a high-quality PDF exporter for HTML5 presentation frameworks. It supports all the features that you would expect from a PDF exporter like font embedding, selectable text, hyperlinks, SVG graphics objects, file compression.
 
-DeckTape is built on top of [PhantomJS](www.phantomjs.org) which relies on [WebKit Qt](https://wiki.qt.io/Qt_WebKit) for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
+DeckTape is built on top of [PhantomJS](http://phantomjs.org) which relies on [WebKit Qt](https://wiki.qt.io/Qt_WebKit) for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
 
-DeckTape currently supports the [reveal.js](http://lab.hakim.se/reveal-js) and [DZSlides](https://github.com/paulrouget/dzslides) presentation frameworks. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
+DeckTape currently supports the [reveal.js](http://lab.hakim.se/reveal-js) and [DZSlides](http://paulrouget.com/dzslides/) presentation frameworks. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
 
 You can browse some slide deck [examples](#examples) below that have been exported with DeckTape.
 
@@ -76,8 +76,8 @@ The following slide deck examples have been exported using DeckTape:
 | HTML5 Presentation                                             | Framework              | Exported PDF                               |
 | -------------------------------------------------------------- | ---------------------- | ------------------------------------------ |
 | [Beyond Rectangles in Web Design][fowd-nyc-2014]               | reveal.js `2.6.2`      | [fowd-nyc-2014.pdf][] (14Mb)               |
-| [Getting Involved in Open Source][opensource-getting-involved] | reveal.js `3.0.0`      | [opensource-getting-involved.pdf][] (1.8M) |
-| [Going Further with CDI][going-further-with-cdi]               | Asciidoctor + DZSlides | [going-further-with-cdi.pdf][] (1.1M)      |
+| [Getting Involved in Open Source][opensource-getting-involved] | reveal.js `3.0.0`      | [opensource-getting-involved.pdf][] (1.1M) |
+| [Going Further with CDI][going-further-with-cdi]               | Asciidoctor + DZSlides | [going-further-with-cdi.pdf][] (1.8M)      |
 
 [fowd-nyc-2014]: http://razvancaliman.com/fowd-nyc-2014
 [fowd-nyc-2014.pdf]: https://astefanutti.github.io/decktape/examples/fowd-nyc-2014.pdf
