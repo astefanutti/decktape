@@ -80,9 +80,9 @@ The following slide deck examples have been exported using DeckTape:
 
 | HTML5 Presentation                                             | Framework              | Exported PDF                               |
 | -------------------------------------------------------------- | ---------------------- | ------------------------------------------ |
-| [Beyond Rectangles in Web Design][fowd-nyc-2014]               | reveal.js `2.6.2`      | [fowd-nyc-2014.pdf][] (14Mb)               |
-| [Getting Involved in Open Source][opensource-getting-involved] | reveal.js `3.0.0`      | [opensource-getting-involved.pdf][] (1.1M) |
-| [Going Further with CDI][going-further-with-cdi]               | Asciidoctor + DZSlides | [going-further-with-cdi.pdf][] (1.8M)      |
+| [Beyond Rectangles in Web Design][fowd-nyc-2014]               | reveal.js `2.6.2`      | [fowd-nyc-2014.pdf][] (14MB)               |
+| [Getting Involved in Open Source][opensource-getting-involved] | reveal.js `3.0.0`      | [opensource-getting-involved.pdf][] (0.8MB) |
+| [Going Further with CDI][going-further-with-cdi]               | Asciidoctor + DZSlides | [going-further-with-cdi.pdf][] (1.8MB)      |
 
 [fowd-nyc-2014]: http://razvancaliman.com/fowd-nyc-2014
 [fowd-nyc-2014.pdf]: https://astefanutti.github.io/decktape/examples/fowd-nyc-2014.pdf
