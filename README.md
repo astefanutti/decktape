@@ -11,19 +11,18 @@ You can browse some slide deck [examples](#examples) below that have been export
 ## Install
 
 1. Clone DeckTape Git repository:
-    ```
-    git clone https://github.com/astefanutti/decktape.git
-    ```
+
+        git clone https://github.com/astefanutti/decktape.git
+
 2. Change into the `decktape` directory:
-    ```
-    cd decktape
-    ```
-3. Dowload PhantomJS executable:
-    DeckTape currently depends on a [forked version](https://github.com/astefanutti/phantomjs/commits/poc) of PhantomJS. You can get the corresponding binaries for the platforms above:
-    ```
-    # Windows (MSVC 2013), 64-bit, for Windows Vista or later, bundles VC++ Runtime 2013:
-    wget http://astefanutti.github.io/decktape/downloads/phantomjs-msvc2013-win64.exe
-    ```
+
+        cd decktape
+
+3. Dowload PhantomJS executable: DeckTape currently depends on a [forked version](https://github.com/astefanutti/phantomjs/commits/poc) of PhantomJS. You can get the corresponding binaries for the platforms above:
+
+        # Windows (MSVC 2013), 64-bit, for Windows Vista or later, bundles VC++ Runtime 2013:
+        wget http://astefanutti.github.io/decktape/downloads/phantomjs-msvc2013-win64.exe
+
     If the executable isn't available for your target plaform, see the [Build](#build) section and follow the instructions.
 
 ## Usage
@@ -49,21 +48,20 @@ Options:
 To build the [forked version](https://github.com/astefanutti/phantomjs/commits/poc) of PhantomJS whose DeckTape relies on, you have to execute the following commands from the DeckTape install directory:
 
 1. Initialize the `phantomjs` submodule:
-    ```
-    git submodule init
-    ```
+
+        git submodule init
+
 2. Pull down the `phantomjs` files:
-    ```
-    git submodule udpdate
-    ```
+
+        git submodule udpdate
+
 3. Change into the `phantomjs` directory:
-    ```
-    cd phantomjs
-    ```
+
+        cd phantomjs
+
 4. Launch the build script:
-    ```
-    build
-    ```
+
+        build
 
 More information can be found in [Compiling PhantomJS from source](http://phantomjs.org/build.html) and in [Building Qt 5 from Git](https://wiki.qt.io/Building_Qt_5_from_Git).
 
