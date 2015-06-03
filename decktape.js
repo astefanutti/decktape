@@ -61,6 +61,11 @@ page.onLoadFinished = function(status) {
     console.log("Loading page finished with status: " + status);
 };
 
+// Must be set before the page is opened
+page.onConsoleMessage = function(msg) {
+    console.log(msg);
+};
+
 page.open(opts.url, function(status) {
     if (status !== "success") {
         console.log("Unable to load the address: " + opts.url);
@@ -69,7 +74,7 @@ page.open(opts.url, function(status) {
         var plugin = detectActivePlugin();
         if (!plugin) {
             // TODO: backend fallback manual support
-            console.log("No DeckTape plugin supported for the address:" + opts.url);
+            console.log("No DeckTape plugin supported for the address: " + opts.url);
             phantom.exit(1);
         }
         console.log(plugin.getName() + " DeckTape plugin activated");

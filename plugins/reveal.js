@@ -8,7 +8,15 @@ Reveal.prototype = {
     },
 
     isActive : function() {
-        return typeof Reveal !== "undefined";
+        if (typeof Reveal === "undefined")
+            return false;
+
+        if (!(typeof Reveal.isLastSlide === "function")) {
+            console.log("Reveal JS plugin isn't compatible with reveal.js version < 2.3.0");
+            return false;
+        }
+
+        return true;
     },
 
     configure : function() {
