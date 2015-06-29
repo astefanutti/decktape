@@ -157,7 +157,10 @@ var slideCount = function(plugin) {
 };
 
 var hasNextSlide = function(plugin) {
-    return page.evaluate(plugin.hasNextSlide);
+    if (typeof plugin.hasNextSlide === "function")
+        return page.evaluate(plugin.hasNextSlide);
+    else
+        return plugin.currentSlide < plugin.totalSlides;
 };
 
 var nextSlide = function(plugin) {
