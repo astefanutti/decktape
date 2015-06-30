@@ -18,7 +18,7 @@ Impress.prototype = {
     },
 
     slideCount : function() {
-        return document.getElementById("impress").querySelectorAll(".step").length;
+        return document.querySelectorAll("#impress .step, #impress .substep").length;
     },
 
     nextSlide : function() {
