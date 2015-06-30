@@ -8,7 +8,13 @@ Impress.prototype = {
     },
 
     isActive : function() {
-        return typeof impress === "function";
+        if (typeof impress === "function")
+            return true;
+
+        if (document.getElementById("impress"))
+            console.log("Impress JS plugin isn't compatible with impress.js version < 0.3.0");
+
+        return false;
     },
 
     slideCount : function() {
