@@ -4,7 +4,7 @@ DeckTape is a high-quality PDF exporter for HTML5 presentation frameworks. It su
 
 DeckTape is built on top of [PhantomJS](http://phantomjs.org) which relies on [WebKit Qt](https://wiki.qt.io/Qt_WebKit) for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
 
-DeckTape currently supports the [deck.js](http://imakewebthings.com/deck.js/), [impress.js](http://impress.github.io/impress.js), [reveal.js](http://lab.hakim.se/reveal-js) and [DZSlides](http://paulrouget.com/dzslides/) presentation frameworks out-of-the-box. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
+DeckTape currently supports the [deck.js](http://imakewebthings.com/deck.js/), [flowtime.js](http://flowtime-js.marcolago.com), [impress.js](http://impress.github.io/impress.js), [reveal.js](http://lab.hakim.se/reveal-js) and [DZSlides](http://paulrouget.com/dzslides/) presentation frameworks out-of-the-box. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
 
 You can browse some slide deck [examples](#examples) below that have been exported with DeckTape.
 
@@ -84,6 +84,7 @@ The following slide deck examples have been exported using DeckTape:
 | [Going Further with CDI][going-further-with-cdi]               | Asciidoctor + DZSlides | [going-further-with-cdi.pdf][] (1.8MB)      |
 | [Transactions for the REST of us][soa-cloud-rest-tcc]          | impress.js `0.5.3`     | [soa-cloud-rest-tcc.pdf][] (10MB)           |
 | [Deck.js Modern HTML Presentations][deck-js-presentation]      | deck.js `1.1.0`        | [deck-js-presentation.pdf][] (1.1MB)        |
+| [Flowtime.js Presentation Framework][flowtime-js-presentation] | flowtime.js            | [flowtime-js-presentation.pdf][] (7.5MB)    |
 
 [fowd-nyc-2014]: http://razvancaliman.com/fowd-nyc-2014
 [fowd-nyc-2014.pdf]: https://astefanutti.github.io/decktape/examples/fowd-nyc-2014.pdf
@@ -95,3 +96,5 @@ The following slide deck examples have been exported using DeckTape:
 [soa-cloud-rest-tcc.pdf]: https://astefanutti.github.io/decktape/examples/soa-cloud-rest-tcc.pdf
 [deck-js-presentation]: http://imakewebthings.com/deck.js/
 [deck-js-presentation.pdf]: https://astefanutti.github.io/decktape/examples/deck-js-presentation.pdf
+[flowtime-js-presentation]: http://flowtime-js.marcolago.com
+[flowtime-js-presentation.pdf]: https://astefanutti.github.io/decktape/examples/flowtime-js-presentation.pdf
