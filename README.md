@@ -4,7 +4,7 @@ DeckTape is a high-quality PDF exporter for HTML5 presentation frameworks. It su
 
 DeckTape is built on top of [PhantomJS](http://phantomjs.org) which relies on [WebKit Qt](https://wiki.qt.io/Qt_WebKit) for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
 
-DeckTape currently supports the [reveal.js](http://lab.hakim.se/reveal-js), [impress.js](http://impress.github.io/impress.js) and [DZSlides](http://paulrouget.com/dzslides/) presentation frameworks. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
+DeckTape currently supports the [deck.js](http://imakewebthings.com/deck.js/), [impress.js](http://impress.github.io/impress.js), [reveal.js](http://lab.hakim.se/reveal-js) and [DZSlides](http://paulrouget.com/dzslides/) presentation frameworks out-of-the-box. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
 
 You can browse some slide deck [examples](#examples) below that have been exported with DeckTape.
 
