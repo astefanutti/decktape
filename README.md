@@ -83,6 +83,7 @@ The following slide deck examples have been exported using DeckTape:
 | [Getting Involved in Open Source][opensource-getting-involved] | reveal.js `3.0.0`      | [opensource-getting-involved.pdf][] (0.8MB) |
 | [Going Further with CDI][going-further-with-cdi]               | Asciidoctor + DZSlides | [going-further-with-cdi.pdf][] (1.8MB)      |
 | [Transactions for the REST of us][soa-cloud-rest-tcc]          | impress.js `0.5.3`     | [soa-cloud-rest-tcc.pdf][] (10MB)           |
+| [Deck.js Modern HTML Presentations][deck-js-presentation]      | deck.js `1.1.0`        | [deck-js-presentation.pdf][] (1.1MB)        |
 
 [fowd-nyc-2014]: http://razvancaliman.com/fowd-nyc-2014
 [fowd-nyc-2014.pdf]: https://astefanutti.github.io/decktape/examples/fowd-nyc-2014.pdf
@@ -92,3 +93,5 @@ The following slide deck examples have been exported using DeckTape:
 [going-further-with-cdi.pdf]: https://astefanutti.github.io/decktape/examples/going-further-with-cdi.pdf
 [soa-cloud-rest-tcc]: http://www.inf.usi.ch/faculty/pautasso/talks/2012/soa-cloud-rest-tcc/rest-tcc.html
 [soa-cloud-rest-tcc.pdf]: https://astefanutti.github.io/decktape/examples/soa-cloud-rest-tcc.pdf
+[deck-js-presentation]: http://imakewebthings.com/deck.js/
+[deck-js-presentation.pdf]: https://astefanutti.github.io/decktape/examples/deck-js-presentation.pdf
