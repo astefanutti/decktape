@@ -34,7 +34,7 @@ Reveal.prototype = {
     },
 
     nextSlide : function() {
-        return Reveal.next();
+        Reveal.next();
     },
 
     currentSlideIndex : function() {

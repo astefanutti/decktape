@@ -22,7 +22,7 @@ Impress.prototype = {
     },
 
     nextSlide : function() {
-        return impress().next();
+        impress().next();
     },
 
     currentSlideIndex : function() {

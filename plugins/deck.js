@@ -16,7 +16,7 @@ Deck.prototype = {
     },
 
     nextSlide : function() {
-        return $.deck("next");
+        $.deck("next");
     },
 
     currentSlideIndex : function() {

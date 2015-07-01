@@ -25,7 +25,7 @@ DZSlides.prototype = {
     },
 
     nextSlide : function() {
-        return Dz.forward();
+        Dz.forward();
     },
 
     currentSlideIndex : function() {
