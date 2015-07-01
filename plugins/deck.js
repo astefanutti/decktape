@@ -8,7 +8,7 @@ Deck.prototype = {
     },
 
     isActive : function() {
-        return typeof $.deck === "function";
+        return typeof $ === "function" && typeof $.deck === "function";
     },
 
     slideCount : function() {
