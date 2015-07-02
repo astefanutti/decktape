@@ -4,7 +4,7 @@ DeckTape is a high-quality PDF exporter for HTML5 presentation frameworks. It su
 
 DeckTape is built on top of [PhantomJS](http://phantomjs.org) which relies on [WebKit Qt](https://wiki.qt.io/Qt_WebKit) for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
 
-DeckTape currently supports the [deck.js](http://imakewebthings.com/deck.js/), [flowtime.js](http://flowtime-js.marcolago.com), [impress.js](http://impress.github.io/impress.js), [remark.js](http://remarkjs.com), [reveal.js](http://lab.hakim.se/reveal-js) and [DZSlides](http://paulrouget.com/dzslides/) presentation frameworks out-of-the-box. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
+DeckTape currently supports the [deck.js](http://imakewebthings.com/deck.js/), [DZSlides](http://paulrouget.com/dzslides/), [flowtime.js](http://flowtime-js.marcolago.com), [HTML Slidy](http://www.w3.org/Talks/Tools/), [impress.js](http://impress.github.io/impress.js), [remark.js](http://remarkjs.com) and [reveal.js](http://lab.hakim.se/reveal-js) presentation frameworks out-of-the-box. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
 
 You can browse some slide deck [examples](#examples) below that have been exported with DeckTape.
 
@@ -77,15 +77,16 @@ More information can be found in [Compiling PhantomJS from source](http://phanto
 
 The following slide deck examples have been exported using DeckTape:
 
-| HTML5 Presentation                                             | Framework              | Exported PDF                                |
-| -------------------------------------------------------------- | ---------------------- | ------------------------------------------- |
-| [Beyond Rectangles in Web Design][fowd-nyc-2014]               | reveal.js `2.6.2`      | [fowd-nyc-2014.pdf][] (14MB)                |
-| [Getting Involved in Open Source][opensource-getting-involved] | reveal.js `3.0.0`      | [opensource-getting-involved.pdf][] (0.8MB) |
-| [Going Further with CDI][going-further-with-cdi]               | Asciidoctor + DZSlides | [going-further-with-cdi.pdf][] (1.8MB)      |
-| [Transactions for the REST of us][soa-cloud-rest-tcc]          | impress.js `0.5.3`     | [soa-cloud-rest-tcc.pdf][] (10MB)           |
-| [Deck.js Modern HTML Presentations][deck-js-presentation]      | deck.js `1.1.0`        | [deck-js-presentation.pdf][] (1.1MB)        |
-| [Flowtime.js Presentation Framework][flowtime-js-presentation] | flowtime.js            | [flowtime-js-presentation.pdf][] (7.5MB)    |
-| [The Official Remark Slideshow][remark-js-slideshow]           | remark.js `0.11.0`     | [remark-js-slideshow.pdf][] (0.7MB)         |
+| HTML5 Presentation                                                   | Framework              | Exported PDF                                |
+| -------------------------------------------------------------------- | ---------------------- | ------------------------------------------- |
+| [Beyond Rectangles in Web Design][fowd-nyc-2014]                     | reveal.js `2.6.2`      | [fowd-nyc-2014.pdf][] (14MB)                |
+| [Getting Involved in Open Source][opensource-getting-involved]       | reveal.js `3.0.0`      | [opensource-getting-involved.pdf][] (0.8MB) |
+| [Going Further with CDI][going-further-with-cdi]                     | Asciidoctor + DZSlides | [going-further-with-cdi.pdf][] (1.8MB)      |
+| [Transactions for the REST of us][soa-cloud-rest-tcc]                | impress.js `0.5.3`     | [soa-cloud-rest-tcc.pdf][] (10MB)           |
+| [Deck.js Modern HTML Presentations][deck-js-presentation]            | deck.js `1.1.0`        | [deck-js-presentation.pdf][] (1.1MB)        |
+| [Flowtime.js Presentation Framework][flowtime-js-presentation]       | flowtime.js            | [flowtime-js-presentation.pdf][] (7.5MB)    |
+| [The Official Remark Slideshow][remark-js-slideshow]                 | remark.js `0.11.0`     | [remark-js-slideshow.pdf][] (0.7MB)         |
+| [HTML Slidy: Slide Shows in HTML and XHTML][html-slidy-presentation] | HTML Slidy             | [html-slidy-presentation.pdf][] (0.5MB)     |
 
 [fowd-nyc-2014]: http://razvancaliman.com/fowd-nyc-2014
 [fowd-nyc-2014.pdf]: https://astefanutti.github.io/decktape/examples/fowd-nyc-2014.pdf
@@ -101,3 +102,5 @@ The following slide deck examples have been exported using DeckTape:
 [flowtime-js-presentation.pdf]: https://astefanutti.github.io/decktape/examples/flowtime-js-presentation.pdf
 [remark-js-slideshow]: http://remarkjs.com
 [remark-js-slideshow.pdf]: https://astefanutti.github.io/decktape/examples/remark-js-slideshow.pdf
+[html-slidy-presentation]: http://www.w3.org/Talks/Tools/Slidy/
+[html-slidy-presentation.pdf]: https://astefanutti.github.io/decktape/examples/html-slidy-presentation.pdf
