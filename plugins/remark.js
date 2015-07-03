@@ -9,7 +9,7 @@ Remark.prototype = {
     },
 
     isActive : function() {
-        return typeof slideshow === "object";
+        return typeof remark == "object" && slideshow === "object";
     },
 
     slideCount : function() {
