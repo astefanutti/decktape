@@ -4,7 +4,7 @@ DeckTape is a high-quality PDF exporter for HTML5 presentation frameworks. It su
 
 DeckTape is built on top of [PhantomJS](http://phantomjs.org) which relies on [WebKit Qt](https://wiki.qt.io/Qt_WebKit) for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
 
-DeckTape currently supports the [CSSS](http://leaverou.github.io/csss/), [deck.js](http://imakewebthings.com/deck.js/), [DZSlides](http://paulrouget.com/dzslides/), [flowtime.js](http://flowtime-js.marcolago.com), [HTML Slidy](http://www.w3.org/Talks/Tools/), [impress.js](http://impress.github.io/impress.js), [remark.js](http://remarkjs.com) and [reveal.js](http://lab.hakim.se/reveal-js) presentation frameworks out-of-the-box. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
+DeckTape currently supports the [CSSS](http://leaverou.github.io/csss/), [deck.js](http://imakewebthings.com/deck.js/), [DZSlides](http://paulrouget.com/dzslides/), [flowtime.js](http://flowtime-js.marcolago.com), [HTML Slidy](http://www.w3.org/Talks/Tools/), [impress.js](http://impress.github.io/impress.js), [remark.js](http://remarkjs.com), [reveal.js](http://lab.hakim.se/reveal-js) and [Shower](http://shwr.me/) presentation frameworks out-of-the-box. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
 
 You can browse some slide deck [examples](#examples) below that have been exported with DeckTape.
 
@@ -88,6 +88,7 @@ The following slide deck examples have been exported using DeckTape:
 | [The Official Remark Slideshow][remark-js-slideshow]                 | remark.js `0.11.0`     | [remark-js-slideshow.pdf][] (0.7MB)         |
 | [HTML Slidy: Slide Shows in HTML and XHTML][html-slidy-presentation] | HTML Slidy             | [html-slidy-presentation.pdf][] (0.5MB)     |
 | [CSSS: CSS-based SlideShow System][csss-sample-slideshow]            | CSSS                   | [csss-sample-slideshow.pdf][] (13.5MB)      |
+| [Shower Presentation Engine][shower-presentation-engine]             | Shower                 | [shower-presentation-engine.pdf][] (0.4MB)  |
 
 [fowd-nyc-2014]: http://razvancaliman.com/fowd-nyc-2014
 [fowd-nyc-2014.pdf]: https://astefanutti.github.io/decktape/examples/fowd-nyc-2014.pdf
@@ -107,3 +108,5 @@ The following slide deck examples have been exported using DeckTape:
 [html-slidy-presentation.pdf]: https://astefanutti.github.io/decktape/examples/html-slidy-presentation.pdf
 [csss-sample-slideshow]: http://leaverou.github.io/csss/
 [csss-sample-slideshow.pdf]: https://astefanutti.github.io/decktape/examples/csss-sample-slideshow.pdf
+[shower-presentation-engine]: http://shwr.me/?full
+[shower-presentation-engine.pdf]: https://astefanutti.github.io/decktape/examples/shower-presentation-engine.pdf
