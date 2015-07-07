@@ -51,19 +51,15 @@ Options:
 
 To build the [forked version](https://github.com/astefanutti/phantomjs/commits/poc) of PhantomJS whose DeckTape relies on, you have to execute the following commands from the DeckTape install directory:
 
-1. Initialize the `phantomjs` submodule:
+1. Initialize and check out the `phantomjs` submodule:
 
-        git submodule init
+        git submodule update --init
 
-2. Pull down the `phantomjs` files:
-
-        git submodule udpdate
-
-3. Change into the `phantomjs` directory:
+2. Change into the `phantomjs` directory:
 
         cd phantomjs
 
-4. Launch the build script:
+3. Launch the build script:
 
         build
 
