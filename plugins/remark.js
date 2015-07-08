@@ -1,4 +1,5 @@
-function Remark() {
+function Remark(page) {
+    this.page = page;
 }
 
 // TODO: improve backward compatibility (e.g. getCurrentSlideIndex was getCurrentSlideNo in earlier versions)
@@ -9,24 +10,36 @@ Remark.prototype = {
     },
 
     isActive : function() {
-        return typeof remark == "object" && slideshow === "object";
+        return page.evaluate(function() {
+            return typeof remark == "object" && slideshow === "object";
+        });
     },
 
     slideCount : function() {
-        return slideshow.getSlideCount();
+        return page.evaluate(function() {
+            return slideshow.getSlideCount();
+        });
     },
 
     hasNextSlide : function() {
-        return slideshow.getCurrentSlideIndex() + 1 < slideshow.getSlideCount();
+        return page.evaluate(function() {
+            return slideshow.getCurrentSlideIndex() + 1 < slideshow.getSlideCount();
+        });
     },
 
     nextSlide : function() {
-        slideshow.gotoNextSlide();
+        page.evaluate(function() {
+            slideshow.gotoNextSlide();
+        });
     },
 
     currentSlideIndex : function() {
-        return slideshow.getCurrentSlideIndex() + 1;
+        return page.evaluate(function() {
+            return slideshow.getCurrentSlideIndex() + 1;
+        });
     }
 };
 
-module.exports = new Remark();
+exports.create = function(page) {
+    return new Remark(page);
+};

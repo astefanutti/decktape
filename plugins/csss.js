@@ -1,4 +1,5 @@
-function CSSS() {
+function CSSS(page) {
+    this.page = page;
 }
 
 CSSS.prototype = {
@@ -8,29 +9,43 @@ CSSS.prototype = {
     },
 
     isActive : function() {
-        // Need to avoid global variable name collision with remark.js
-        return typeof remark === "undefined" && typeof slideshow === "object";
+        return page.evaluate(function() {
+            // Avoid global variable name collision with remark.js
+            return typeof remark === "undefined" && typeof slideshow === "object";
+        });
     },
 
     configure : function() {
-        document.getElementById("timer").style.display = "none";
+        page.evaluate(function() {
+            document.getElementById("timer").style.display = "none";
+        });
     },
 
     slideCount : function() {
-        return document.querySelectorAll(".slide, .delayed, .delayed-children > *").length;
+        return page.evaluate(function() {
+            return document.querySelectorAll(".slide, .delayed, .delayed-children > *").length;
+        });
     },
 
     hasNextSlide : function() {
-        return (slideshow.index + 1) in slideshow.slides;
+        return page.evaluate(function() {
+            return (slideshow.index + 1) in slideshow.slides;
+        });
     },
 
     nextSlide : function() {
-        slideshow.next(false);
+        page.evaluate(function() {
+            slideshow.next(false);
+        });
     },
 
     currentSlideIndex : function() {
-        return slideshow.slides[slideshow.slide].id;
+        return page.evaluate(function() {
+            return slideshow.slides[slideshow.slide].id;
+        });
     }
 };
 
-module.exports = new CSSS();
+exports.create = function(page) {
+    return new CSSS(page);
+};

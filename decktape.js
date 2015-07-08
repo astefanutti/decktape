@@ -3,6 +3,8 @@ var page = require("webpage").create(),
     system = require("system"),
     fs = require("fs");
 
+var Promise = require("./libs/promise");
+
 // Node to PhantomJS bridging required for nomnom
 var process = {
     exit : function(code) {
@@ -10,7 +12,9 @@ var process = {
     }
 };
 
-var opts = require("./libs/nomnom")
+var plugins = loadAvailablePlugins();
+
+var parser = require("./libs/nomnom")
     .nocolors()
     .script("phantomjs decktape.js")
     .options( {
@@ -36,14 +40,27 @@ var opts = require("./libs/nomnom")
             default: 1000,
             help: "Duration in milliseconds before the next slide is exported"
         }
-    } ).parse(system.args);
+    } );
+parser.nocommand()
+    .help("Exports the deck using the automatically detected compatible plugin (automatic)");
+parser.command("automatic")
+    .help("Exports the deck using the automatically detected compatible plugin");
+Object.keys(plugins).forEach(function(id) {
+    var command = parser.command(id);
+    if (typeof plugins[id].options === "object")
+        command.options(plugins[id].options);
+    if (typeof plugins[id].help === "string")
+        command.help(plugins[id].help);
+});
 
-page.viewportSize = { width: opts.width, height: opts.height };
-printer.paperSize = { width: opts.width + "px", height: opts.height + "px", margin: "0px" };
-printer.outputFileName = opts.filename;
+var options = parser.parse(system.args.slice(1));
+
+page.viewportSize = { width: options.width, height: options.height };
+printer.paperSize = { width: options.width + "px", height: options.height + "px", margin: "0px" };
+printer.outputFileName = options.filename;
 
 page.onLoadStarted = function() {
-    console.log("Loading page " + opts.url + " ...");
+    console.log("Loading page " + options.url + " ...");
 };
 
 page.onResourceTimeout = function(request) {
@@ -56,7 +73,7 @@ page.onResourceError = function(resourceError) {
     console.log("|_ Description: " + resourceError.errorString);
 };
 
-// FIXME: PhantomJS is emitting this event for both pages and frames
+// PhantomJS emits this event for both pages and frames
 page.onLoadFinished = function(status) {
     console.log("Loading page finished with status: " + status);
 };
@@ -66,16 +83,24 @@ page.onConsoleMessage = function(msg) {
     console.log(msg);
 };
 
-page.open(opts.url, function(status) {
+page.open(options.url, function(status) {
     if (status !== "success") {
-        console.log("Unable to load the address: " + opts.url);
+        console.log("Unable to load the address: " + options.url);
         phantom.exit(1);
     } else {
-        var plugin = detectActivePlugin();
-        if (!plugin) {
-            // TODO: backend fallback manual support
-            console.log("No DeckTape plugin supported for the address: " + opts.url);
-            phantom.exit(1);
+        var plugin;
+        if (!options.command || options.command === "automatic") {
+            plugin = createActivePlugin();
+            if (!plugin) {
+                console.log("No supported DeckTape plugin detected, falling back to generic plugin");
+                plugin = plugins["generic"].create(page, options);
+            }
+        } else {
+            plugin = plugins[options.command].create(page, options);
+            if (!plugin.isActive()) {
+                console.log("Unable to activate the " + plugin.getName() + " DeckTape plugin for the address: " + options.url);
+                phantom.exit(1);
+            }
         }
         console.log(plugin.getName() + " DeckTape plugin activated");
         configure(plugin);
@@ -84,11 +109,37 @@ page.open(opts.url, function(status) {
     }
 });
 
+function loadAvailablePlugins() {
+    var plugins = {};
+    fs.list("plugins/").forEach(function(script) {
+        if (fs.isFile("plugins/" + script)) {
+            var matches = script.match(/^(.*)\.js$/);
+            if (matches)
+                plugins[matches[1]] = require("./plugins/" + matches[1]);
+        }
+    });
+    return plugins;
+}
+
+function createActivePlugin() {
+    for (var id in plugins) {
+        if (id === "generic")
+            continue;
+        var plugin = plugins[id].create(page, options);
+        if (plugin.isActive())
+            return plugin;
+    }
+}
+
 function printSlide(plugin) {
-    window.setTimeout(function() {
-        system.stdout.write('\r' + progressBar(plugin));
-        printer.printPage(page);
-        if (hasNextSlide(plugin)) {
+    system.stdout.write('\r' + progressBar(plugin));
+    // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
+    // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
+    delay(options.pause)
+    .then(function() { printer.printPage(page) })
+    .then(function() { return hasNextSlide(plugin) })
+    .then(function(hasNext) {
+        if (hasNext) {
             nextSlide(plugin);
             printSlide(plugin);
         } else {
@@ -96,9 +147,7 @@ function printSlide(plugin) {
             system.stdout.write("\nPrinted " + plugin.currentSlide + " slides\n");
             phantom.exit();
         }
-    }, opts.pause);
-    // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
-    // TODO: add a plugin optional function to wait until a particular condition instead of a pause
+    });
 }
 
 // TODO: add progress bar, duration, ETA and file size
@@ -130,18 +179,12 @@ function padding(str, len, char, left) {
         str.concat(p.join(''));
 }
 
-function detectActivePlugin() {
-    var plugins = fs.list("plugins/");
-    for (var i = 0; i < plugins.length; i++) {
-        if (!fs.isFile("plugins/" + plugins[i]))
-            continue;
-        var matches = plugins[i].match(/^(.*)\.js$/);
-        if (!matches)
-            continue;
-        var plugin = require("./plugins/" + matches[1]);
-        if (page.evaluate(plugin.isActive))
-            return plugin;
-    }
+function delay(time) {
+    return new Promise(function (fulfill) {
+        setTimeout(function() {
+            fulfill();
+        }, time);
+    });
 }
 
 var configure = function(plugin) {
@@ -149,25 +192,25 @@ var configure = function(plugin) {
     plugin.currentSlide = 1;
     plugin.totalSlides = slideCount(plugin);
     if (typeof plugin.configure === "function")
-        return page.evaluate(plugin.configure);
+        return plugin.configure();
 };
 
 var slideCount = function(plugin) {
-    return page.evaluate(plugin.slideCount);
+    return plugin.slideCount();
 };
 
 var hasNextSlide = function(plugin) {
     if (typeof plugin.hasNextSlide === "function")
-        return page.evaluate(plugin.hasNextSlide);
+        return plugin.hasNextSlide();
     else
         return plugin.currentSlide < plugin.totalSlides;
 };
 
 var nextSlide = function(plugin) {
     plugin.currentSlide++;
-    return page.evaluate(plugin.nextSlide);
+    return plugin.nextSlide();
 };
 
 var currentSlideIndex = function(plugin) {
-    return page.evaluate(plugin.currentSlideIndex);
+    return plugin.currentSlideIndex();
 };

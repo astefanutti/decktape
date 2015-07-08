@@ -1,4 +1,5 @@
-function Flowtime() {
+function Flowtime(page) {
+    this.page = page;
 }
 
 Flowtime.prototype = {
@@ -8,12 +9,16 @@ Flowtime.prototype = {
     },
 
     isActive : function() {
-        return typeof Flowtime === "object";
+        return page.evaluate(function() {
+            return typeof Flowtime === "object";
+        });
     },
 
     configure : function() {
-        Flowtime.showProgress(false);
-        Flowtime.loop(false);
+        page.evaluate(function() {
+            Flowtime.showProgress(false);
+            Flowtime.loop(false);
+        });
     },
 
     slideCount : function() {
@@ -21,16 +26,24 @@ Flowtime.prototype = {
     },
 
     hasNextSlide : function() {
-        return Flowtime.getNextPage() || Flowtime.getNextSection();
+        return page.evaluate(function() {
+            return Flowtime.getNextPage() || Flowtime.getNextSection();
+        });
     },
 
     nextSlide : function() {
-        Flowtime.next();
+        page.evaluate(function() {
+            Flowtime.next();
+        });
     },
 
     currentSlideIndex : function() {
-        return "/section-" + (Flowtime.getSectionIndex() + 1) + "/page-" + (Flowtime.getPageIndex() + 1);
+        return page.evaluate(function() {
+            return "/section-" + (Flowtime.getSectionIndex() + 1) + "/page-" + (Flowtime.getPageIndex() + 1);
+        });
     }
 };
 
-module.exports = new Flowtime();
+exports.create = function(page) {
+    return new Flowtime(page);
+};

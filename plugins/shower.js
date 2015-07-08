@@ -1,4 +1,5 @@
-function Shower() {
+function Shower(page) {
+    this.page = page;
 }
 
 Shower.prototype = {
@@ -8,30 +9,44 @@ Shower.prototype = {
     },
 
     isActive : function() {
-        return typeof shower === "object";
+        return page.evaluate(function() {
+            return typeof shower === "object";
+        });
     },
 
     configure : function() {
-        shower.showPresenterNotes = function () {};
-        shower.first();
-        shower.enterSlideMode();
+        page.evaluate(function() {
+            shower.showPresenterNotes = function () {};
+            shower.first();
+            shower.enterSlideMode();
+        });
     },
 
     slideCount : function() {
-        return shower.slideList.length;
+        return page.evaluate(function() {
+            return shower.slideList.length;
+        });
     },
 
     hasNextSlide : function() {
-        return (shower.getCurrentSlideNumber() + 1) in shower.slideList;
+        return page.evaluate(function() {
+            return (shower.getCurrentSlideNumber() + 1) in shower.slideList;
+        });
     },
 
     nextSlide : function() {
-        shower.next();
+        page.evaluate(function() {
+            shower.next();
+        });
     },
 
     currentSlideIndex : function() {
-        return shower.getSlideHash(shower.getCurrentSlideNumber()).substring(1);
+        return page.evaluate(function() {
+            return shower.getSlideHash(shower.getCurrentSlideNumber()).substring(1);
+        });
     }
 };
 
-module.exports = new Shower();
+exports.create = function(page) {
+    return new Shower(page);
+};

@@ -1,4 +1,5 @@
-function DZSlides() {
+function DZSlides(page) {
+    this.page = page;
 }
 
 DZSlides.prototype = {
@@ -8,29 +9,39 @@ DZSlides.prototype = {
     },
 
     isActive : function() {
-        return typeof Dz !== "undefined";
+        return page.evaluate(function() {
+            return typeof Dz !== "undefined";
+        });
     },
 
     slideCount : function() {
-        var count = 0;
-        for (var i = 0; i < Dz.slides.length; i++) {
-            var fragments = Dz.slides[i].$$('.incremental > *').length;
-            count += fragments ? fragments + 1 : 1;
-        }
-        return count;
+        return page.evaluate(function() {
+            return Dz.slides.reduce(function(count, slide) {
+                var fragments = slide.$$('.incremental > *').length;
+                return count + (fragments ? fragments + 1 : 1);
+            }, 0);
+        });
     },
 
     hasNextSlide : function() {
-        return !(Dz.idx == Dz.slides.length && Dz.step == Dz.slides[Dz.idx - 1].$$('.incremental > *').length);
+        return page.evaluate(function() {
+            return !(Dz.idx == Dz.slides.length && Dz.step == Dz.slides[Dz.idx - 1].$$('.incremental > *').length);
+        });
     },
 
     nextSlide : function() {
-        Dz.forward();
+        page.evaluate(function() {
+            Dz.forward();
+        });
     },
 
     currentSlideIndex : function() {
-        return Dz.idx + "." + Dz.step;
+        return page.evaluate(function() {
+            return Dz.idx + "." + Dz.step;
+        });
     }
 };
 
-module.exports = new DZSlides();
+exports.create = function(page) {
+    return new DZSlides(page);
+};

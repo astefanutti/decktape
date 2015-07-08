@@ -1,4 +1,5 @@
-function Deck() {
+function Deck(page) {
+    this.page = page;
 }
 
 Deck.prototype = {
@@ -8,20 +9,30 @@ Deck.prototype = {
     },
 
     isActive : function() {
-        return typeof $ === "function" && typeof $.deck === "function";
+        return page.evaluate(function() {
+            return typeof $ === "function" && typeof $.deck === "function";
+        });
     },
 
     slideCount : function() {
-        return $.deck("getSlides").length;
+        return page.evaluate(function() {
+            return $.deck("getSlides").length;
+        });
     },
 
     nextSlide : function() {
-        $.deck("next");
+        page.evaluate(function() {
+            $.deck("next");
+        });
     },
 
     currentSlideIndex : function() {
-        return $.deck("getSlide").attr("id");
+        return page.evaluate(function() {
+            return $.deck("getSlide").attr("id");
+        });
     }
 };
 
-module.exports = new Deck();
+exports.create = function(page) {
+    return new Deck(page);
+};

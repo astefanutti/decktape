@@ -1,4 +1,5 @@
-function Slidy() {
+function Slidy(page) {
+    this.page = page;
 }
 
 Slidy.prototype = {
@@ -8,35 +9,46 @@ Slidy.prototype = {
     },
 
     isActive : function() {
-        return typeof w3c_slidy === "object";
+        return page.evaluate(function() {
+            return typeof w3c_slidy === "object";
+        });
     },
 
     configure : function () {
-        w3c_slidy.hide_toolbar();
-        w3c_slidy.initial_prompt.style.visibility = "hidden";
+        page.evaluate(function() {
+            w3c_slidy.hide_toolbar();
+            w3c_slidy.initial_prompt.style.visibility = "hidden";
+        });
     },
 
     slideCount : function() {
-        var incrementals = 0;
-        var parents = document.querySelectorAll(".incremental");
-        for (var i = 0; i < parents.length; i++) {
-            var children = parents[i].querySelectorAll("*");
-            incrementals += children.length == 0 ? 1 : children.length;
-        }
-        return w3c_slidy.slides.length + incrementals;
+        return page.evaluate(function() {
+            return w3c_slidy.slides.length + Array.prototype.slice.call(document.querySelectorAll(".incremental")).reduce(function(incrementals, parent) {
+                var children = parent.querySelectorAll("*");
+                return incrementals + (children.length == 0 ? 1 : children.length);
+            }, 0);
+        });
     },
 
     hasNextSlide : function() {
-        return w3c_slidy.slide_number + 1 < w3c_slidy.slides.length;
+        return page.evaluate(function() {
+            return w3c_slidy.slide_number + 1 < w3c_slidy.slides.length;
+        });
     },
 
     nextSlide : function() {
-        w3c_slidy.next_slide(true);
+        page.evaluate(function() {
+            w3c_slidy.next_slide(true);
+        });
     },
 
     currentSlideIndex : function() {
-        return "(" + (w3c_slidy.slide_number + 1) + ")";
+        return page.evaluate(function() {
+            return "(" + (w3c_slidy.slide_number + 1) + ")";
+        });
     }
 };
 
-module.exports = new Slidy();
+exports.create = function(page) {
+    return new Slidy(page);
+};
