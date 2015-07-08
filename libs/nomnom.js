@@ -143,9 +143,14 @@ ArgParser.prototype = {
           if (command.help) {
             this._help = command.help;
           }
-          this.command = command;
+         this.specs.command = {
+           hidden: true,
+           name: 'command',
+           position: 0,
+           help: command.help
+         };
        }
-       else if (arg) {
+       else if (arg && !this.fallback) {
           return this.print(this._script + ": no such command '" + arg + "'", 1);
        }
        else {
@@ -182,9 +187,10 @@ ArgParser.prototype = {
           }
 
           this.specs.command = {
+            name: 'command',
             position: 0,
             help: helpStringBuilder[helpType].call(this)
-          }
+          };
 
           if (this.fallback) {
             _(this.specs).extend(this.fallback.specs);
@@ -217,6 +223,9 @@ ArgParser.prototype = {
     .concat(Arg());
 
     var positionals = [];
+    // preserves positional argument indexes
+    if (!command && this.fallback)
+      positionals.push(undefined);
 
     /* parse the args */
     var that = this;
@@ -341,20 +350,22 @@ ArgParser.prototype = {
 
     // assume there are no gaps in the specified pos. args
     positionals.forEach(function(pos) {
-      str += " ";
-      var posStr = pos.string;
-      if (!posStr) {
-        posStr = pos.name || "arg" + pos.position;
-        if (pos.required) {
+      if (!pos.hidden) {
+        str += " ";
+        var posStr = pos.string;
+        if (!posStr) {
+          posStr = pos.name || "arg" + pos.position;
+          if (pos.required) {
             posStr = "<" + posStr + ">";
-        } else {
+          } else {
             posStr = "[" + posStr + "]";
+          }
+          if (pos.list) {
+            posStr += "...";
+          }
         }
-        if (pos.list) {
-          posStr += "...";
-        }
+        str += posStr;
       }
-      str += posStr;
     });
 
     if (options.length) {
@@ -383,15 +394,17 @@ ArgParser.prototype = {
     }, 0);
 
     positionals.forEach(function(pos) {
-      var posStr = pos.string || pos.name;
-      str += posStr + spaces(longest - posStr.length) + "     ";
-      if (!this._nocolors) {
-        str += chalk.grey(pos.help || "")
+      if (!pos.hidden) {
+        var posStr = pos.string || pos.name;
+        str += posStr + spaces(longest - posStr.length) + "     ";
+        if (!this._nocolors) {
+          str += chalk.grey(pos.help || "")
+        }
+        else {
+          str += (pos.help || "")
+        }
+        str += "\n";
       }
-      else {
-        str += (pos.help || "")
-      }
-      str += "\n";
     }, this);
     if (positionals.length && options.length) {
       str += "\n";
