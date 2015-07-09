@@ -8,7 +8,11 @@ exports.options = {
     }
 };
 
-exports.help = "Exports the deck by emulating end-user navigation and stops when no change is detected";
+exports.help =
+    "Emulates the end-user interaction by pressing the key with the specified [keycode]\n" +
+    "and iterates over the presentation as long as any change to the DOM is detected\n" +
+    "by observing mutation events to the body element and its subtree.\n" +
+    "The [keycode] must be one of the PhantomJS page event keys and defaults to [Right].";
 
 exports.create = function(page, options) {
     return new Generic(page, options);
