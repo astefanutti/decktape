@@ -112,15 +112,12 @@ page.open(options.url, function(status) {
 });
 
 function loadAvailablePlugins() {
-    var plugins = {};
-    fs.list("plugins/").forEach(function(script) {
-        if (fs.isFile("plugins/" + script)) {
-            var matches = script.match(/^(.*)\.js$/);
-            if (matches)
-                plugins[matches[1]] = require("./plugins/" + matches[1]);
-        }
-    });
-    return plugins;
+    return fs.list("plugins/").reduce(function(plugins, plugin) {
+        var matches = plugin.match(/^(.*)\.js$/);
+        if (matches && fs.isFile("plugins/" + plugin))
+            plugins[matches[1]] = require("./plugins/" + matches[1]);
+        return plugins;
+    }, {});
 }
 
 function createActivePlugin() {
