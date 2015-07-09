@@ -11,7 +11,7 @@ Remark.prototype = {
 
     isActive : function() {
         return page.evaluate(function() {
-            return typeof remark == "object" && slideshow === "object";
+            return typeof remark === "object" && typeof slideshow === "object";
         });
     },
 
