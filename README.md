@@ -85,6 +85,7 @@ The following slide deck examples have been exported using DeckTape:
 | [HTML Slidy: Slide Shows in HTML and XHTML][html-slidy-presentation] | HTML Slidy             | [html-slidy-presentation.pdf][] (0.5MB)     |
 | [CSSS: CSS-based SlideShow System][csss-sample-slideshow]            | CSSS                   | [csss-sample-slideshow.pdf][] (13.5MB)      |
 | [Shower Presentation Engine][shower-presentation-engine]             | Shower                 | [shower-presentation-engine.pdf][] (0.4MB)  |
+| [Welcome our new ES5 Overloards][new-es5-overloards]                 | Bespoke.js             | [new-es5-overloards.pdf][] (0.1MB)          |
 
 [fowd-nyc-2014]: http://razvancaliman.com/fowd-nyc-2014
 [fowd-nyc-2014.pdf]: https://astefanutti.github.io/decktape/examples/fowd-nyc-2014.pdf
@@ -106,3 +107,5 @@ The following slide deck examples have been exported using DeckTape:
 [csss-sample-slideshow.pdf]: https://astefanutti.github.io/decktape/examples/csss-sample-slideshow.pdf
 [shower-presentation-engine]: http://shwr.me/?full
 [shower-presentation-engine.pdf]: https://astefanutti.github.io/decktape/examples/shower-presentation-engine.pdf
+[new-es5-overloards]: http://mikemaccana.github.io/rejectjs2013/
+[new-es5-overloards.pdf]: https://astefanutti.github.io/decktape/examples/new-es5-overloards.pdf
