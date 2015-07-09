@@ -35,14 +35,14 @@ Generic.prototype = {
     },
 
     configure : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             var observer = new window.MutationObserver(function() {
                 window.callPhantom({ isNextSlideDetected: true });
             });
             observer.observe(document.querySelector("body"), { attributes: true, childList: true, subtree: true });
         });
         var plugin = this;
-        page.onCallback = function(mutation) {
+        this.page.onCallback = function(mutation) {
             if (mutation.isNextSlideDetected)
                 plugin.isNextSlideDetected = true;
         };
@@ -54,7 +54,7 @@ Generic.prototype = {
 
     hasNextSlide : function() {
         // A priori knowledge is impossible to achieve in a generic way. Thus the only way is to actually emulate end-user interaction by pressing the configured key and check whether the DOM has changed a posteriori.
-        page.sendEvent("keypress", page.event.key[this.options.keycode || exports.options.keycode.default]);
+        this.page.sendEvent("keypress", page.event.key[this.options.keycode || exports.options.keycode.default]);
         var plugin = this;
         return new Promise(function (fulfill) {
             // TODO: use mutation event directly instead of relying on a timeout
@@ -69,7 +69,7 @@ Generic.prototype = {
     },
 
     currentSlideIndex : function() {
-        var fragment = page.evaluate(function() {
+        var fragment = this.page.evaluate(function() {
             return window.location.hash.replace(/^#\/?/, "");
         });
         return fragment.length ? fragment : this.currentSlide;

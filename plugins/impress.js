@@ -9,7 +9,7 @@ Impress.prototype = {
     },
 
     isActive : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             if (typeof impress === "function")
                 return true;
 
@@ -21,19 +21,19 @@ Impress.prototype = {
     },
 
     slideCount : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return document.querySelectorAll("#impress .step, #impress .substep").length;
         });
     },
 
     nextSlide : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             impress().next();
         });
     },
 
     currentSlideIndex : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return window.location.hash.replace(/^#\/?/, "");
         });
     }

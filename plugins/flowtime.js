@@ -9,13 +9,13 @@ Flowtime.prototype = {
     },
 
     isActive : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return typeof Flowtime === "object";
         });
     },
 
     configure : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             Flowtime.showProgress(false);
             Flowtime.loop(false);
         });
@@ -26,19 +26,19 @@ Flowtime.prototype = {
     },
 
     hasNextSlide : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return Flowtime.getNextPage() || Flowtime.getNextSection();
         });
     },
 
     nextSlide : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             Flowtime.next();
         });
     },
 
     currentSlideIndex : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return "/section-" + (Flowtime.getSectionIndex() + 1) + "/page-" + (Flowtime.getPageIndex() + 1);
         });
     }

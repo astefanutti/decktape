@@ -9,25 +9,25 @@ Deck.prototype = {
     },
 
     isActive : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return typeof $ === "function" && typeof $.deck === "function";
         });
     },
 
     slideCount : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return $.deck("getSlides").length;
         });
     },
 
     nextSlide : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             $.deck("next");
         });
     },
 
     currentSlideIndex : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return $.deck("getSlide").attr("id");
         });
     }

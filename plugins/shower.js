@@ -9,13 +9,13 @@ Shower.prototype = {
     },
 
     isActive : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return typeof shower === "object";
         });
     },
 
     configure : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             shower.showPresenterNotes = function () {};
             shower.first();
             shower.enterSlideMode();
@@ -23,25 +23,25 @@ Shower.prototype = {
     },
 
     slideCount : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return shower.slideList.length;
         });
     },
 
     hasNextSlide : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return (shower.getCurrentSlideNumber() + 1) in shower.slideList;
         });
     },
 
     nextSlide : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             shower.next();
         });
     },
 
     currentSlideIndex : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return shower.getSlideHash(shower.getCurrentSlideNumber()).substring(1);
         });
     }

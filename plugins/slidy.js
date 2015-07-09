@@ -9,20 +9,20 @@ Slidy.prototype = {
     },
 
     isActive : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return typeof w3c_slidy === "object";
         });
     },
 
     configure : function () {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             w3c_slidy.hide_toolbar();
             w3c_slidy.initial_prompt.style.visibility = "hidden";
         });
     },
 
     slideCount : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return w3c_slidy.slides.length + Array.prototype.slice.call(document.querySelectorAll(".incremental")).reduce(function(incrementals, parent) {
                 var children = parent.querySelectorAll("*");
                 return incrementals + (children.length == 0 ? 1 : children.length);
@@ -31,19 +31,19 @@ Slidy.prototype = {
     },
 
     hasNextSlide : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return w3c_slidy.slide_number + 1 < w3c_slidy.slides.length;
         });
     },
 
     nextSlide : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             w3c_slidy.next_slide(true);
         });
     },
 
     currentSlideIndex : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return "(" + (w3c_slidy.slide_number + 1) + ")";
         });
     }

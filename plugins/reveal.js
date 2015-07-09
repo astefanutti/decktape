@@ -9,7 +9,7 @@ Reveal.prototype = {
     },
 
     isActive : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             if (typeof Reveal === "undefined")
                 return false;
 
@@ -23,13 +23,13 @@ Reveal.prototype = {
     },
 
     configure : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             Reveal.configure({controls: false, progress: false});
         });
     },
 
     slideCount : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             // TODO: the getTotalSlides API does not report the number of slides accurately as it does not take stacks and some index-less fragments into account
             // getTotalSlides API is only available starting reveal.js version 3.0.0
             return typeof Reveal.getTotalSlides === "function" ? Reveal.getTotalSlides() : undefined;
@@ -37,19 +37,19 @@ Reveal.prototype = {
     },
 
     hasNextSlide : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return !Reveal.isLastSlide();
         });
     },
 
     nextSlide : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             Reveal.next();
         });
     },
 
     currentSlideIndex : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             var indices = Reveal.getIndices();
             var id = Reveal.getCurrentSlide().getAttribute("id");
             if (typeof id === "string" && id.length)

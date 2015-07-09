@@ -9,13 +9,13 @@ DZSlides.prototype = {
     },
 
     isActive : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return typeof Dz !== "undefined";
         });
     },
 
     slideCount : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return Dz.slides.reduce(function(count, slide) {
                 var fragments = slide.$$('.incremental > *').length;
                 return count + (fragments ? fragments + 1 : 1);
@@ -24,19 +24,19 @@ DZSlides.prototype = {
     },
 
     hasNextSlide : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return !(Dz.idx == Dz.slides.length && Dz.step == Dz.slides[Dz.idx - 1].$$('.incremental > *').length);
         });
     },
 
     nextSlide : function() {
-        page.evaluate(function() {
+        this.page.evaluate(function() {
             Dz.forward();
         });
     },
 
     currentSlideIndex : function() {
-        return page.evaluate(function() {
+        return this.page.evaluate(function() {
             return Dz.idx + "." + Dz.step;
         });
     }
