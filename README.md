@@ -2,9 +2,11 @@
 
 DeckTape is a high-quality PDF exporter for HTML5 presentation frameworks. It supports all the features that you would expect from a PDF exporter like font embedding, selectable text, hyperlinks, SVG graphics objects, file compression.
 
-DeckTape is built on top of [PhantomJS](http://phantomjs.org) which relies on [WebKit Qt](https://wiki.qt.io/Qt_WebKit) for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
+DeckTape is built on top of [PhantomJS](http://phantomjs.org) which relies on [Qt WebKit](https://wiki.qt.io/Qt_WebKit) for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
 
-DeckTape currently supports the [CSSS](http://leaverou.github.io/csss/), [deck.js](http://imakewebthings.com/deck.js/), [DZSlides](http://paulrouget.com/dzslides/), [flowtime.js](http://flowtime-js.marcolago.com), [HTML Slidy](http://www.w3.org/Talks/Tools/), [impress.js](http://impress.github.io/impress.js), [remark.js](http://remarkjs.com), [reveal.js](http://lab.hakim.se/reveal-js) and [Shower](http://shwr.me/) presentation frameworks out-of-the-box. Besides, it exposes a plugin-based extension API so that it is possible to add support for other frameworks or tailored existing ones to your specific needs.
+DeckTape currently supports the [CSSS](http://leaverou.github.io/csss/), [deck.js](http://imakewebthings.com/deck.js/), [DZSlides](http://paulrouget.com/dzslides/), [flowtime.js](http://flowtime-js.marcolago.com), [HTML Slidy](http://www.w3.org/Talks/Tools/), [impress.js](http://impress.github.io/impress.js), [remark.js](http://remarkjs.com), [reveal.js](http://lab.hakim.se/reveal-js) and [Shower](http://shwr.me/) presentation frameworks out-of-the-box. Besides, DeckTape provides a [generic command](#generic) that emulates the end-user interaction and that can be used to convert presentations from virtually any kind of frameworks. That is particularly useful to support HTML presentation frameworks that don't expose any API nor accessible state, like [Bespoke.js](https://github.com/markdalgleish/bespoke.js) for example.
+
+DeckTape's plugin-based architecture exposes an extension API so that it is possible to add support for other frameworks or tailored existing plugins to your specific needs.
 
 You can browse some slide deck [examples](#examples) below that have been exported with DeckTape.
 
@@ -21,10 +23,10 @@ You can browse some slide deck [examples](#examples) below that have been export
 3. Dowload PhantomJS executable: DeckTape currently depends on a [forked version](https://github.com/astefanutti/phantomjs/commits/poc) of PhantomJS. You can get the corresponding binaries for the platforms above:
 
         # Windows (MSVC 2013), 64-bit, for Windows Vista or later, bundles VC++ Runtime 2013
-        curl -L http://a9i.io/decktape/downloads/phantomjs-msvc2013-win64.exe -o bin\phantomjs.exe
+        curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-msvc2013-win64.exe -o bin\phantomjs.exe
 
         # Mac OS X (Cocoa), 64-bit, for OS X 10.6 or later
-        curl -L http://a9i.io/decktape/downloads/phantomjs-osx-cocoa-x86-64 -o bin/phantomjs
+        curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-osx-cocoa-x86-64 -o bin/phantomjs
         chmod +x bin/phantomjs
 
     If the executable isn't available for your target plaform, see the [Build](#build) section and follow the instructions.
@@ -36,8 +38,10 @@ Into DeckTape install directory:
 ```
 bin/phantomjs decktape.js -h
 
-Usage: phantomjs decktape.js <url> <filename> [options]
+Usage: phantomjs decktape.js [command] <url> <filename> [options]
 
+command      one of: automatic, csss, deck, dzslides, flowtime, generic, impress,
+             remark, reveal, shower, slidy
 url          URL of the slides deck
 filename     Filename of the output PDF file
 
@@ -45,7 +49,20 @@ Options:
    --width    Width of the slides deck  [1280]
    --height   Height of the slides deck  [720]
    --pause    Duration in milliseconds before the next slide is exported  [1000]
+
+Iterates over the available plugins, picks the compatible one for presentation
+at the specified <url> and uses it to export and write the PDF into the specified <filename>.
 ```
+
+## Commands
+
+### `automatic`
+
+Iterates over the [available plugins](/plugins), picks the compatible one for presentation at the specified `url` and uses it to export and write the PDF into the specified `filename`.
+
+### `generic`
+
+Emulates the end-user interaction by pressing the key with the specified `keycode` and iterates over the presentation as long as any change to the DOM is detected by observing mutation events to the body element and its subtree. The `keycode` value must be one of the [PhantomJS page event keys](https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329) and defaults to `Right`.
 
 ## Build
 
