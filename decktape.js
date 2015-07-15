@@ -112,10 +112,11 @@ page.open(options.url, function(status) {
 });
 
 function loadAvailablePlugins() {
-    return fs.list("plugins/").reduce(function(plugins, plugin) {
+    var path = phantom.libraryPath;
+    return fs.list(path + "/plugins/").reduce(function(plugins, plugin) {
         var matches = plugin.match(/^(.*)\.js$/);
-        if (matches && fs.isFile("plugins/" + plugin))
-            plugins[matches[1]] = require("./plugins/" + matches[1]);
+        if (matches && fs.isFile(path + "/plugins/" + plugin))
+            plugins[matches[1]] = require(path + "/plugins/" + matches[1]);
         return plugins;
     }, {});
 }
