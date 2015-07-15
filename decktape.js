@@ -28,17 +28,34 @@ var parser = require("./libs/nomnom")
             required: true,
             help: "Filename of the output PDF file"
         },
-        width: {
-            default: 1280,
-            help: "Width of the slides deck"
-        },
-        height: {
-            default: 720,
-            help: "Height of the slides deck"
+        size: {
+            default: "1280x720",
+            callback: parseResolution,
+            transform: parseResolution,
+            help: "Size of the slides deck viewport, <width>x<height> notation"
         },
         pause: {
             default: 1000,
             help: "Duration in milliseconds before the next slide is exported"
+        },
+        screenshots: {
+            default: false,
+            flag: true,
+            help: "Capture each slide as an image"
+        },
+        "screenshots-directory": {
+            default: "screenshots",
+            help: "Screenshots output directory"
+        },
+        "screenshots-scale": {
+            default: 1.0,
+            list: true,
+            help: "Screenshots scaling of [0..1] * size, can be repeated"
+        },
+        "screenshots-format": {
+            default: "png",
+            choices: ["gif", "jpg", "png"],
+            help: "Screenshots image format, one of [gif, jpg, png]"
         }
     } );
 parser.nocommand()
@@ -57,8 +74,8 @@ Object.keys(plugins).forEach(function(id) {
 
 var options = parser.parse(system.args.slice(1));
 
-page.viewportSize = { width: options.width, height: options.height };
-printer.paperSize = { width: options.width + "px", height: options.height + "px", margin: "0px" };
+page.viewportSize = options.size;
+printer.paperSize = { width: options.size.width + "px", height: options.size.height + "px", margin: "0px" };
 printer.outputFileName = options.filename;
 
 page.onLoadStarted = function() {
@@ -135,8 +152,23 @@ function printSlide(plugin) {
     // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
     // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
     delay(options.pause)
-    .then(function() { printer.printPage(page) })
-    .then(function() { return hasNextSlide(plugin) })
+    .then(function() {
+            printer.printPage(page);
+        })
+    .then(function() {
+            if (!options.screenshots)
+                return;
+            options["screenshots-scale"].forEach(function(scale) {
+                page.viewportSize = { width: Math.round(scale * options.size.width), height: Math.round(scale * options.size.height) };
+                page.zoomFactor = scale;
+                page.render(options["screenshots-directory"] + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_x' + scale + '.' + options["screenshots-format"]));
+                page.zoomFactor = 1.0;
+                page.viewportSize = options.size;
+            });
+        })
+    .then(function() {
+            return hasNextSlide(plugin);
+        })
     .then(function(hasNext) {
         if (hasNext) {
             nextSlide(plugin);
@@ -147,6 +179,15 @@ function printSlide(plugin) {
             phantom.exit();
         }
     });
+}
+
+function parseResolution(resolution) {
+    // TODO: support device viewport sizes and graphics display standard resolutions (see http://viewportsizes.com/ and https://en.wikipedia.org/wiki/Graphics_display_resolution)
+    var match = resolution.match(/^(\d+)x(\d+)$/);
+    if (!match)
+        return "Resolution must follow the <width>x<height> notation, e.g., 1280x720";
+    else
+        return { width: match[1], height: match[2] };
 }
 
 // TODO: add progress bar, duration, ETA and file size
