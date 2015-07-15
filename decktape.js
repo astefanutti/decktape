@@ -32,11 +32,11 @@ var parser = require("./libs/nomnom")
             default: "1280x720",
             callback: parseResolution,
             transform: parseResolution,
-            help: "Size of the slides deck viewport, <width>x<height> notation"
+            help: "Size of the slides deck viewport: <width>x<height>"
         },
         pause: {
             default: 1000,
-            help: "Duration in milliseconds before the next slide is exported"
+            help: "Duration in milliseconds before each slide is exported"
         },
         screenshots: {
             default: false,
