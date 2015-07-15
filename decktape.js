@@ -12,7 +12,7 @@ var process = {
     }
 };
 
-var plugins = loadAvailablePlugins();
+var plugins = loadAvailablePlugins(phantom.libraryPath + "/plugins/");
 
 var parser = require("./libs/nomnom")
     .nocolors()
@@ -111,11 +111,11 @@ page.open(options.url, function(status) {
     }
 });
 
-function loadAvailablePlugins() {
-    return fs.list("plugins/").reduce(function(plugins, plugin) {
+function loadAvailablePlugins(pluginPath) {
+    return fs.list(pluginPath).reduce(function(plugins, plugin) {
         var matches = plugin.match(/^(.*)\.js$/);
-        if (matches && fs.isFile("plugins/" + plugin))
-            plugins[matches[1]] = require("./plugins/" + matches[1]);
+        if (matches && fs.isFile(pluginPath + plugin))
+            plugins[matches[1]] = require(pluginPath + matches[1]);
         return plugins;
     }, {});
 }
