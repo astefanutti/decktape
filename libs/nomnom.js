@@ -293,7 +293,7 @@ ArgParser.prototype = {
 
     this.specs.forEach(function(opt) {
       if (opt.default !== undefined && options[opt.name] === undefined) {
-        options[opt.name] = opt.default;
+        this.setOption(options, opt.name, opt.default);
       }
     }, this);
 
