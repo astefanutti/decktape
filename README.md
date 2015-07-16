@@ -8,6 +8,8 @@ DeckTape currently supports the [CSSS](http://leaverou.github.io/csss/), [deck.j
 
 DeckTape's plugin-based architecture exposes an extension API so that it is possible to add support for other frameworks or tailored existing plugins to your specific needs.
 
+DeckTape can optionally be used to capture screenshots of your slide decks in various resolutions, similarly to [pageres](https://github.com/sindresorhus/pageres). That can be useful to make sure your presentations are responsive or to create handouts for them.
+
 You can browse some slide deck [examples](#examples) below that have been exported with DeckTape.
 
 ## Install
@@ -20,7 +22,7 @@ You can browse some slide deck [examples](#examples) below that have been export
 
         cd decktape
 
-3. Dowload PhantomJS executable: DeckTape currently depends on a [forked version](https://github.com/astefanutti/phantomjs/commits/poc) of PhantomJS. You can get the corresponding binaries for the platforms above:
+3. Download PhantomJS executable: DeckTape currently depends on a [forked version](https://github.com/astefanutti/phantomjs/commits/poc) of PhantomJS. You can get the corresponding binaries for the platforms above:
 
         # Windows (MSVC 2013), 64-bit, for Windows Vista or later, bundles VC++ Runtime 2013
         curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-msvc2013-win64.exe -o bin\phantomjs.exe
@@ -29,7 +31,7 @@ You can browse some slide deck [examples](#examples) below that have been export
         curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-osx-cocoa-x86-64 -o bin/phantomjs
         chmod +x bin/phantomjs
 
-    If the executable isn't available for your target plaform, see the [Build](#build) section and follow the instructions.
+    If the executable isn't available for your target platform, see the [Build](#build) section and follow the instructions.
 
 ## Usage
 
@@ -50,8 +52,8 @@ Options:
    --pause                   Duration in milliseconds before each slide is exported  [1000]
    --screenshots             Capture each slide as an image  [false]
    --screenshots-directory   Screenshots output directory  [screenshots]
-   --screenshots-scale       Screenshots scaling of [0..1] * size, can be repeated  [1]
-   --screenshots-format      Screenshots image format, one of [gif, jpg, png]  [png]
+   --screenshots-size        Screenshots resolution, can be repeated  [--size]
+   --screenshots-format      Screenshots image format, one of [jpg, png]  [png]
 
 Iterates over the available plugins, picks the compatible one for presentation
 at the specified <url> and uses it to export and write the PDF into the specified <filename>.
@@ -66,6 +68,21 @@ Iterates over the [available plugins](/plugins), picks the compatible one for pr
 ### `generic`
 
 Emulates the end-user interaction by pressing the key with the specified `keycode` and iterates over the presentation as long as any change to the DOM is detected by observing mutation events to the body element and its subtree. The `keycode` value must be one of the [PhantomJS page event keys](https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329) and defaults to `Right`.
+
+```
+Options:
+   --keycode                 Key code pressed to navigate to next slide  [Right]
+```
+
+## Options
+
+### `--screenshots`
+
+Captures each slide as an image at the `screenshots-size` resolution, exports it to the `screenshots-format` image format and writes the output into the `screenshots-directory` directory. The `screenshots-size` option can be set multiple times, e.g.:
+
+```
+phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
+```
 
 ## Build
 

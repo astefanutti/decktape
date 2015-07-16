@@ -47,15 +47,16 @@ var parser = require("./libs/nomnom")
             default: "screenshots",
             help: "Screenshots output directory"
         },
-        "screenshots-scale": {
-            default: 1.0,
+        "screenshots-size": {
             list: true,
-            help: "Screenshots scaling of [0..1] * size, can be repeated"
+            callback: parseResolution,
+            transform: parseResolution,
+            help: "Screenshots resolution, can be repeated"
         },
         "screenshots-format": {
             default: "png",
-            choices: ["gif", "jpg", "png"],
-            help: "Screenshots image format, one of [gif, jpg, png]"
+            choices: ["jpg", "png"],
+            help: "Screenshots image format, one of [jpg, png]"
         }
     } );
 parser.nocommand()
@@ -124,7 +125,7 @@ page.open(options.url, function(status) {
         console.log(plugin.getName() + " DeckTape plugin activated");
         configure(plugin);
         printer.begin();
-        printSlide(plugin);
+        exportSlide(plugin);
     }
 });
 
@@ -147,38 +148,38 @@ function createActivePlugin() {
     }
 }
 
-function printSlide(plugin) {
-    system.stdout.write('\r' + progressBar(plugin));
+function exportSlide(plugin) {
     // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
     // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
-    delay(options.pause)
-    .then(function() {
-            printer.printPage(page);
-        })
-    .then(function() {
-            if (!options.screenshots)
-                return;
-            options["screenshots-scale"].forEach(function(scale) {
-                page.viewportSize = { width: Math.round(scale * options.size.width), height: Math.round(scale * options.size.height) };
-                page.zoomFactor = scale;
-                page.render(options["screenshots-directory"] + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_x' + scale + '.' + options["screenshots-format"]));
-                page.zoomFactor = 1.0;
-                page.viewportSize = options.size;
-            });
-        })
-    .then(function() {
-            return hasNextSlide(plugin);
-        })
-    .then(function(hasNext) {
-        if (hasNext) {
-            nextSlide(plugin);
-            printSlide(plugin);
-        } else {
-            printer.end();
-            system.stdout.write("\nPrinted " + plugin.currentSlide + " slides\n");
-            phantom.exit();
-        }
-    });
+    var decktape = delay(options.pause)
+        .then(function() { system.stdout.write('\r' + progressBar(plugin)) })
+        .then(function() { printer.printPage(page) });
+
+    if (options.screenshots) {
+        decktape = (options["screenshots-size"] || [options.size]).reduce(function(decktape, resolution) {
+            return decktape.then(function() { page.viewportSize = resolution })
+                // Need to delay page rendering to wait for the onresize event to complete, may be needed to be configurable
+                .then(delay(200))
+                .then(function() {
+                    page.render(options["screenshots-directory"] + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options["screenshots-format"]));
+                })
+            }, decktape)
+            .then(function() { page.viewportSize = options.size })
+            .then(delay(200));
+    }
+
+    decktape
+        .then(function() { return hasNextSlide(plugin) })
+        .then(function(hasNext) {
+            if (hasNext) {
+                nextSlide(plugin);
+                exportSlide(plugin);
+            } else {
+                printer.end();
+                system.stdout.write("\nPrinted " + plugin.currentSlide + " slides\n");
+                phantom.exit();
+            }
+        });
 }
 
 function parseResolution(resolution) {
@@ -199,7 +200,7 @@ function progressBar(plugin) {
     cols.push(" (");
     cols.push(padding(plugin.currentSlide, plugin.totalSlides ? plugin.totalSlides.toString().length : 3, ' '));
     cols.push('/');
-    cols.push(plugin.totalSlides ? plugin.totalSlides : " ?");
+    cols.push(plugin.totalSlides || " ?");
     cols.push(") ...");
     // erase overflowing slide fragments
     cols.push(padding("", plugin.progressBarOverflow - Math.max(index.length + 1 - 8, 0), ' ', false));
