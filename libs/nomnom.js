@@ -348,6 +348,16 @@ ArgParser.prototype = {
       return opt.position === undefined;
     });
 
+    if (options.length) {
+      if (!this._nocolors) {
+        // must be a better way to do this
+        str += chalk.blue(" [options]");
+      }
+      else {
+        str += " [options]";
+      }
+    }
+
     // assume there are no gaps in the specified pos. args
     positionals.forEach(function(pos) {
       if (!pos.hidden) {
@@ -367,16 +377,6 @@ ArgParser.prototype = {
         str += posStr;
       }
     });
-
-    if (options.length) {
-      if (!this._nocolors) {
-        // must be a better way to do this
-        str += chalk.blue(" [options]");
-      }
-      else {
-        str += " [options]";
-      }
-    }
 
     if (options.length || positionals.length) {
       str += "\n\n";
