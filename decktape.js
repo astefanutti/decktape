@@ -29,12 +29,14 @@ var parser = require("./libs/nomnom")
             help: "Filename of the output PDF file"
         },
         size: {
+            abbr: 's',
             default: "1280x720",
             callback: parseResolution,
             transform: parseResolution,
             help: "Size of the slides deck viewport: <width>x<height>"
         },
         pause: {
+            abbr: 'p',
             default: 1000,
             help: "Duration in milliseconds before each slide is exported"
         },

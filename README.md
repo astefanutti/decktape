@@ -48,8 +48,8 @@ url          URL of the slides deck
 filename     Filename of the output PDF file
 
 Options:
-   --size                    Size of the slides deck viewport: <width>x<height>  [1280x720]
-   --pause                   Duration in milliseconds before each slide is exported  [1000]
+   -s, --size                Size of the slides deck viewport: <width>x<height>  [1280x720]
+   -p, --pause               Duration in milliseconds before each slide is exported  [1000]
    --screenshots             Capture each slide as an image  [false]
    --screenshots-directory   Screenshots output directory  [screenshots]
    --screenshots-size        Screenshots resolution, can be repeated  [--size]
