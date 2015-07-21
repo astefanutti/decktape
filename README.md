@@ -40,7 +40,7 @@ Into DeckTape install directory:
 ```
 bin/phantomjs decktape.js -h
 
-Usage: phantomjs decktape.js [command] <url> <filename> [options]
+Usage: phantomjs decktape.js [options] [command] <url> <filename>
 
 command      one of: automatic, csss, deck, dzslides, flowtime, generic, impress,
              remark, reveal, shower, slidy
@@ -55,8 +55,15 @@ Options:
    --screenshots-size        Screenshots resolution, can be repeated  [--size]
    --screenshots-format      Screenshots image format, one of [jpg, png]  [png]
 
-Iterates over the available plugins, picks the compatible one for presentation
-at the specified <url> and uses it to export and write the PDF into the specified <filename>.
+Defaults to the automatic command.
+Iterates over the available plugins, picks the compatible one for presentation at the
+specified <url> and uses it to export and write the PDF into the specified <filename>.
+```
+
+In addition to the general options listed above, command specific options can be displayed the following way:
+
+```
+phantomjs decktape.js <command> -h
 ```
 
 ## Commands
@@ -67,11 +74,10 @@ Iterates over the [available plugins](/plugins), picks the compatible one for pr
 
 ### `generic`
 
-Emulates the end-user interaction by pressing the key with the specified `keycode` and iterates over the presentation as long as any change to the DOM is detected by observing mutation events to the body element and its subtree. The `keycode` value must be one of the [PhantomJS page event keys](https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329) and defaults to `Right`.
+Emulates the end-user interaction by pressing the key with the specified `keycode` and iterates over the presentation as long as any change to the DOM is detected by observing mutation events to the body element and its subtree. The `keycode` value must be one of the [PhantomJS page event keys](https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329) and defaults to `Right`, e.g.:
 
 ```
-Options:
-   --keycode                 Key code pressed to navigate to next slide  [Right]
+phantomjs decktape.js generic --keycode=Space
 ```
 
 ## Options

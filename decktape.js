@@ -60,11 +60,12 @@ var parser = require("./libs/nomnom")
         }
     } );
 parser.nocommand()
-    .help("Iterates over the available plugins, picks the compatible one for presentation\n" +
-          "at the specified <url> and uses it to export and write the PDF into the specified <filename>.");
+    .help("Defaults to the automatic command.\n" +
+          "Iterates over the available plugins, picks the compatible one for presentation at the \n" +
+          "specified <url> and uses it to export and write the PDF into the specified <filename>.");
 parser.command("automatic")
-    .help("Iterates over the available plugins, picks the compatible one for presentation\n" +
-          "at the specified <url> and uses it to export and write the PDF into the specified <filename>.");
+    .help("Iterates over the available plugins, picks the compatible one for presentation at the \n" +
+          "specified <url> and uses it to export and write the PDF into the specified <filename>.");
 Object.keys(plugins).forEach(function(id) {
     var command = parser.command(id);
     if (typeof plugins[id].options === "object")
