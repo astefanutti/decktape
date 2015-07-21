@@ -45,17 +45,20 @@ var parser = require("./libs/nomnom")
             flag: true,
             help: "Capture each slide as an image"
         },
-        "screenshots-directory": {
+        screenshotDirectory: {
+            full: "screenshots-directory",
             default: "screenshots",
             help: "Screenshots output directory"
         },
-        "screenshots-size": {
+        screenshotSize: {
+            full: "screenshots-size",
             list: true,
             callback: parseResolution,
             transform: parseResolution,
             help: "Screenshots resolution, can be repeated"
         },
-        "screenshots-format": {
+        screenshotFormat: {
+            full: "screenshots-format",
             default: "png",
             choices: ["jpg", "png"],
             help: "Screenshots image format, one of [jpg, png]"
@@ -159,12 +162,12 @@ function exportSlide(plugin) {
         .then(function() { printer.printPage(page) });
 
     if (options.screenshots) {
-        decktape = (options["screenshots-size"] || [options.size]).reduce(function(decktape, resolution) {
+        decktape = (options.screenshotSize || [options.size]).reduce(function(decktape, resolution) {
             return decktape.then(function() { page.viewportSize = resolution })
                 // Delay page rendering to wait for the resize event to complete (may be needed to be configurable)
                 .then(delay(500))
                 .then(function() {
-                    page.render(options["screenshots-directory"] + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options["screenshots-format"]), { mode: "viewport" });
+                    page.render(options.screenshotDirectory + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { mode: "viewport" });
                 })
             }, decktape)
             .then(function() { page.viewportSize = options.size })
