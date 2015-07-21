@@ -158,14 +158,14 @@ function exportSlide(plugin) {
     if (options.screenshots) {
         decktape = (options["screenshots-size"] || [options.size]).reduce(function(decktape, resolution) {
             return decktape.then(function() { page.viewportSize = resolution })
-                // Need to delay page rendering to wait for the onresize event to complete, may be needed to be configurable
-                .then(delay(200))
+                // Delay page rendering to wait for the resize event to complete (may be needed to be configurable)
+                .then(delay(500))
                 .then(function() {
-                    page.render(options["screenshots-directory"] + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options["screenshots-format"]));
+                    page.render(options["screenshots-directory"] + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options["screenshots-format"]), { mode: "viewport" });
                 })
             }, decktape)
             .then(function() { page.viewportSize = options.size })
-            .then(delay(200));
+            .then(delay(500));
     }
 
     decktape
