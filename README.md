@@ -14,9 +14,9 @@ You can browse some slide deck [examples](#examples) below that have been export
 
 ## Install
 
-1. Clone DeckTape Git repository:
+1. Shallow clone DeckTape Git repository:
 
-        git clone https://github.com/astefanutti/decktape.git
+        git clone --depth 1 https://github.com/astefanutti/decktape.git
 
 2. Change into the `decktape` directory:
 
