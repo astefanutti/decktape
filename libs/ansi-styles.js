@@ -59,7 +59,16 @@ function assembleStyles () {
 	return styles;
 }
 
-Object.defineProperty(module, 'exports', {
+// Gecko throws a TypeError as the module.exports property is not configurable (i.e. its configurable attribute has already been set to false):
+
+/* Object.defineProperty(module, 'exports', {
 	enumerable: true,
 	get: assembleStyles
+}); */
+
+// Just use a more traditional way to export the assembled styles:
+
+var styles = assembleStyles();
+Object.keys(styles).forEach(function (style) {
+	module.exports[style] = styles[style];
 });
