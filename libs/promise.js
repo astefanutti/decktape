@@ -1,3 +1,4 @@
+// https://github.com/taylorhakes/promise-polyfill
 (function(root) {
 
     // Use polyfill for setImmediate for performance gains
