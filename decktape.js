@@ -1,21 +1,27 @@
+require.paths.push(phantom.libraryPath + "/libs/");
+
 var page = require("webpage").create(),
     printer = require("printer").create(),
     system = require("system"),
-    fs = require("fs");
+    fs = require("fs"),
+    Promise = require("promise");
 
-var Promise = require("./libs/promise");
-
-// Node to PhantomJS bridging required for nomnom
+// Node to PhantomJS bridging
 var process = {
-    exit : function(code) {
-        phantom.exit(code);
-    }
+    platform: { mac: "darwin", windows: "win32" }[system.os.name] || system.os.name,
+    env: system.env,
+    argv: system.args,
+    // To uncomment when system.stdout.isTTY is supported
+    //stdout: system.stdout,
+    exit: phantom.exit
 };
+// As opposed to PhantomJS, global variables declared in the main script are not accessible in modules loaded with require
+if (system.platform === "slimerjs")
+    require.globals.process = process;
 
 var plugins = loadAvailablePlugins(phantom.libraryPath + "/plugins/");
 
-var parser = require("./libs/nomnom")
-    .nocolors()
+var parser = require("nomnom")
     .script("phantomjs decktape.js")
     .options( {
         url: {
@@ -78,6 +84,9 @@ Object.keys(plugins).forEach(function(id) {
     if (typeof plugins[id].help === "string")
         command.help(plugins[id].help);
 });
+if (system.os.name === "windows")
+    // TODO: should be deactivated as well when PhantomJS does not execute in a TTY context
+    parser.nocolors();
 
 var options = parser.parse(system.args.slice(1));
 

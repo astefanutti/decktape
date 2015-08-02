@@ -1,4 +1,4 @@
-var _ = require("./underscore")/*, chalk = require('chalk')*/;
+var _ = require("underscore"), chalk = require('chalk');
 
 
 function ArgParser() {
