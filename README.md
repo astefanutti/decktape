@@ -22,7 +22,7 @@ You can browse some slide deck [examples](#examples) below that have been export
 
         cd decktape
 
-3. Download PhantomJS executable: DeckTape currently depends on a [forked version](https://github.com/astefanutti/phantomjs/commits/poc) of PhantomJS. You can get the corresponding binaries for the platforms above:
+3. Download PhantomJS executable: DeckTape currently depends on a [forked version](https://github.com/astefanutti/phantomjs/commits/decktape) of PhantomJS. You can get the corresponding binaries for the platforms above:
 
         # Windows (MSVC 2013), 64-bit, for Windows Vista or later, bundles VC++ Runtime 2013
         curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-msvc2013-win64.exe -o bin\phantomjs.exe
@@ -92,7 +92,7 @@ phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-siz
 
 ## Build
 
-To build the [forked version](https://github.com/astefanutti/phantomjs/commits/poc) of PhantomJS whose DeckTape relies on, you have to execute the following commands from the DeckTape install directory:
+To build the [forked version](https://github.com/astefanutti/phantomjs/commits/decktape) of PhantomJS whose DeckTape relies on, you have to execute the following commands from the DeckTape install directory:
 
 1. Initialize and check out the `phantomjs` submodule:
 
