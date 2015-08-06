@@ -176,7 +176,7 @@ function exportSlide(plugin) {
                 // Delay page rendering to wait for the resize event to complete (may be needed to be configurable)
                 .then(delay(500))
                 .then(function() {
-                    page.render(options.screenshotDirectory + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { mode: "viewport" });
+                    page.render(options.screenshotDirectory + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { onlyViewport: true });
                 })
             }, decktape)
             .then(function() { page.viewportSize = options.size })
