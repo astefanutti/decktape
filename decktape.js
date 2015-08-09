@@ -166,21 +166,22 @@ function createActivePlugin() {
 function exportSlide(plugin) {
     // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
     // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
-    var decktape = delay(options.pause)
+    var decktape = Promise.resolve()
+        .then(delay(options.pause))
         .then(function() { system.stdout.write('\r' + progressBar(plugin)) })
         .then(function() { printer.printPage(page) });
 
     if (options.screenshots) {
         decktape = (options.screenshotSize || [options.size]).reduce(function(decktape, resolution) {
             return decktape.then(function() { page.viewportSize = resolution })
-                // Delay page rendering to wait for the resize event to complete (may be needed to be configurable)
-                .then(delay(500))
+                // Delay page rendering to wait for the resize event to complete, e.g. for impress.js (may be needed to be configurable)
+                .then(delay(1000))
                 .then(function() {
                     page.render(options.screenshotDirectory + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { onlyViewport: true });
                 })
             }, decktape)
             .then(function() { page.viewportSize = options.size })
-            .then(delay(500));
+            .then(delay(1000));
     }
 
     decktape
@@ -236,11 +237,11 @@ function padding(str, len, char, left) {
 }
 
 function delay(time) {
-    return new Promise(function (fulfill) {
-        setTimeout(function() {
-            fulfill();
-        }, time);
-    });
+    return function () {
+        return new Promise(function (fulfill) {
+            setTimeout(fulfill, time);
+        });
+    }
 }
 
 var configure = function(plugin) {
