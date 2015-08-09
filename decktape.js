@@ -23,7 +23,7 @@ var plugins = loadAvailablePlugins(phantom.libraryPath + "/plugins/");
 
 var parser = require("nomnom")
     .script("phantomjs decktape.js")
-    .options( {
+    .options({
         url: {
             position: 1,
             required: true,
@@ -69,23 +69,23 @@ var parser = require("nomnom")
             choices: ["jpg", "png"],
             help: "Screenshots image format, one of [jpg, png]"
         }
-    } );
+    });
 parser.nocommand()
     .help("Defaults to the automatic command.\n" +
-          "Iterates over the available plugins, picks the compatible one for presentation at the \n" +
-          "specified <url> and uses it to export and write the PDF into the specified <filename>.");
+    "Iterates over the available plugins, picks the compatible one for presentation at the \n" +
+    "specified <url> and uses it to export and write the PDF into the specified <filename>.");
 parser.command("automatic")
     .help("Iterates over the available plugins, picks the compatible one for presentation at the \n" +
-          "specified <url> and uses it to export and write the PDF into the specified <filename>.");
-Object.keys(plugins).forEach(function(id) {
+    "specified <url> and uses it to export and write the PDF into the specified <filename>.");
+Object.keys(plugins).forEach(function (id) {
     var command = parser.command(id);
     if (typeof plugins[id].options === "object")
         command.options(plugins[id].options);
     if (typeof plugins[id].help === "string")
         command.help(plugins[id].help);
 });
+// TODO: should be deactivated as well when PhantomJS does not execute in a TTY context
 if (system.os.name === "windows")
-    // TODO: should be deactivated as well when PhantomJS does not execute in a TTY context
     parser.nocolors();
 
 var options = parser.parse(system.args.slice(1));
@@ -94,31 +94,31 @@ page.viewportSize = options.size;
 printer.paperSize = { width: options.size.width + "px", height: options.size.height + "px", margin: "0px" };
 printer.outputFileName = options.filename;
 
-page.onLoadStarted = function() {
+page.onLoadStarted = function () {
     console.log("Loading page " + options.url + " ...");
 };
 
-page.onResourceTimeout = function(request) {
+page.onResourceTimeout = function (request) {
     console.log("+- Request timeout: " + JSON.stringify(request));
 };
 
-page.onResourceError = function(resourceError) {
+page.onResourceError = function (resourceError) {
     console.log("+- Unable to load resource from URL: " + resourceError.url);
     console.log("|_ Error code: " + resourceError.errorCode);
     console.log("|_ Description: " + resourceError.errorString);
 };
 
 // PhantomJS emits this event for both pages and frames
-page.onLoadFinished = function(status) {
+page.onLoadFinished = function (status) {
     console.log("Loading page finished with status: " + status);
 };
 
 // Must be set before the page is opened
-page.onConsoleMessage = function(msg) {
+page.onConsoleMessage = function (msg) {
     console.log(msg);
 };
 
-page.open(options.url, function(status) {
+page.open(options.url, function (status) {
     if (status !== "success") {
         console.log("Unable to load the address: " + options.url);
         phantom.exit(1);
@@ -145,7 +145,7 @@ page.open(options.url, function(status) {
 });
 
 function loadAvailablePlugins(pluginPath) {
-    return fs.list(pluginPath).reduce(function(plugins, plugin) {
+    return fs.list(pluginPath).reduce(function (plugins, plugin) {
         var matches = plugin.match(/^(.*)\.js$/);
         if (matches && fs.isFile(pluginPath + plugin))
             plugins[matches[1]] = require(pluginPath + matches[1]);
@@ -168,25 +168,25 @@ function exportSlide(plugin) {
     // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
     var decktape = Promise.resolve()
         .then(delay(options.pause))
-        .then(function() { system.stdout.write('\r' + progressBar(plugin)) })
-        .then(function() { printer.printPage(page) });
+        .then(function () { system.stdout.write('\r' + progressBar(plugin)) })
+        .then(function () { printer.printPage(page) });
 
     if (options.screenshots) {
-        decktape = (options.screenshotSize || [options.size]).reduce(function(decktape, resolution) {
-            return decktape.then(function() { page.viewportSize = resolution })
+        decktape = (options.screenshotSize || [options.size]).reduce(function (decktape, resolution) {
+            return decktape.then(function () { page.viewportSize = resolution })
                 // Delay page rendering to wait for the resize event to complete, e.g. for impress.js (may be needed to be configurable)
                 .then(delay(1000))
-                .then(function() {
+                .then(function () {
                     page.render(options.screenshotDirectory + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { onlyViewport: true });
                 })
             }, decktape)
-            .then(function() { page.viewportSize = options.size })
+            .then(function () { page.viewportSize = options.size })
             .then(delay(1000));
     }
 
     decktape
-        .then(function() { return hasNextSlide(plugin) })
-        .then(function(hasNext) {
+        .then(function () { return hasNextSlide(plugin) })
+        .then(function (hasNext) {
             if (hasNext) {
                 nextSlide(plugin);
                 exportSlide(plugin);
@@ -244,7 +244,7 @@ function delay(time) {
     }
 }
 
-var configure = function(plugin) {
+var configure = function (plugin) {
     plugin.progressBarOverflow = 0;
     plugin.currentSlide = 1;
     plugin.totalSlides = slideCount(plugin);
@@ -252,22 +252,22 @@ var configure = function(plugin) {
         return plugin.configure();
 };
 
-var slideCount = function(plugin) {
+var slideCount = function (plugin) {
     return plugin.slideCount();
 };
 
-var hasNextSlide = function(plugin) {
+var hasNextSlide = function (plugin) {
     if (typeof plugin.hasNextSlide === "function")
         return plugin.hasNextSlide();
     else
         return plugin.currentSlide < plugin.totalSlides;
 };
 
-var nextSlide = function(plugin) {
+var nextSlide = function (plugin) {
     plugin.currentSlide++;
     return plugin.nextSlide();
 };
 
-var currentSlideIndex = function(plugin) {
+var currentSlideIndex = function (plugin) {
     return plugin.currentSlideIndex();
 };

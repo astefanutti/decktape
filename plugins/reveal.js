@@ -4,12 +4,12 @@ function Reveal(page) {
 
 Reveal.prototype = {
 
-    getName : function() {
+    getName: function () {
         return "Reveal JS";
     },
 
-    isActive : function() {
-        return this.page.evaluate(function() {
+    isActive: function () {
+        return this.page.evaluate(function () {
             if (typeof Reveal === "undefined")
                 return false;
 
@@ -22,34 +22,34 @@ Reveal.prototype = {
         });
     },
 
-    configure : function() {
-        this.page.evaluate(function() {
-            Reveal.configure({controls: false, progress: false});
+    configure: function () {
+        this.page.evaluate(function () {
+            Reveal.configure({ controls: false, progress: false });
         });
     },
 
-    slideCount : function() {
-        return this.page.evaluate(function() {
+    slideCount: function () {
+        return this.page.evaluate(function () {
             // TODO: the getTotalSlides API does not report the number of slides accurately as it does not take stacks and some index-less fragments into account
             // getTotalSlides API is only available starting reveal.js version 3.0.0
             return typeof Reveal.getTotalSlides === "function" ? Reveal.getTotalSlides() : undefined;
         });
     },
 
-    hasNextSlide : function() {
-        return this.page.evaluate(function() {
+    hasNextSlide: function () {
+        return this.page.evaluate(function () {
             return !Reveal.isLastSlide();
         });
     },
 
-    nextSlide : function() {
-        this.page.evaluate(function() {
+    nextSlide: function () {
+        this.page.evaluate(function () {
             Reveal.next();
         });
     },
 
-    currentSlideIndex : function() {
-        return this.page.evaluate(function() {
+    currentSlideIndex: function () {
+        return this.page.evaluate(function () {
             var indices = Reveal.getIndices();
             var id = Reveal.getCurrentSlide().getAttribute("id");
             if (typeof id === "string" && id.length)
@@ -60,6 +60,6 @@ Reveal.prototype = {
     }
 };
 
-exports.create = function(page) {
+exports.create = function (page) {
     return new Reveal(page);
 };

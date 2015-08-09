@@ -4,12 +4,12 @@ function Impress(page) {
 
 Impress.prototype = {
 
-    getName : function() {
+    getName: function () {
         return "Impress JS";
     },
 
-    isActive : function() {
-        return this.page.evaluate(function() {
+    isActive: function () {
+        return this.page.evaluate(function () {
             if (typeof impress === "function")
                 return true;
 
@@ -20,25 +20,25 @@ Impress.prototype = {
         });
     },
 
-    slideCount : function() {
-        return this.page.evaluate(function() {
+    slideCount: function () {
+        return this.page.evaluate(function () {
             return document.querySelectorAll("#impress .step, #impress .substep").length;
         });
     },
 
-    nextSlide : function() {
-        this.page.evaluate(function() {
+    nextSlide: function () {
+        this.page.evaluate(function () {
             impress().next();
         });
     },
 
-    currentSlideIndex : function() {
-        return this.page.evaluate(function() {
+    currentSlideIndex: function () {
+        return this.page.evaluate(function () {
             return window.location.hash.replace(/^#\/?/, "");
         });
     }
 };
 
-exports.create = function(page) {
+exports.create = function (page) {
     return new Impress(page);
 };
