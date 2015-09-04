@@ -35,6 +35,9 @@ You can browse some slide deck [examples](#examples) below that have been export
         curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-linux-centos7-x86-64 -o bin/phantomjs
         chmod +x bin/phantomjs
 
+        # Linux (Debian 8), 64-bit
+        curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-linux-debian8-x86-64 -o bin/phantomjs
+
     If the executable isn't available for your target platform, see the [Build](#build) section and follow the instructions.
 
 ## Usage
