@@ -86,7 +86,11 @@ Iterates over the [available plugins](/plugins), picks the compatible one for pr
 
 ### `generic`
 
-Emulates the end-user interaction by pressing the key with the specified `keycode` and iterates over the presentation as long as any change to the DOM is detected by observing mutation events to the body element and its subtree. The `keycode` value must be one of the [PhantomJS page event keys](https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329) and defaults to `Right`, e.g.:
+Emulates the end-user interaction by pressing the key with the specified `keycode` option and iterates over the presentation as long as:
++ Any change to the DOM is detected by observing mutation events targeting the body element and its subtree,
++ Nor the number of slides exported has reached the specified `maxSlides` option.
+
+The `keycode` value must be one of the [PhantomJS page event keys](https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329) and defaults to `Right`, e.g.:
 
 ```
 phantomjs decktape.js generic --keycode=Space

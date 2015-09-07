@@ -5,14 +5,19 @@ exports.options = {
     keycode: {
         default: "Right",
         help: "Key code pressed to navigate to next slide"
+    },
+    maxSlides: {
+        help: "Maximum number of slides to export"
     }
 };
 
 exports.help =
-    "Emulates the end-user interaction by pressing the key with the specified [keycode]\n" +
-    "and iterates over the presentation as long as any change to the DOM is detected\n" +
-    "by observing mutation events to the body element and its subtree.\n" +
-    "The [keycode] must be one of the PhantomJS page event keys and defaults to [Right].";
+    "Emulates the end-user interaction by pressing the key with the specified [keycode] option\n" +
+    "and iterates over the presentation as long as:\n" +
+    "- Any change to the DOM is detected by observing mutation events targeting the body element\n" +
+    "  and its subtree,\n" +
+    "- Nor the number of slides exported has reached the specified [maxSlides] option.\n" +
+    "The [keycode] option must be one of the PhantomJS page event keys and defaults to [Right].";
 
 exports.create = function (page, options) {
     return new Generic(page, options);
@@ -55,6 +60,8 @@ Generic.prototype = {
 
     // A priori knowledge is impossible to achieve in a generic way. Thus the only way is to actually emulate end-user interaction by pressing the configured key and check whether the DOM has changed a posteriori.
     hasNextSlide: function () {
+        if (this.options.maxSlides && this.currentSlide >= this.options.maxSlides)
+            return false;
         // PhantomJS actually sends a 'keydown' DOM event when sending a 'keypress' user event. Hence 'keypress' event is skipped to avoid moving forward two steps instead of one. See https://github.com/ariya/phantomjs/issues/11094 for more details.
         ["keydown"/*, "keypress"*/, "keyup"].forEach(function (event) {
             this.page.sendEvent(event, this.keycode);
