@@ -30,6 +30,9 @@ You can browse some slide deck [examples](#examples) below that have been export
         # Mac OS X (Cocoa), 64-bit, for OS X 10.6 or later
         curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-osx-cocoa-x86-64 -o bin/phantomjs
 
+        # Linux (CentOS 6), 64-bit
+        curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-linux-centos6-x86-64 -o bin/phantomjs
+
         # Linux (CentOS 7), 64-bit
         curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-linux-centos7-x86-64 -o bin/phantomjs
 
