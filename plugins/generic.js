@@ -22,6 +22,7 @@ function Generic(page, options) {
     this.page = page;
     this.options = options;
     this.isNextSlideDetected = false;
+    this.keycode = this.page.event.key[this.options.keycode || exports.options.keycode.default];
 }
 
 Generic.prototype = {
@@ -52,12 +53,16 @@ Generic.prototype = {
         return undefined;
     },
 
+    // A priori knowledge is impossible to achieve in a generic way. Thus the only way is to actually emulate end-user interaction by pressing the configured key and check whether the DOM has changed a posteriori.
     hasNextSlide: function () {
-        // A priori knowledge is impossible to achieve in a generic way. Thus the only way is to actually emulate end-user interaction by pressing the configured key and check whether the DOM has changed a posteriori.
-        this.page.sendEvent("keypress", this.page.event.key[this.options.keycode || exports.options.keycode.default]);
+        // PhantomJS actually sends a 'keydown' DOM event when sending a 'keypress' user event. Hence 'keypress' event is skipped to avoid moving forward two steps instead of one. See https://github.com/ariya/phantomjs/issues/11094 for more details.
+        ["keydown"/*, "keypress"*/, "keyup"].forEach(function (event) {
+            this.page.sendEvent(event, this.keycode);
+        }, this);
         var plugin = this;
         return new Promise(function (fulfill) {
             // TODO: use mutation event directly instead of relying on a timeout
+            // TODO: detect cycle to avoid infinite navigation for frameworks that support loopable presentations like impress.js and flowtime.js
             setTimeout(function () {
                 fulfill(plugin.isNextSlideDetected);
             }, 1000);
