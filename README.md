@@ -22,6 +22,15 @@ docker run --rm --net=host -v $(pwd):/output astefanutti/decktape http://localho
 
 Your slides will be created under `slides.pdf` filename in the current directory.
 
+You can also build the Docker images before running the container :
+
+```sh
+git clone https://github.com/astefanutti/decktape.git
+cd decktape/
+docker build -t astefanutti/decktape .
+docker run --rm --net=host -v $(pwd):/output astefanutti/decktape http://localhost:8000 /output/slides.pdf
+```
+
 ## Install
 
 1. Shallow clone DeckTape Git repository:
