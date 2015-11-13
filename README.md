@@ -12,6 +12,16 @@ DeckTape can optionally be used to capture screenshots of your slide decks in va
 
 You can browse some slide deck [examples](#examples) below that have been exported with DeckTape.
 
+## The easy way to use
+
+If you have Docker installed, you can easly use DeckTape. First launch your presentation (under `http://localhost:8000` for example). Then use the following command :
+
+```sh
+docker run --rm --net=host -v $(pwd):/output astefanutti/decktape http://localhost:8000 /output/slides.pdf
+```
+
+Your slides will be created under `slides.pdf` filename in the current directory.
+
 ## Install
 
 1. Shallow clone DeckTape Git repository:
@@ -50,7 +60,7 @@ You can browse some slide deck [examples](#examples) below that have been export
 Into DeckTape install directory:
 
 ```
-bin/phantomjs decktape.js -h
+./bin/phantomjs decktape.js -h
 
 Usage: phantomjs decktape.js [options] [command] <url> <filename>
 
@@ -75,7 +85,7 @@ specified <url> and uses it to export and write the PDF into the specified <file
 In addition to the general options listed above, command specific options can be displayed the following way:
 
 ```
-phantomjs decktape.js <command> -h
+./bin/phantomjs decktape.js <command> -h
 ```
 
 ## Commands
@@ -93,7 +103,7 @@ Emulates the end-user interaction by pressing the key with the specified `keycod
 The `keycode` value must be one of the [PhantomJS page event keys](https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329) and defaults to `Right`, e.g.:
 
 ```
-phantomjs decktape.js generic --keycode=Space
+./bin/phantomjs decktape.js generic --keycode=Space
 ```
 
 ## Options
@@ -103,7 +113,7 @@ phantomjs decktape.js generic --keycode=Space
 Captures each slide as an image at the `screenshots-size` resolution, exports it to the `screenshots-format` image format and writes the output into the `screenshots-directory` directory. The `screenshots-size` option can be set multiple times, e.g.:
 
 ```
-phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
+./bin/phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
 ```
 
 ## Build
@@ -120,7 +130,7 @@ To build the [forked version](https://github.com/astefanutti/phantomjs/commits/d
 
 3. Launch the build script:
 
-        build
+        ./build.sh
 
 More information can be found in [Compiling PhantomJS from source](http://phantomjs.org/build.html) and in [Building Qt 5 from Git](https://wiki.qt.io/Building_Qt_5_from_Git).
 
