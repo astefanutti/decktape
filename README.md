@@ -14,6 +14,8 @@ You can browse some slide deck [examples](#examples) below that have been export
 
 ## Install
 
+DeckTape provides a [Docker image](https://hub.docker.com/r/astefanutti/decktape/) so that its installation is made easier with [Docker](https://www.docker.com). If you have Docker installed, you can directly jump to the [Docker section](#docker). Else, you can follow the instructions below:
+
 1. Shallow clone DeckTape Git repository:
 
         git clone --depth 1 https://github.com/astefanutti/decktape.git
@@ -45,12 +47,59 @@ You can browse some slide deck [examples](#examples) below that have been export
 
     If the executable isn't available for your target platform, see the [Build](#build) section and follow the instructions.
 
+## Docker
+
+DeckTape can be executed within a Docker container from the command-line:
+
+```
+docker run astefanutti/decktape -h
+```
+
+For example, to convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
+
+```
+docker run --rm -v `pwd`:/pwd astefanutti/decktape http://lab.hakim.se/reveal-js/ /pwd/slides.pdf
+```
+
+Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
+
+```
+docker run --rm -v `pwd`:/pwd -v ~:/home astefanutti/decktape /home/slides.html /pwd/slides.pdf
+```
+
+Or, to convert an HTML presentation that's deployed on the local host:
+
+```
+docker run --rm --net=host -v `pwd`:/pwd astefanutti/decktape http://localhost:8000 /pwd/slides.pdf
+```
+
+It is recommended to use the following options from the [`docker run`](http://docs.docker.com/engine/reference/run/) command:
+- [`--rm`](https://docs.docker.com/reference/run/#clean-up-rm): DeckTape is meant to be run as a short-term foreground process so that it's not necessary to have the container’s file system persisted after DeckTape exits,
+- [`-v`](http://docs.docker.com/engine/reference/commandline/run/#mount-volume-v-read-only): to mount a data volume so that DeckTape can directly write to the local file system.
+
+Alternatively, you can use the [`docker cp`](http://docs.docker.com/engine/reference/commandline/cp/) command, e.g.:
+
+```sh
+# Run docker run without the --rm option
+docker run astefanutti/decktape http://lab.hakim.se/reveal-js/ slides.pdf
+# Copy the exported PDF from the latest used container to the local file system
+docker cp `docker ps -lq`:decktape/slides.pdf .
+# Finally remove the latest used container
+docker rm `docker ps -lq`
+```
+
+Finally, if you want to execute DeckTape using a local clone of the DeckTape repository in order to take your changes into account, you can run:
+
+```
+docker run --rm -v `pwd`:`pwd` -w `pwd` astefanutti/decktape slides.html slides.pdf
+```
+
 ## Usage
 
 Into DeckTape install directory:
 
 ```
-bin/phantomjs decktape.js -h
+./bin/phantomjs decktape.js -h
 
 Usage: phantomjs decktape.js [options] [command] <url> <filename>
 
@@ -75,7 +124,7 @@ specified <url> and uses it to export and write the PDF into the specified <file
 In addition to the general options listed above, command specific options can be displayed the following way:
 
 ```
-phantomjs decktape.js <command> -h
+./bin/phantomjs decktape.js <command> -h
 ```
 
 ## Commands
@@ -93,7 +142,7 @@ Emulates the end-user interaction by pressing the key with the specified `keycod
 The `keycode` value must be one of the [PhantomJS page event keys](https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329) and defaults to `Right`, e.g.:
 
 ```
-phantomjs decktape.js generic --keycode=Space
+./bin/phantomjs decktape.js generic --keycode=Space
 ```
 
 ## Options
@@ -103,7 +152,7 @@ phantomjs decktape.js generic --keycode=Space
 Captures each slide as an image at the `screenshots-size` resolution, exports it to the `screenshots-format` image format and writes the output into the `screenshots-directory` directory. The `screenshots-size` option can be set multiple times, e.g.:
 
 ```
-phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
+./bin/phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
 ```
 
 ## Build
@@ -120,7 +169,7 @@ To build the [forked version](https://github.com/astefanutti/phantomjs/commits/d
 
 3. Launch the build script:
 
-        build
+        ./build.sh
 
 More information can be found in [Compiling PhantomJS from source](http://phantomjs.org/build.html) and in [Building Qt 5 from Git](https://wiki.qt.io/Building_Qt_5_from_Git).
 
