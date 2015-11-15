@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:8
 
 RUN apt-get update
 RUN apt-get install -y libwebp5 libfontconfig libjpeg62 libssl1.0.0 libicu52 curl
