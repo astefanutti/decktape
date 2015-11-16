@@ -166,7 +166,7 @@ To build the [forked version](https://github.com/astefanutti/phantomjs/commits/d
 1. Initialize and check out the `phantomjs` submodule:
 
     ```
-    $ git submodule update --init
+    $ git submodule update --init --recursive
     ```
 
 2. Change into the `phantomjs` directory:
@@ -178,7 +178,7 @@ To build the [forked version](https://github.com/astefanutti/phantomjs/commits/d
 3. Launch the build script:
 
     ```
-    $ ./build.sh
+    $ ./build.py
     ```
 
 More information can be found in [Compiling PhantomJS from source](http://phantomjs.org/build.html) and in [Building Qt 5 from Git](https://wiki.qt.io/Building_Qt_5_from_Git).
