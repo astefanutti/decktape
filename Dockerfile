@@ -27,3 +27,4 @@ RUN curl \
 RUN chmod +x bin/phantomjs
 
 ENTRYPOINT ["/decktape/bin/phantomjs", "decktape.js"]
+CMD ["-h"]
