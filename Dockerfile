@@ -16,7 +16,7 @@ WORKDIR /decktape
 # COPY . .
 COPY libs libs/
 COPY plugins plugins/
-COPY decktape.js .
+COPY decktape.js ./
 
 RUN mkdir bin
 
