@@ -10,9 +10,13 @@ RUN apt-get install -y \
     libssl1.0.0 \
     libicu52
 
-COPY . /decktape
-
 WORKDIR /decktape
+
+# Copy each directory individually as Docker Hub does not take .dockerignore into account for the moment
+# COPY . .
+COPY libs libs/
+COPY plugins plugins/
+COPY decktape.js .
 
 RUN mkdir bin
 
