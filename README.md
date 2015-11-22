@@ -14,7 +14,7 @@ You can browse some slide deck [examples](#examples) below that have been export
 
 ## Install
 
-DeckTape provides a [Docker image](https://hub.docker.com/r/astefanutti/decktape/) so that its installation is made easier with [Docker](https://www.docker.com). If you have Docker installed, you can directly jump to the [Docker section](#docker). Else, you can follow the instructions below:
+From the command-line, follow the instructions below:
 
 1. Shallow clone DeckTape Git repository:
 
@@ -49,54 +49,7 @@ DeckTape provides a [Docker image](https://hub.docker.com/r/astefanutti/decktape
     $ chmod +x bin/phantomjs
     ```
 
-    If the executable isn't available for your target platform, see the [Build](#build) section and follow the instructions.
-
-## Docker
-
-DeckTape can be executed within a Docker container from the command-line:
-
-```sh
-$ docker run astefanutti/decktape -h
-```
-
-- For example, to convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
-
-    ```sh
-    $ docker run --rm -v `pwd`:/pwd astefanutti/decktape http://lab.hakim.se/reveal-js/ /pwd/slides.pdf
-    ```
-
-- Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
-
-    ```sh
-    $ docker run --rm -v `pwd`:/pwd -v ~:/home astefanutti/decktape /home/slides.html /pwd/slides.pdf
-    ```
-
-- Or, to convert an HTML presentation that's deployed on the local host:
-
-    ```sh
-    $ docker run --rm --net=host -v `pwd`:/pwd astefanutti/decktape http://localhost:8000 /pwd/slides.pdf
-    ```
-
-It is recommended to use the following options from the [`docker run`](http://docs.docker.com/engine/reference/run/) command:
-- [`--rm`](https://docs.docker.com/reference/run/#clean-up-rm): DeckTape is meant to be run as a short-term foreground process so that it's not necessary to have the container’s file system persisted after DeckTape exits,
-- [`-v`](http://docs.docker.com/engine/reference/commandline/run/#mount-volume-v-read-only): to mount a data volume so that DeckTape can directly write to the local file system.
-
-Alternatively, you can use the [`docker cp`](http://docs.docker.com/engine/reference/commandline/cp/) command, e.g.:
-
-```sh
-# Run docker run without the --rm option
-$ docker run astefanutti/decktape http://lab.hakim.se/reveal-js/ slides.pdf
-# Copy the exported PDF from the latest used container to the local file system
-$ docker cp `docker ps -lq`:decktape/slides.pdf .
-# Finally remove the latest used container
-$ docker rm `docker ps -lq`
-```
-
-Finally, if you want to execute DeckTape using a local clone of the DeckTape repository in order to take your changes into account, you can run:
-
-```sh
-$ docker run --rm -v `pwd`:`pwd` -w `pwd` astefanutti/decktape slides.html slides.pdf
-```
+If the executable isn't available for your target platform, see the [Build](#build) section and follow the instructions. Alternatively, DeckTape provides a [Docker image](https://hub.docker.com/r/astefanutti/decktape/) so that you can directly execute it with [Docker](https://www.docker.com). See the [Docker section](#docker) for more information.
 
 ## Usage
 
@@ -182,6 +135,55 @@ To build the [forked version](https://github.com/astefanutti/phantomjs/commits/d
     ```
 
 More information can be found in [Compiling PhantomJS from source](http://phantomjs.org/build.html) and in [Building Qt 5 from Git](https://wiki.qt.io/Building_Qt_5_from_Git).
+
+## Docker
+
+DeckTape can be executed within a Docker container from the command-line using the [`astefanutti/decktape`](https://hub.docker.com/r/astefanutti/decktape/) Docker image available on [Docker Hub](https://hub.docker.com/):
+
+```sh
+$ docker run astefanutti/decktape -h
+```
+
+For example:
+
+- To convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
+
+    ```sh
+    $ docker run --rm -v `pwd`:/pwd astefanutti/decktape http://lab.hakim.se/reveal-js/ /pwd/slides.pdf
+    ```
+
+- Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
+
+    ```sh
+    $ docker run --rm -v `pwd`:/pwd -v ~:/home astefanutti/decktape /home/slides.html /pwd/slides.pdf
+    ```
+
+- Or, to convert an HTML presentation that's deployed on the local host:
+
+    ```sh
+    $ docker run --rm --net=host -v `pwd`:/pwd astefanutti/decktape http://localhost:8000 /pwd/slides.pdf
+    ```
+
+It is recommended to use the following options from the [`docker run`](http://docs.docker.com/engine/reference/run/) command:
+- [`--rm`](https://docs.docker.com/reference/run/#clean-up-rm): DeckTape is meant to be run as a short-term foreground process so that it's not necessary to have the container’s file system persisted after DeckTape exits,
+- [`-v`](http://docs.docker.com/engine/reference/commandline/run/#mount-volume-v-read-only): to mount a data volume so that DeckTape can directly write to the local file system.
+
+Alternatively, you can use the [`docker cp`](http://docs.docker.com/engine/reference/commandline/cp/) command, e.g.:
+
+```sh
+# Run docker run without the --rm option
+$ docker run astefanutti/decktape http://lab.hakim.se/reveal-js/ slides.pdf
+# Copy the exported PDF from the latest used container to the local file system
+$ docker cp `docker ps -lq`:decktape/slides.pdf .
+# Finally remove the latest used container
+$ docker rm `docker ps -lq`
+```
+
+Finally, if you want to execute DeckTape using a local clone of the DeckTape repository in order to take your changes into account, you can run:
+
+```sh
+$ docker run --rm -v `pwd`:`pwd` -w `pwd` astefanutti/decktape slides.html slides.pdf
+```
 
 ## Plugins
 
