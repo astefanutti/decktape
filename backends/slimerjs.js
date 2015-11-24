@@ -15,23 +15,19 @@ SlimerJS.prototype = {
 
     init : function(options) {
         this.options = options;
-
-        if (!this.options.screenshots) {
-            console.log("Please use --screenshots and --screenshots-directory option when using SlimerJS backend.")
-            phantom.exit();
-        }
     },
 
     initRendering : function(plugin) {
         this.pageCounter = 0;
-        this.pagesPath = [];
         this.plugin = plugin;
     },
 
     printPage : function(page) {
-        // PDF rendering does not work for SlimerJS backend
+        var n = this.formatedNumSlide();
+        var filename = this.options.filename + "_" + n + ".pdf";
+        page.render(filename);
+        this.pageCounter += 1;
     },
-
 
     printScreenshot : function(page, decktape) {
 
@@ -39,8 +35,6 @@ SlimerJS.prototype = {
             var n = this.formatedNumSlide();
             var filename = this.options.screenshotDirectory + "/slide_" + n + "." + this.options.screenshotFormat;
             page.render(filename);
-            this.pagesPath.push(filename);
-            this.pageCounter += 1;
         }
     },
 
