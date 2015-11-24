@@ -274,6 +274,7 @@ var currentSlideIndex = function (plugin) {
 
 function detectActiveBackend(navigator) {
     var backends = fs.list(phantom.libraryPath + "/backends/");
+
     for (var i = 0; i < backends.length; i++) {
         if (!fs.isFile(phantom.libraryPath + "/backends/" + backends[i]))
             continue;

@@ -16,7 +16,7 @@ PhantomJS.prototype = {
     init : function(options) {
         printer.paperSize = { width: options.width + "px", height: options.height + "px", margin: "0px" };
         printer.outputFileName = options.filename;
-        this.option = option;
+        this.options = options;
     },
 
     initRendering : function(plugin) {
@@ -24,7 +24,7 @@ PhantomJS.prototype = {
         this.plugin = plugin;
     },
 
-    printPage : function(page) {
+    printPage : function(page, plugin) {
         printer.printPage(page);
     },
 
