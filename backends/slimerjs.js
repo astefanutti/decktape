@@ -23,9 +23,11 @@ SlimerJS.prototype = {
     },
 
     printPage : function(page) {
-        var n = this.formatedNumSlide();
-        var filename = this.options.filename + "_" + n + ".pdf";
-        page.render(filename);
+        if (!this.options.screenshots) {
+            var n = this.formatedNumSlide();
+            var filename = this.options.filename + "_" + n + ".pdf";
+            page.render(filename);
+        }
         this.pageCounter += 1;
     },
 
