@@ -1,7 +1,6 @@
 require.paths.push(phantom.libraryPath + "/libs/");
 
 var page = require("webpage").create(),
-    printer = require("printer").create(),
     system = require("system"),
     fs = require("fs"),
     Promise = require("promise");
@@ -21,8 +20,21 @@ if (system.platform === "slimerjs")
 
 var plugins = loadAvailablePlugins(phantom.libraryPath + "/plugins/");
 
+// Load rendering backend
+var backend = detectActiveBackend(navigator);
+if (!backend) {
+    // Should not happen
+    console.log("No DeckTape backend found");
+    phantom.exit(1);
+}
+else{
+    console.log("Rendering backend used is " + backend.getName());
+}
+
+// Handle parameters
+
 var parser = require("nomnom")
-    .script("phantomjs decktape.js")
+    .script(backend.getName().toLowerCase() + " decktape.js")
     .options({
         url: {
             position: 1,
@@ -31,7 +43,7 @@ var parser = require("nomnom")
         },
         filename: {
             position: 2,
-            required: true,
+            required: false,
             help: "Filename of the output PDF file"
         },
         size: {
@@ -91,8 +103,7 @@ if (system.os.name === "windows")
 var options = parser.parse(system.args.slice(1));
 
 page.viewportSize = options.size;
-printer.paperSize = { width: options.size.width + "px", height: options.size.height + "px", margin: "0px" };
-printer.outputFileName = options.filename;
+backend.init(options);
 
 page.onLoadStarted = function () {
     console.log("Loading page " + options.url + " ...");
@@ -139,7 +150,7 @@ page.open(options.url, function (status) {
         }
         console.log(plugin.getName() + " DeckTape plugin activated");
         configure(plugin);
-        printer.begin();
+        backend.initRendering(plugin);
         exportSlide(plugin);
     }
 });
@@ -169,20 +180,9 @@ function exportSlide(plugin) {
     var decktape = Promise.resolve()
         .then(delay(options.pause))
         .then(function () { system.stdout.write('\r' + progressBar(plugin)) })
-        .then(function () { printer.printPage(page) });
+        .then(function () { backend.printPage(page, plugin); });
 
-    if (options.screenshots) {
-        decktape = (options.screenshotSize || [options.size]).reduce(function (decktape, resolution) {
-            return decktape.then(function () { page.viewportSize = resolution })
-                // Delay page rendering to wait for the resize event to complete, e.g. for impress.js (may be needed to be configurable)
-                .then(delay(1000))
-                .then(function () {
-                    page.render(options.screenshotDirectory + '/' + options.filename.replace(".pdf", '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { onlyViewport: true });
-                })
-            }, decktape)
-            .then(function () { page.viewportSize = options.size })
-            .then(delay(1000));
-    }
+    backend.printScreenshot(page, decktape);
 
     decktape
         .then(function () { return hasNextSlide(plugin) })
@@ -191,7 +191,7 @@ function exportSlide(plugin) {
                 nextSlide(plugin);
                 exportSlide(plugin);
             } else {
-                printer.end();
+                backend.endRendering();
                 system.stdout.write("\nPrinted " + plugin.currentSlide + " slides\n");
                 phantom.exit();
             }
@@ -271,3 +271,18 @@ var nextSlide = function (plugin) {
 var currentSlideIndex = function (plugin) {
     return plugin.currentSlideIndex();
 };
+
+function detectActiveBackend(navigator) {
+    var backends = fs.list(phantom.libraryPath + "/backends/");
+
+    for (var i = 0; i < backends.length; i++) {
+        if (!fs.isFile(phantom.libraryPath + "/backends/" + backends[i]))
+            continue;
+        var matches = backends[i].match(/^(.*)\.js$/);
+        if (!matches)
+            continue;
+        var backend = require(phantom.libraryPath + "/backends/" + matches[1]);
+        if (backend.isActive())
+            return backend;
+    }
+}
