@@ -1,4 +1,4 @@
-FROM debian:8
+FROM debian:8.3
 
 RUN apt-get update
 
@@ -20,7 +20,7 @@ COPY decktape.js ./
 
 RUN mkdir bin
 
-RUN curl \
+RUN curl -k \
     -L https://astefanutti.github.io/decktape/downloads/phantomjs-linux-debian8-x86-64 \
     -o bin/phantomjs
 
