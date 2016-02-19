@@ -17,6 +17,7 @@ WORKDIR /decktape
 COPY libs libs/
 COPY plugins plugins/
 COPY decktape.js ./
+COPY phantomjs.json ./
 
 RUN mkdir bin
 
