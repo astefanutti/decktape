@@ -4,7 +4,9 @@ DeckTape is a high-quality PDF exporter for HTML5 presentation frameworks. It su
 
 DeckTape is built on top of [PhantomJS](http://phantomjs.org) which relies on [Qt WebKit](https://wiki.qt.io/Qt_WebKit) for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
 
-DeckTape currently supports the [CSSS](http://leaverou.github.io/csss/), [deck.js](http://imakewebthings.com/deck.js/), [DZSlides](http://paulrouget.com/dzslides/), [flowtime.js](http://flowtime-js.marcolago.com), [HTML Slidy](http://www.w3.org/Talks/Tools/), [impress.js](http://impress.github.io/impress.js), [remark.js](http://remarkjs.com), [reveal.js](http://lab.hakim.se/reveal-js) and [Shower](http://shwr.me/) presentation frameworks out-of-the-box. Besides, DeckTape provides a [generic command](#generic) that emulates the end-user interaction and that can be used to convert presentations from virtually any kind of frameworks. That is particularly useful to support HTML presentation frameworks that don't expose any API nor accessible state, like [Bespoke.js](https://github.com/markdalgleish/bespoke.js) for example.
+DeckTape currently supports the [Bespoke.js](https://github.com/markdalgleish/bespoke.js), [CSSS](http://leaverou.github.io/csss/), [deck.js](http://imakewebthings.com/deck.js/), [DZSlides](http://paulrouget.com/dzslides/), [flowtime.js](http://flowtime-js.marcolago.com), [HTML Slidy](http://www.w3.org/Talks/Tools/), [impress.js](http://impress.github.io/impress.js), [remark.js](http://remarkjs.com), [reveal.js](http://lab.hakim.se/reveal-js) and [Shower](http://shwr.me/) presentation frameworks out-of-the-box.
+
+DeckTape also provides a [generic command](#generic) that emulates the end-user interaction and that can be used to convert presentations from virtually any kind of frameworks. This mode is particularly useful to support HTML presentation frameworks that don't expose any API nor accessible state.
 
 DeckTape's plugin-based architecture exposes an extension API so that it is possible to add support for other frameworks or tailored existing plugins to your specific needs.
 
@@ -60,7 +62,7 @@ $ ./bin/phantomjs decktape.js -h
 
 Usage: phantomjs decktape.js [options] [command] <url> <filename>
 
-command      one of: automatic, csss, deck, dzslides, flowtime, generic, impress,
+command      one of: automatic, bespoke, csss, deck, dzslides, flowtime, generic, impress,
              remark, reveal, shower, slidy
 url          URL of the slides deck
 filename     Filename of the output PDF file
