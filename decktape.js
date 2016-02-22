@@ -36,7 +36,6 @@ var parser = require("nomnom")
         },
         size: {
             abbr: 's',
-            default: "1280x720",
             callback: parseResolution,
             transform: parseResolution,
             help: "Size of the slides deck viewport: <width>x<height>"
@@ -89,10 +88,6 @@ if (system.os.name === "windows")
     parser.nocolors();
 
 var options = parser.parse(system.args.slice(1));
-
-page.viewportSize = options.size;
-printer.paperSize = { width: options.size.width + "px", height: options.size.height + "px", margin: "0px" };
-printer.outputFileName = options.filename;
 
 page.onLoadStarted = function () {
     console.log("Loading page " + options.url + " ...");
@@ -245,6 +240,13 @@ function delay(time) {
 }
 
 var configure = function (plugin) {
+    if (!options.size && typeof plugin.size === "function")
+        options.size = plugin.size();
+    if (!options.size)
+        options.size = { width: 1280, height: 720 };
+    page.viewportSize = options.size;
+    printer.paperSize = { width: options.size.width + "px", height: options.size.height + "px", margin: "0px" };
+    printer.outputFileName = options.filename;
     plugin.progressBarOverflow = 0;
     plugin.currentSlide = 1;
     plugin.totalSlides = slideCount(plugin);
