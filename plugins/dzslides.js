@@ -5,12 +5,12 @@ function DZSlides(page) {
 DZSlides.prototype = {
 
     getName: function () {
-        return "DZ Slides";
+        return 'DZ Slides';
     },
 
     isActive: function () {
         return this.page.evaluate(function () {
-            return typeof Dz !== "undefined";
+            return typeof Dz !== 'undefined';
         });
     },
 
@@ -37,7 +37,7 @@ DZSlides.prototype = {
 
     currentSlideIndex: function () {
         return this.page.evaluate(function () {
-            return Dz.idx + "." + Dz.step;
+            return Dz.idx + '.' + Dz.step;
         });
     }
 };

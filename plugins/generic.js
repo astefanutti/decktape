@@ -3,21 +3,21 @@
 
 exports.options = {
     keycode: {
-        default: "Right",
-        help: "Key code pressed to navigate to next slide"
+        default: 'Right',
+        help: 'Key code pressed to navigate to next slide'
     },
     maxSlides: {
-        help: "Maximum number of slides to export"
+        help: 'Maximum number of slides to export'
     }
 };
 
 exports.help =
-    "Emulates the end-user interaction by pressing the key with the specified [keycode] option\n" +
-    "and iterates over the presentation as long as:\n" +
-    "- Any change to the DOM is detected by observing mutation events targeting the body element\n" +
-    "  and its subtree,\n" +
-    "- Nor the number of slides exported has reached the specified [maxSlides] option.\n" +
-    "The [keycode] option must be one of the PhantomJS page event keys and defaults to [Right].";
+    'Emulates the end-user interaction by pressing the key with the specified [keycode] option\n' +
+    'and iterates over the presentation as long as:\n' +
+    '- Any change to the DOM is detected by observing mutation events targeting the body element\n' +
+    '  and its subtree,\n' +
+    '- Nor the number of slides exported has reached the specified [maxSlides] option.\n' +
+    'The [keycode] option must be one of the PhantomJS page event keys and defaults to [Right].';
 
 exports.create = function (page, options) {
     return new Generic(page, options);
@@ -33,7 +33,7 @@ function Generic(page, options) {
 Generic.prototype = {
 
     getName: function () {
-        return "Generic";
+        return 'Generic';
     },
 
     isActive: function () {
@@ -45,7 +45,7 @@ Generic.prototype = {
             var observer = new window.MutationObserver(function () {
                 window.callPhantom({ isNextSlideDetected: true });
             });
-            observer.observe(document.querySelector("body"), { attributes: true, childList: true, subtree: true });
+            observer.observe(document.querySelector('body'), { attributes: true, childList: true, subtree: true });
         });
         var plugin = this;
         this.page.onCallback = function (mutation) {
@@ -63,7 +63,7 @@ Generic.prototype = {
         if (this.options.maxSlides && this.currentSlide >= this.options.maxSlides)
             return false;
         // PhantomJS actually sends a 'keydown' DOM event when sending a 'keypress' user event. Hence 'keypress' event is skipped to avoid moving forward two steps instead of one. See https://github.com/ariya/phantomjs/issues/11094 for more details.
-        ["keydown"/*, "keypress"*/, "keyup"].forEach(function (event) {
+        ['keydown'/*, 'keypress'*/, 'keyup'].forEach(function (event) {
             this.page.sendEvent(event, this.keycode);
         }, this);
         var plugin = this;
@@ -82,7 +82,7 @@ Generic.prototype = {
 
     currentSlideIndex: function () {
         var fragment = this.page.evaluate(function () {
-            return window.location.hash.replace(/^#\/?/, "");
+            return window.location.hash.replace(/^#\/?/, '');
         });
         return fragment.length ? fragment : this.currentSlide;
     }

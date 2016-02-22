@@ -5,30 +5,30 @@ function Deck(page) {
 Deck.prototype = {
 
     getName: function () {
-        return "Deck JS";
+        return 'Deck JS';
     },
 
     isActive: function () {
         return this.page.evaluate(function () {
-            return typeof $ === "function" && typeof $.deck === "function";
+            return typeof $ === 'function' && typeof $.deck === 'function';
         });
     },
 
     slideCount: function () {
         return this.page.evaluate(function () {
-            return $.deck("getSlides").length;
+            return $.deck('getSlides').length;
         });
     },
 
     nextSlide: function () {
         this.page.evaluate(function () {
-            $.deck("next");
+            $.deck('next');
         });
     },
 
     currentSlideIndex: function () {
         return this.page.evaluate(function () {
-            return $.deck("getSlide").attr("id");
+            return $.deck('getSlide').attr('id');
         });
     }
 };

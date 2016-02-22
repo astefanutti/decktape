@@ -5,25 +5,25 @@ function CSSS(page) {
 CSSS.prototype = {
 
     getName: function () {
-        return "CSSS";
+        return 'CSSS';
     },
 
     isActive: function () {
         return this.page.evaluate(function () {
             // Avoid global variable name collision with remark.js
-            return typeof remark === "undefined" && typeof slideshow === "object";
+            return typeof remark === 'undefined' && typeof slideshow === 'object';
         });
     },
 
     configure: function () {
         this.page.evaluate(function () {
-            document.getElementById("timer").style.display = "none";
+            document.getElementById('timer').style.display = 'none';
         });
     },
 
     slideCount: function () {
         return this.page.evaluate(function () {
-            return document.querySelectorAll(".slide, .delayed, .delayed-children > *").length;
+            return document.querySelectorAll('.slide, .delayed, .delayed-children > *').length;
         });
     },
 

@@ -6,12 +6,12 @@ function Remark(page) {
 Remark.prototype = {
 
     getName: function () {
-        return "Remark JS";
+        return 'Remark JS';
     },
 
     isActive: function () {
         return this.page.evaluate(function () {
-            return typeof remark === "object" && typeof slideshow === "object";
+            return typeof remark === 'object' && typeof slideshow === 'object';
         });
     },
 

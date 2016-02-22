@@ -5,16 +5,16 @@ function Impress(page) {
 Impress.prototype = {
 
     getName: function () {
-        return "Impress JS";
+        return 'Impress JS';
     },
 
     isActive: function () {
         return this.page.evaluate(function () {
-            if (typeof impress === "function")
+            if (typeof impress === 'function')
                 return true;
 
-            if (document.getElementById("impress"))
-                console.log("Impress JS plugin isn't compatible with impress.js version < 0.3.0");
+            if (document.getElementById('impress'))
+                console.log('Impress JS plugin isn\'t compatible with impress.js version < 0.3.0');
 
             return false;
         });
@@ -22,7 +22,7 @@ Impress.prototype = {
 
     slideCount: function () {
         return this.page.evaluate(function () {
-            return document.querySelectorAll("#impress .step, #impress .substep").length;
+            return document.querySelectorAll('#impress .step, #impress .substep').length;
         });
     },
 
@@ -34,7 +34,7 @@ Impress.prototype = {
 
     currentSlideIndex: function () {
         return this.page.evaluate(function () {
-            return window.location.hash.replace(/^#\/?/, "");
+            return window.location.hash.replace(/^#\/?/, '');
         });
     }
 };

@@ -5,12 +5,12 @@ function Flowtime(page) {
 Flowtime.prototype = {
 
     getName: function () {
-        return "Flowtime JS";
+        return 'Flowtime JS';
     },
 
     isActive: function () {
         return this.page.evaluate(function () {
-            return typeof Flowtime === "object";
+            return typeof Flowtime === 'object';
         });
     },
 
@@ -39,7 +39,7 @@ Flowtime.prototype = {
 
     currentSlideIndex: function () {
         return this.page.evaluate(function () {
-            return "/section-" + (Flowtime.getSectionIndex() + 1) + "/page-" + (Flowtime.getPageIndex() + 1);
+            return '/section-' + (Flowtime.getSectionIndex() + 1) + '/page-' + (Flowtime.getPageIndex() + 1);
         });
     }
 };

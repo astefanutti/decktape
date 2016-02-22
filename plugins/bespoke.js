@@ -1,6 +1,6 @@
 exports.create = function(page) {
   return {
-    getName: function() { return "Bespoke.js"; },
+    getName: function() { return 'Bespoke.js'; },
     isActive: function() { return page.evaluate(function() { return !!((window.bespoke||{}).deck ? (deck = bespoke.deck) : 0); }); },
     size: function() { return page.evaluate(function() {
       var style = getComputedStyle(deck.slides[0]);
