@@ -15,7 +15,8 @@ var process = {
     //stdout: system.stdout,
     exit: phantom.exit
 };
-// As opposed to PhantomJS, global variables declared in the main script are not accessible in modules loaded with require
+// As opposed to PhantomJS, global variables declared in the main script are not accessible
+// in modules loaded with require
 if (system.platform === 'slimerjs')
     require.globals.process = process;
 
@@ -158,6 +159,42 @@ function createActivePlugin() {
     }
 }
 
+function configure(plugin) {
+    if (!options.size)
+        if (typeof plugin.size === 'function')
+            options.size = plugin.size();
+        else
+            // TODO: per-plugin default size
+            options.size = { width: 1280, height: 720 };
+    page.viewportSize = options.size;
+    printer.paperSize = {
+        width: options.size.width + 'px',
+        height: options.size.height + 'px',
+        margin: '0px'
+    };
+    printer.outputFileName = options.filename;
+    // TODO: ideally defined in the plugin prototype
+    plugin.progressBarOverflow = 0;
+    plugin.currentSlide = 1;
+    plugin.totalSlides = plugin.slideCount();
+    if (typeof plugin.configure === 'function')
+        return plugin.configure();
+}
+
+// TODO: ideally defined in the plugin prototype
+function hasNextSlide(plugin) {
+    if (typeof plugin.hasNextSlide === 'function')
+        return plugin.hasNextSlide();
+    else
+        return plugin.currentSlide < plugin.totalSlides;
+}
+
+// TODO: ideally defined in the plugin prototype
+function nextSlide(plugin) {
+    plugin.currentSlide++;
+    return plugin.nextSlide();
+}
+
 function exportSlide(plugin) {
     // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
     // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
@@ -169,7 +206,8 @@ function exportSlide(plugin) {
     if (options.screenshots) {
         decktape = (options.screenshotSize || [options.size]).reduce(function (decktape, resolution) {
             return decktape.then(function () { page.viewportSize = resolution })
-                // Delay page rendering to wait for the resize event to complete, e.g. for impress.js (may be needed to be configurable)
+                // Delay page rendering to wait for the resize event to complete,
+                // e.g. for impress.js (may be needed to be configurable)
                 .then(delay(1000))
                 .then(function () {
                     page.render(options.screenshotDirectory + '/' + options.filename.replace('.pdf', '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { onlyViewport: true });
@@ -193,8 +231,17 @@ function exportSlide(plugin) {
         });
 }
 
+function delay(time) {
+    return function () {
+        return new Promise(function (fulfill) {
+            setTimeout(fulfill, time);
+        });
+    }
+}
+
 function parseResolution(resolution) {
-    // TODO: support device viewport sizes and graphics display standard resolutions (see http://viewportsizes.com/ and https://en.wikipedia.org/wiki/Graphics_display_resolution)
+    // TODO: support device viewport sizes and graphics display standard resolutions
+    // see http://viewportsizes.com/ and https://en.wikipedia.org/wiki/Graphics_display_resolution
     var match = resolution.match(/^(\d+)x(\d+)$/);
     if (!match)
         return 'Resolution must follow the <width>x<height> notation, e.g., 1280x720';
@@ -205,7 +252,7 @@ function parseResolution(resolution) {
 // TODO: add progress bar, duration, ETA and file size
 function progressBar(plugin) {
     var cols = [];
-    var index = currentSlideIndex(plugin);
+    var index = plugin.currentSlideIndex();
     cols.push('Printing slide ');
     cols.push(padding('#' + index, 8, ' ', false));
     cols.push(' (');
@@ -230,46 +277,3 @@ function padding(str, len, char, left) {
         p.join('').concat(str) :
         str.concat(p.join(''));
 }
-
-function delay(time) {
-    return function () {
-        return new Promise(function (fulfill) {
-            setTimeout(fulfill, time);
-        });
-    }
-}
-
-var configure = function (plugin) {
-    if (!options.size && typeof plugin.size === 'function')
-        options.size = plugin.size();
-    if (!options.size)
-        options.size = { width: 1280, height: 720 };
-    page.viewportSize = options.size;
-    printer.paperSize = { width: options.size.width + 'px', height: options.size.height + 'px', margin: '0px' };
-    printer.outputFileName = options.filename;
-    plugin.progressBarOverflow = 0;
-    plugin.currentSlide = 1;
-    plugin.totalSlides = slideCount(plugin);
-    if (typeof plugin.configure === 'function')
-        return plugin.configure();
-};
-
-var slideCount = function (plugin) {
-    return plugin.slideCount();
-};
-
-var hasNextSlide = function (plugin) {
-    if (typeof plugin.hasNextSlide === 'function')
-        return plugin.hasNextSlide();
-    else
-        return plugin.currentSlide < plugin.totalSlides;
-};
-
-var nextSlide = function (plugin) {
-    plugin.currentSlide++;
-    return plugin.nextSlide();
-};
-
-var currentSlideIndex = function (plugin) {
-    return plugin.currentSlideIndex();
-};
