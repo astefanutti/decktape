@@ -173,8 +173,8 @@ For example:
 
 === Overview
 
-DeckTape relies on a {uri-phantomjs-fork}[forked version] of PhantomJS, which is maintained as a link:phantomjs[submodule] of this project.
-The fork primarily provides a printer API that allows DeckTape to generate a multi-page PDF document.
+DeckTape relies on a {uri-phantomjs-fork}[forked version] of PhantomJS, which is maintained as a submodule of this project.
+The fork primarily adds a printer API to PhantomJS that allows DeckTape to generate a multi-page PDF document.
 By default, PhantomJS can only produce a single-page PDF for each capture.
 
 === Status
