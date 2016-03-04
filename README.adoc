@@ -75,7 +75,7 @@ From the command-line, follow the instructions below:
 . Download PhantomJS executable:
 +
 --
-NOTE: DeckTape currently depends on a {uri-phantomjs-fork}[forked version] of PhantomJS.
+NOTE: DeckTape currently depends on a <<phantomjs-fork,forked version>> of PhantomJS.
 What follows is a list of precompiled binaries for various platforms.
 
 [subs=attributes+]
@@ -143,7 +143,7 @@ In addition to the general options listed above, command specific options can be
 [#automatic]
 === `automatic`
 
-Iterates over the link:plugins[available plugins], picks the compatible one for presentation at the specified `url` and uses it to export and write the PDF into the specified `filename`.
+Iterates over the available link:plugins[], picks the compatible one for presentation at the specified `url` and uses it to export and write the PDF into the specified `filename`.
 
 [#generic]
 === `generic`
@@ -169,9 +169,55 @@ For example:
 
  $ ./bin/phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
 
-== Build
+== PhantomJS fork
 
-To build the {uri-phantomjs-fork}[forked version] of PhantomJS whose DeckTape relies on, you have to execute the following commands from the DeckTape install directory:
+=== Overview
+
+DeckTape relies on a {uri-phantomjs-fork}[forked version] of PhantomJS, which is maintained as a link:phantomjs[submodule] of this project.
+The fork primarily provides a printer API that allows DeckTape to generate a multi-page PDF document.
+By default, PhantomJS can only produce a single-page PDF for each capture.
+
+=== Status
+
+Our goal is to get all the patches from this fork merged into the upstream so the fork is no longer required.
+
+The following table documents the patches we've made to PhantomJS and tracks the status of getting them merged into the upstream project.
+
+|===
+|Description |Reference to Patch |Merge Status
+
+|Printer module API
+|https://github.com/astefanutti/phantomjs/commit/d8bc4b071f7fa776f9a38f1cdb1e921c64f48a8c[astefanutti/phantomjs@d8bc4b0]
+|:exclamation: todo
+
+|Add support for capturing viewport when rendering images (required to capture snapshots properly)
+|https://github.com/ariya/phantomjs/pull/13422[ariya/phantomjs#13422]
+|:clock10: review
+
+|Enable outline annotations to be rendered outside printing context (required for clickable hyperlinks with the printer module)
+|https://github.com/astefanutti/qtwebkit/commit/b83bf9342b819dff7721092675f25bc5eb3fa1dc[astefanutti/qtwebkit@b83bf93]
+|:grey_exclamation: todo
+
+|PDF font embedding fails on Mac 64-bit due to unimplemented methods in QCoreTextFontEngine
+|https://github.com/ariya/phantomjs/pull/13243[ariya/phantomjs#13243]
+|:white_check_mark: merged
+
+|Render anchors as clickable links in PDF documents
+|https://github.com/Vitallium/qtwebkit/commit/ef91a2535b50d7e7dc2c3b0b9795d5a2c4e616dd[Vitallium/qtwebkit@ef91a25]
+|:white_check_mark: merged
+
+|Add support for drawing a hyperlink in QPdfEngine
+|https://github.com/Vitallium/qtbase/commit/d50c481c90669336debef397c97ca830417bc593[Vitallium/qtbase@d50c481]
+|:white_check_mark: merged
+
+|PhantomJS default configuration file support (optional)
+|https://github.com/ariya/phantomjs/issues/13300[ariya/phantomjs#13300]
+|:no_entry_sign: declined
+|===
+
+=== Build
+
+To build the forked version of PhantomJS for DeckTape, you have to execute the following commands from the DeckTape install directory:
 
 . Initialize and check out the `phantomjs` submodule:
 
