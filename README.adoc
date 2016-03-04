@@ -5,6 +5,24 @@ Antonin Stefanutti <https://github.com/astefanutti[@astefanutti]>
 // Settings
 :idprefix:
 :idseparator: -
+// Aliases
+ifdef::env-github[]
+:icon-ban: :no_entry_sign:
+:icon-check: :white_check_mark:
+:icon-clock: :clock10:
+:icon-exclamation: :exclamation:
+:icon-exclamation-dim: :grey_exclamation:
+:icon-edit: :pencil2:
+endif::[]
+ifndef::env-github[]
+:icons: font
+:icon-ban: icon:ban[fw,role=red]
+:icon-check: icon:check-square-o[fw,role=green]
+:icon-clock: icon:clock-o[fw,role=silver]
+:icon-exclamation: icon:exclamation[fw,role=red]
+:icon-exclamation-dim: icon:exclamation[fw,role=silver]
+:icon-edit: icon:pencil[fw]
+endif::[]
 // URIs
 :uri-bespokejs: https://github.com/markdalgleish/bespoke.js
 :uri-csss: http://leaverou.github.io/csss
@@ -173,8 +191,8 @@ For example:
 
 === Overview
 
-DeckTape relies on a {uri-phantomjs-fork}[forked version] of PhantomJS, which is maintained as a link:phantomjs[submodule] of this project.
-The fork primarily provides a printer API that allows DeckTape to generate a multi-page PDF document.
+DeckTape relies on a {uri-phantomjs-fork}[forked version] of PhantomJS, which is maintained as a submodule of this project.
+The fork primarily adds a printer API to PhantomJS that allows DeckTape to generate a multi-page PDF document.
 By default, PhantomJS can only produce a single-page PDF for each capture.
 
 === Status
@@ -188,31 +206,31 @@ The following table documents the patches we've made to PhantomJS and tracks the
 
 |Printer module API
 |https://github.com/astefanutti/phantomjs/commit/d8bc4b071f7fa776f9a38f1cdb1e921c64f48a8c[astefanutti/phantomjs@d8bc4b0]
-|:exclamation: todo
+|{icon-exclamation} todo
 
 |Add support for capturing viewport when rendering images (required to capture snapshots properly)
 |https://github.com/ariya/phantomjs/pull/13422[ariya/phantomjs#13422]
-|:clock10: review
+|{icon-clock} review
 
 |Enable outline annotations to be rendered outside printing context (required for clickable hyperlinks with the printer module)
 |https://github.com/astefanutti/qtwebkit/commit/b83bf9342b819dff7721092675f25bc5eb3fa1dc[astefanutti/qtwebkit@b83bf93]
-|:grey_exclamation: todo
+|{icon-exclamation-dim} todo
 
 |PDF font embedding fails on Mac 64-bit due to unimplemented methods in QCoreTextFontEngine
 |https://github.com/ariya/phantomjs/pull/13243[ariya/phantomjs#13243]
-|:white_check_mark: merged
+|{icon-check} merged
 
 |Render anchors as clickable links in PDF documents
 |https://github.com/Vitallium/qtwebkit/commit/ef91a2535b50d7e7dc2c3b0b9795d5a2c4e616dd[Vitallium/qtwebkit@ef91a25]
-|:white_check_mark: merged
+|{icon-check} merged
 
 |Add support for drawing a hyperlink in QPdfEngine
 |https://github.com/Vitallium/qtbase/commit/d50c481c90669336debef397c97ca830417bc593[Vitallium/qtbase@d50c481]
-|:white_check_mark: merged
+|{icon-check} merged
 
 |PhantomJS default configuration file support (optional)
 |https://github.com/ariya/phantomjs/issues/13300[ariya/phantomjs#13300]
-|:no_entry_sign: declined
+|{icon-ban} declined
 |===
 
 === Build
@@ -275,7 +293,7 @@ Finally, if you want to execute DeckTape using a local clone of the DeckTape rep
 
 == Plugins
 
-{empty}:pencil2:
+{icon-edit}
 
 == Examples
 
