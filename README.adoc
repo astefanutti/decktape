@@ -56,16 +56,23 @@ DeckTape is built on top of {uri-phantomjs}[PhantomJS] which relies on {uri-qt-w
 
 DeckTape currently supports the following presentation frameworks out of the box:
 
+[cols="4*.<a",width="100%",grid="none"]
+|===
+|
 * {uri-bespokejs}[Bespoke.js]
 * {uri-csss}[CSSS]
 * {uri-deckjs}[deck.js]
+|
 * {uri-dzslides}[DZSlides]
 * {uri-flowtimejs}[Flowtime.js]
 * {uri-html-slidy}[HTML Slidy]
+|
 * {uri-impressjs}[impress.js]
 * {uri-remark}[remark]
 * {uri-revealjs}[reveal.js]
+|
 * {uri-shower}[Shower]
+|===
 
 DeckTape also provides a <<generic,generic command>> that works by emulating the end-user interaction, allowing it to be used to convert presentations from virtually any kind of framework.
 The generic mode is particularly useful for supporting HTML presentation frameworks that don't expose an API or accessible state.
@@ -96,24 +103,16 @@ From the command-line, follow the instructions below:
 NOTE: DeckTape currently depends on a <<phantomjs-fork,forked version>> of PhantomJS.
 What follows is a list of precompiled binaries for various platforms.
 
-[subs=attributes+]
-.Windows (MSVC 2013), 64-bit, for Windows Vista or later, bundles VC++ Runtime 2013
+[source,shell,subs=attributes+]
+ # Windows (MSVC 2013), 64-bit, for Windows Vista or later, bundles VC++ Runtime 2013
  $ curl -L {uri-phantomjs-download}/phantomjs-msvc2013-win64.exe -o bin\phantomjs.exe
-
-[subs=attributes+]
-.Mac OS X (Cocoa), 64-bit, for OS X 10.6 or later
+ # Mac OS X (Cocoa), 64-bit, for OS X 10.6 or later
  $ curl -L {uri-phantomjs-download}/phantomjs-osx-cocoa-x86-64 -o bin/phantomjs
-
-[subs=attributes+]
-.Linux (CentOS 6), 64-bit
+ # Linux (CentOS 6), 64-bit
  $ curl -L {uri-phantomjs-download}/phantomjs-linux-centos6-x86-64 -o bin/phantomjs
-
-[subs=attributes+]
-.Linux (CentOS 7), 64-bit
+ # Linux (CentOS 7), 64-bit
  $ curl -L {uri-phantomjs-download}/phantomjs-linux-centos7-x86-64 -o bin/phantomjs
-
-[subs=attributes+]
-.Linux (Debian 8), 64-bit
+ # Linux (Debian 8), 64-bit
  $ curl -L {uri-phantomjs-download}/phantomjs-linux-debian8-x86-64 -o bin/phantomjs
 --
 
@@ -129,7 +128,8 @@ See the <<docker>> section for more information.
 
 Inside the DeckTape install directory, run:
 
-```
+[source]
+----
 $ ./bin/phantomjs decktape.js -h
 
 Usage: phantomjs decktape.js [options] [command] <url> <filename>
@@ -146,11 +146,11 @@ Options:
    --screenshots-directory   Screenshots output directory  [screenshots]
    --screenshots-size        Screenshots resolution, can be repeated  [--size]
    --screenshots-format      Screenshots image format, one of [jpg, png]  [png]
- 
+
 Defaults to the automatic command.
 Iterates over the available plugins, picks the compatible one for presentation at the
 specified <url> and uses it to export and write the PDF into the specified <filename>.
-```
+----
 
 In addition to the general options listed above, command specific options can be displayed the following way:
 
@@ -186,114 +186,6 @@ The `screenshots-size` option can be set multiple times.
 For example:
 
  $ ./bin/phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
-
-== PhantomJS fork
-
-=== Overview
-
-DeckTape relies on a {uri-phantomjs-fork}[forked version] of PhantomJS, which is maintained as a submodule of this project.
-The fork primarily adds a printer API to PhantomJS that allows DeckTape to generate a multi-page PDF document.
-By default, PhantomJS can only produce a single-page PDF for each capture.
-
-=== Status
-
-Our goal is to get all the patches from this fork merged into the upstream so the fork is no longer required.
-
-The following table documents the patches we've made to PhantomJS and tracks the status of getting them merged into the upstream project.
-
-|===
-|Description |Reference to Patch |Merge Status
-
-|Printer module API
-|https://github.com/astefanutti/phantomjs/commit/d8bc4b071f7fa776f9a38f1cdb1e921c64f48a8c[astefanutti/phantomjs@d8bc4b0]
-|{icon-exclamation} todo
-
-|Add support for capturing viewport when rendering images (required to capture snapshots properly)
-|https://github.com/ariya/phantomjs/pull/13422[ariya/phantomjs#13422]
-|{icon-clock} review
-
-|Enable outline annotations to be rendered outside printing context (required for clickable hyperlinks with the printer module)
-|https://github.com/astefanutti/qtwebkit/commit/b83bf9342b819dff7721092675f25bc5eb3fa1dc[astefanutti/qtwebkit@b83bf93]
-|{icon-exclamation-dim} todo
-
-|PDF font embedding fails on Mac 64-bit due to unimplemented methods in QCoreTextFontEngine
-|https://github.com/ariya/phantomjs/pull/13243[ariya/phantomjs#13243]
-|{icon-check} merged
-
-|Render anchors as clickable links in PDF documents
-|https://github.com/Vitallium/qtwebkit/commit/ef91a2535b50d7e7dc2c3b0b9795d5a2c4e616dd[Vitallium/qtwebkit@ef91a25]
-|{icon-check} merged
-
-|Add support for drawing a hyperlink in QPdfEngine
-|https://github.com/Vitallium/qtbase/commit/d50c481c90669336debef397c97ca830417bc593[Vitallium/qtbase@d50c481]
-|{icon-check} merged
-
-|PhantomJS default configuration file support (optional)
-|https://github.com/ariya/phantomjs/issues/13300[ariya/phantomjs#13300]
-|{icon-ban} declined
-|===
-
-=== Build
-
-To build the forked version of PhantomJS for DeckTape, you have to execute the following commands from the DeckTape install directory:
-
-. Initialize and check out the `phantomjs` submodule:
-
- $ git submodule update --init --recursive
-
-. Change into the `phantomjs` directory:
-
- $ cd phantomjs
-
-. Launch the build script:
-
- $ ./build.py
-
-More information can be found in {uri-phantomjs-build}[Compiling PhantomJS from source] and in {uri-qt-webkit-build}[Building Qt 5 from Git].
-
-== Docker
-
-DeckTape can be executed within a Docker container from the command-line using the {uri-docker-image}[`astefanutti/decktape`] Docker image available on {uri-docker-hub}[Docker Hub]:
-
- $ docker run astefanutti/decktape -h
-
-For example:
-
-* To convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
-+
-[subs=attributes+]
- $ docker run --rm -v `pwd`:/pwd astefanutti/decktape {uri-revealjs} /pwd/slides.pdf
-
-* Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
-
- $ docker run --rm -v `pwd`:/pwd -v ~:/home astefanutti/decktape /home/slides.html /pwd/slides.pdf
-
-* Or, to convert an HTML presentation that's deployed on the local host:
-
- $ docker run --rm --net=host -v `pwd`:/pwd astefanutti/decktape http://localhost:8000 /pwd/slides.pdf
-
-It is recommended to use the following options from the {uri-docker-ref}/run[`docker run`] command:
-
-{uri-docker-ref}/run/#clean-up-rm[`--rm`]:: DeckTape is meant to be run as a short-term foreground process so that it's not necessary to have the container's file system persisted after DeckTape exits,
-{uri-docker-ref}/commandline/run/#mount-volume-v-read-only[`-v`]:: to mount a data volume so that DeckTape can directly write to the local file system.
-
-Alternatively, you can use the {uri-docker-ref}/commandline/cp[`docker cp`] command, e.g.:
-
-[subs=attributes+]
- # Run docker run without the --rm option
- $ docker run astefanutti/decktape {uri-revealjs} slides.pdf
- # Copy the exported PDF from the latest used container to the local file system
- $ docker cp `docker ps -lq`:decktape/slides.pdf .
- # Finally remove the latest used container
- $ docker rm `docker ps -lq`
-
-Finally, if you want to execute DeckTape using a local clone of the DeckTape repository in order to take your changes into account, you can run:
-
- $ docker run --rm -v `pwd`:`pwd` -w `pwd` astefanutti/decktape slides.html slides.pdf
-
-== Plugins
-
-{icon-edit}
 
 == Examples
 
@@ -347,3 +239,111 @@ The following slide deck examples have been exported using DeckTape:
 |Bespoke.js
 |https://astefanutti.github.io/decktape/examples/new-es5-overloards.pdf[new-es5-overloards.pdf] (0.1MB)
 |===
+
+== Docker
+
+DeckTape can be executed within a Docker container from the command-line using the {uri-docker-image}[`astefanutti/decktape`] Docker image available on {uri-docker-hub}[Docker Hub]:
+
+ $ docker run astefanutti/decktape -h
+
+For example:
+
+* To convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
+[source,shell,subs=attributes+]
+ $ docker run --rm -v `pwd`:/pwd astefanutti/decktape {uri-revealjs} /pwd/slides.pdf
+
+* Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
+[source,shell]
+ $ docker run --rm -v `pwd`:/pwd -v ~:/home astefanutti/decktape /home/slides.html /pwd/slides.pdf
+
+* Or, to convert an HTML presentation that's deployed on the local host:
+[source,shell]
+ $ docker run --rm --net=host -v `pwd`:/pwd astefanutti/decktape http://localhost:8000 /pwd/slides.pdf
+
+It is recommended to use the following options from the {uri-docker-ref}/run[`docker run`] command:
+
+{uri-docker-ref}/run/#clean-up-rm[`--rm`]:: DeckTape is meant to be run as a short-term foreground process so that it's not necessary to have the container's file system persisted after DeckTape exits,
+{uri-docker-ref}/commandline/run/#mount-volume-v-read-only[`-v`]:: to mount a data volume so that DeckTape can directly write to the local file system.
+
+Alternatively, you can use the {uri-docker-ref}/commandline/cp[`docker cp`] command, e.g.:
+
+[source,shell,subs=attributes+]
+ # Run docker run without the --rm option
+ $ docker run astefanutti/decktape {uri-revealjs} slides.pdf
+ # Copy the exported PDF from the latest used container to the local file system
+ $ docker cp `docker ps -lq`:decktape/slides.pdf .
+ # Finally remove the latest used container
+ $ docker rm `docker ps -lq`
+
+Finally, if you want to execute DeckTape using a local clone of the DeckTape repository in order to take your changes into account, you can run:
+
+[source,shell]
+ $ docker run --rm -v `pwd`:`pwd` -w `pwd` astefanutti/decktape slides.html slides.pdf
+
+== PhantomJS fork
+
+=== Overview
+
+DeckTape relies on a {uri-phantomjs-fork}[forked version] of PhantomJS, which is maintained as a submodule of this project.
+The fork primarily adds a printer API to PhantomJS that allows DeckTape to generate a multi-page PDF document.
+By default, PhantomJS can only produce a single-page PDF for each capture.
+
+=== Status
+
+Our goal is to get all the patches from this fork merged into the upstream so the fork is no longer required.
+
+The following table documents the patches we've made to PhantomJS and tracks the status of getting them merged into the upstream project.
+
+|===
+|Description |Reference to Patch |Merge Status
+
+|Printer module API
+|https://github.com/astefanutti/phantomjs/commit/d8bc4b071f7fa776f9a38f1cdb1e921c64f48a8c[astefanutti/phantomjs@d8bc4b0]
+|{icon-exclamation} todo
+
+|Add support for capturing viewport when rendering images (required to capture snapshots properly)
+|https://github.com/ariya/phantomjs/pull/13422[ariya/phantomjs#13422]
+|{icon-clock} review
+
+|Enable outline annotations to be rendered outside printing context (required for clickable hyperlinks with the printer module)
+|https://github.com/astefanutti/qtwebkit/commit/b83bf9342b819dff7721092675f25bc5eb3fa1dc[astefanutti/qtwebkit@b83bf93]
+|{icon-exclamation-dim} todo
+
+|PDF font embedding fails on Mac 64-bit due to unimplemented methods in `QCoreTextFontEngine`
+|https://github.com/ariya/phantomjs/pull/13243[ariya/phantomjs#13243]
+|{icon-check} merged
+
+|Render anchors as clickable links in PDF documents
+|https://github.com/Vitallium/qtwebkit/commit/ef91a2535b50d7e7dc2c3b0b9795d5a2c4e616dd[Vitallium/qtwebkit@ef91a25]
+|{icon-check} merged
+
+|Add support for drawing a hyperlink in `QPdfEngine`
+|https://github.com/Vitallium/qtbase/commit/d50c481c90669336debef397c97ca830417bc593[Vitallium/qtbase@d50c481]
+|{icon-check} merged
+
+|PhantomJS default configuration file support (optional)
+|https://github.com/ariya/phantomjs/issues/13300[ariya/phantomjs#13300]
+|{icon-ban} declined
+|===
+
+=== Build
+
+To build the {uri-phantomjs-fork}[forked version] of PhantomJS for DeckTape, you have to execute the following commands from the DeckTape install directory:
+
+. Initialize and check out the `phantomjs` submodule:
+
+ $ git submodule update --init --recursive
+
+. Change into the `phantomjs` directory:
+
+ $ cd phantomjs
+
+. Launch the build script:
+
+ $ ./build.py
+
+More information can be found in {uri-phantomjs-build}[Compiling PhantomJS from source] and in {uri-qt-webkit-build}[Building Qt 5 from Git].
+
+== Plugin API
+
+{icon-edit}
