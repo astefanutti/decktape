@@ -24,7 +24,7 @@ ifndef::env-github[]
 :icon-edit: icon:pencil[fw]
 endif::[]
 // URIs
-:uri-bespokejs: https://github.com/markdalgleish/bespoke.js
+:uri-bespokejs: http://markdalgleish.com/projects/bespoke.js
 :uri-csss: http://leaverou.github.io/csss
 :uri-deckjs: http://imakewebthings.com/deck.js
 :uri-decktape-clone: https://github.com/astefanutti/decktape.git
@@ -34,7 +34,7 @@ endif::[]
 :uri-docker-ref: http://docs.docker.com/engine/reference
 :uri-dzslides: http://paulrouget.com/dzslides
 :uri-flowtimejs: http://flowtime-js.marcolago.com
-:uri-html-slidy: http://www.w3.org/Talks/Tools
+:uri-html-slidy: http://www.w3.org/Talks/Tools/Slidy/
 :uri-impressjs: http://impress.github.io/impress.js
 :uri-pageres: https://github.com/sindresorhus/pageres
 :uri-phantomjs: http://phantomjs.org
