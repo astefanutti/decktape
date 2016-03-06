@@ -34,7 +34,6 @@ endif::[]
 :uri-docker-ref: http://docs.docker.com/engine/reference
 :uri-dzslides: http://paulrouget.com/dzslides
 :uri-flowtimejs: http://flowtime-js.marcolago.com
-:uri-html-slidy: http://www.w3.org/Talks/Tools/Slidy/
 :uri-impressjs: http://impress.github.io/impress.js
 :uri-pageres: https://github.com/sindresorhus/pageres
 :uri-phantomjs: http://phantomjs.org
@@ -45,6 +44,7 @@ endif::[]
 :uri-remark: http://remarkjs.com
 :uri-revealjs: http://lab.hakim.se/reveal-js
 :uri-shower: http://shwr.me
+:uri-slidy: http://www.w3.org/Talks/Tools/Slidy/
 :uri-qt-webkit: https://wiki.qt.io/Qt_WebKit
 :uri-qt-webkit-build: https://wiki.qt.io/Building_Qt_5_from_Git
 
@@ -65,13 +65,13 @@ DeckTape currently supports the following presentation frameworks out of the box
 |
 * {uri-dzslides}[DZSlides]
 * {uri-flowtimejs}[Flowtime.js]
-* {uri-html-slidy}[HTML Slidy]
-|
 * {uri-impressjs}[impress.js]
+|
 * {uri-remark}[remark]
 * {uri-revealjs}[reveal.js]
-|
 * {uri-shower}[Shower]
+|
+* {uri-slidy}[Slidy]
 |===
 
 DeckTape also provides a <<generic,generic command>> that works by emulating the end-user interaction, allowing it to be used to convert presentations from virtually any kind of framework.
@@ -224,7 +224,7 @@ The following slide deck examples have been exported using DeckTape:
 |https://astefanutti.github.io/decktape/examples/remark-js-slideshow.pdf[remark-js-slideshow.pdf] (0.7MB)
 
 |http://www.w3.org/Talks/Tools/Slidy[HTML Slidy: Slide Shows in HTML and XHTML]
-|HTML Slidy
+|Slidy
 |https://astefanutti.github.io/decktape/examples/html-slidy-presentation.pdf[html-slidy-presentation.pdf] (0.5MB)
 
 |http://leaverou.github.io/csss[CSSS: CSS-based SlideShow System]
