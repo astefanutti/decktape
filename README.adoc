@@ -6,6 +6,7 @@ Antonin Stefanutti <https://github.com/astefanutti[@astefanutti]>
 :idprefix:
 :idseparator: -
 // Aliases
+:bullet: &#8201;&#8226;&#8201;
 ifdef::env-github[]
 :icon-ban: :no_entry_sign:
 :icon-check: :white_check_mark:
@@ -56,23 +57,12 @@ DeckTape is built on top of {uri-phantomjs}[PhantomJS] which relies on {uri-qt-w
 
 DeckTape currently supports the following presentation frameworks out of the box:
 
-[cols="4*.<a",width="100%",grid="none"]
-|===
-|
-* {uri-bespokejs}[Bespoke.js]
-* {uri-csss}[CSSS]
-* {uri-deckjs}[deck.js]
-|
-* {uri-dzslides}[DZSlides]
-* {uri-flowtimejs}[Flowtime.js]
-* {uri-impressjs}[impress.js]
-|
-* {uri-remark}[remark]
-* {uri-revealjs}[reveal.js]
-* {uri-shower}[Shower]
-|
-* {uri-slidy}[Slidy]
-|===
+[subs="normal"]
+....
+{bullet}{uri-bespokejs}[Bespoke.js]     {bullet}{uri-dzslides}[DZSlides]        {bullet}{uri-remark}[remark]        {bullet}{uri-slidy}[Slidy]
+{bullet}{uri-csss}[CSSS]           {bullet}{uri-flowtimejs}[Flowtime.js]     {bullet}{uri-revealjs}[reveal.js]
+{bullet}{uri-deckjs}[deck.js]        {bullet}{uri-impressjs}[impress.js]      {bullet}{uri-shower}[Shower]
+....
 
 DeckTape also provides a <<generic,generic command>> that works by emulating the end-user interaction, allowing it to be used to convert presentations from virtually any kind of framework.
 The generic mode is particularly useful for supporting HTML presentation frameworks that don't expose an API or accessible state.
