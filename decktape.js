@@ -46,6 +46,11 @@ var parser = require('nomnom')
             default: 1000,
             help: 'Duration in milliseconds before each slide is exported'
         },
+        loadpause: {
+            abbr: 'l',
+            default: 0,
+            help: 'Duration in milliseconds to wait between loading the page and starting to export slides'
+        },
         screenshots: {
             default: false,
             flag: true,
@@ -114,29 +119,41 @@ page.onConsoleMessage = function (msg) {
     console.log(msg);
 };
 
+
+
 page.open(options.url, function (status) {
     if (status !== 'success') {
         console.log('Unable to load the address: ' + options.url);
         phantom.exit(1);
     } else {
-        var plugin;
-        if (!options.command || options.command === 'automatic') {
-            plugin = createActivePlugin();
-            if (!plugin) {
-                console.log('No supported DeckTape plugin detected, falling back to generic plugin');
-                plugin = plugins['generic'].create(page, options);
+        Promise.resolve()
+            .then(delay(options.loadpause))
+            .then( function() {
+
+            if (options.loadpause > 0) {
+                console.log("Done pausing page load");
             }
-        } else {
-            plugin = plugins[options.command].create(page, options);
-            if (!plugin.isActive()) {
-                console.log('Unable to activate the ' + plugin.getName() + ' DeckTape plugin for the address: ' + options.url);
-                phantom.exit(1);
+
+            var plugin;
+            if (!options.command || options.command === 'automatic') {
+                plugin = createActivePlugin();
+                if (!plugin) {
+                    console.log('No supported DeckTape plugin detected, falling back to generic plugin');
+                    plugin = plugins['generic'].create(page, options);
+                }
+            } else {
+                plugin = plugins[options.command].create(page, options);
+                if (!plugin.isActive()) {
+                    console.log('Unable to activate the ' + plugin.getName() + ' DeckTape plugin for the address: ' + options.url);
+                    phantom.exit(1);
+                }
             }
-        }
-        console.log(plugin.getName() + ' DeckTape plugin activated');
-        configure(plugin);
-        printer.begin();
-        exportSlide(plugin);
+            console.log(plugin.getName() + ' DeckTape plugin activated');
+            configure(plugin);
+            printer.begin();
+            exportSlide(plugin);
+
+        });
     }
 });
 
