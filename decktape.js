@@ -1,10 +1,6 @@
 require.paths.push(phantom.libraryPath + '/libs/');
 
-var page = require('webpage').create(),
-    printer = require('printer').create(),
-    system = require('system'),
-    fs = require('fs'),
-    Promise = require('promise');
+var system = require('system');
 
 // Node to PhantomJS bridging
 var process = {
@@ -15,87 +11,202 @@ var process = {
     //stdout: system.stdout,
     exit: phantom.exit
 };
-// As opposed to PhantomJS, global variables declared in the main script are not accessible
-// in modules loaded with require
+
+// As opposed to PhantomJS, global variables declared in the main script are not
+// accessible in modules loaded with require
 if (system.platform === 'slimerjs')
     require.globals.process = process;
 
+var docopt  = require('docopt'),
+    chalk   = require('chalk'),
+    fs      = require('fs'),
+    page    = require('webpage').create(),
+    printer = require('printer').create(),
+    Promise = require('promise');
+
 var plugins = loadAvailablePlugins(phantom.libraryPath + '/plugins/');
 
-var parser = require('nomnom')
-    .script('phantomjs decktape.js')
-    .options({
-        url: {
-            position: 1,
-            required: true,
-            help: 'URL of the slides deck'
-        },
-        filename: {
-            position: 2,
-            required: true,
-            help: 'Filename of the output PDF file'
-        },
-        size: {
-            abbr: 's',
-            callback: parseResolution,
-            transform: parseResolution,
-            help: 'Size of the slides deck viewport: <width>x<height>'
-        },
-        pause: {
-            abbr: 'p',
-            default: 1000,
-            help: 'Duration in milliseconds before each slide is exported'
-        },
-        loadpause: {
-            default: 0,
-            help: 'Duration in milliseconds between the page has loaded and starting to export slides'
-        },
-        screenshots: {
-            default: false,
-            flag: true,
-            help: 'Capture each slide as an image'
-        },
-        screenshotDirectory: {
-            full: 'screenshots-directory',
-            default: 'screenshots',
-            help: 'Screenshots output directory'
-        },
-        screenshotSize: {
-            full: 'screenshots-size',
-            list: true,
-            callback: parseResolution,
-            transform: parseResolution,
-            help: 'Screenshots resolution, can be repeated'
-        },
-        screenshotFormat: {
-            full: 'screenshots-format',
-            default: 'png',
-            choices: ['jpg', 'png'],
-            help: 'Screenshots image format, one of [jpg, png]'
-        }
-    });
-parser.nocommand()
-    .help('Defaults to the automatic command.\n' +
-    'Iterates over the available plugins, picks the compatible one for presentation at the \n' +
-    'specified <url> and uses it to export and write the PDF into the specified <filename>.');
-parser.command('automatic')
-    .help('Iterates over the available plugins, picks the compatible one for presentation at the \n' +
-    'specified <url> and uses it to export and write the PDF into the specified <filename>.');
-Object.keys(plugins).forEach(function (id) {
-    var command = parser.command(id);
-    if (typeof plugins[id].options === 'object')
-        command.options(plugins[id].options);
-    if (typeof plugins[id].help === 'string')
-        command.help(plugins[id].help);
-});
-// TODO: should be deactivated as well when PhantomJS does not execute in a TTY context
-if (system.os.name === 'windows')
-    parser.nocolors();
+var cmd = [
+    '                                                                                ',
+    'Usage:                                                                          ',
+    '  decktape.js [options] [plugin] URL FILE                                       ',
+    '  decktape.js [plugin] -h                                                       ',
+    '                                                                                ',
+    'Command:                                                                        ',
+    '  plugin                One of: automatic, bespoke,         [default: automatic]',
+    '                        csss, deck, dzslides,                                   ',
+    '                        flowtime, generic, impress,                             ',
+    '                        remark, reveal, shower,                                 ',
+    '                        slidy                                                   ',
+    '                                                                                ',
+    "  See 'decktape.js plugin -h' to read about a specific plugin options           ",
+    '                                                                                ',
+    '  The default automatic plugin iterates over the available plugins, picks the   ',
+    '  compatible one for the presentation at the specified URL.                     ',
+    '                                                                                ',
+    'Arguments:                                                                      ',
+    '  URL                   URL of the slides deck                                  ',
+    '  FILE                  Filename of the output PDF                              ',
+    '                        file                                                    ',
+    '                                                                                ',
+    'Options:                                                                        ',
+    '  -s, --size=SIZE       Size of the slides deck              [default: 1280x720]',
+    '                        viewport                             may vary per plugin',
+    '  -p, --pause=MS        Duration in milliseconds                 [default: 1000]',
+    '                        before each slide is                                    ',
+    '                        exported                                                ',
+    '  --load-pause=MS       Duration in milliseconds                    [default: 0]',
+    '                        between the page has loaded                             ',
+    '                        and starting exporting                                  ',
+    '                        slides                                                  ',
+    '  -h, --help            show this help message                                  ',
+    '                        and exit                                                '
+];
 
-var options = parser.parse(system.args.slice(1));
+var spec = [
+    { regex: /\[plugin]/g,                               replace: Object.keys(plugins)
+                                                                      .reduce(function (l, p) {
+                                                                          return l + ' | ' + p;
+                                                                      }, '([automatic]') + ')'
+    },
+    { regex: /\[default: 1280x720]/,                     replace: '' }
+];
+
+var help = [
+    { regex: /decktape\.js \[options] .+ URL FILE/,      style: chalk.inverse.bold.white },
+    { regex: /^(.*)(See|The default|compatible)(.*)$/mg, style: chalk.gray },
+    { regex: /(plugin)( -h)/,                            style: [chalk.underline, null] },
+    { regex: /^(\S+:)/gm,                                style: chalk.bold.cyan },
+    { regex: /\[default: (.+)]/g,                        style: chalk.gray },
+    { regex: /may vary per plugin/,                      style: chalk.gray.dim },
+    { regex: new RegExp('(automatic(?=,)|' + Object.keys(plugins).join('(?=,)|') + ')', 'g'),
+                                                         style: chalk.underline }
+];
+
+function format(cmd, rules) {
+    return rules.reduce(function (cmd, rule) {
+        if (typeof rule.replace === 'function')
+            return cmd.replace(rule.regex, rule.replace);
+        if (typeof rule.replace === 'string')
+            return cmd.replace(rule.regex, rule.replace);
+        // TODO: should be deactivated as well when PhantomJS does not execute in a TTY context
+        if (system.os.name !== 'windows') {
+            if (typeof rule.style === 'function') {
+                return cmd.replace(rule.regex, function (match) {
+                    return rule.style.call({}, match);
+                });
+            } else if (Array.isArray(rule.style)) {
+                return cmd.replace(rule.regex, function () {
+                    var match = arguments;
+                    return rule.style.reduce(function (c, s, i) {
+                        return c + (s !== null ? s.call({}, match[i + 1]) : match[i + 1]);
+                    }, '');
+                });
+            }
+        }
+    }, cmd.reduce(function (cmd, row) {
+        if (Array.isArray(row))
+            if (row.length > 0)
+                return cmd + '\n' + row.join('\n') + '\n';
+            else
+                return cmd;
+        else
+            return cmd + row + '\n';
+    }, ''));
+}
+
+var options;
+try {
+    options = docopt.docopt(format(cmd, spec), {
+        argv: system.args.slice(1),
+        options_first: false,
+        help: false,
+        exit: false
+    });
+} catch (e) {
+    console.log(format(cmd.slice(1, 3), [{ regex: /^(.*)/mg, style: chalk.red }]));
+    console.log('See \'decktape.js -h\' for more details');
+    process.exit(0);
+}
+
+for (var id in options) {
+    if (typeof plugins[id] === 'object' && options[id])
+        options.plugin = id;
+    if (id === '--size' && options[id])
+        options.size = parseResolution(options[id]);
+}
+
+if (options.plugin) {
+    var plugin = plugins[options.plugin];
+    cmd = [
+        docopt.parse_section('Usage:  ', format(cmd, [{ regex: /\[plugin]/g, replace: options.plugin || '' }])),
+        docopt.parse_section('Command:', format(plugin.cmd || [], [])),
+        docopt.parse_section('Options:', format(cmd, [])).concat(
+        docopt.parse_section('Options:', format(plugin.cmd || [], [])).map(function (l) { return l.replace(/^Options:.*\n/, '') }))
+    ];
+}
+
+if (options['--help']) {
+    if (options.plugin)
+        console.log(format(cmd, help.concat(plugins[options.plugin].help || [])));
+    else
+        console.log(format(cmd, help));
+    process.exit(0);
+}
+
+console.log(chalk.dim(JSON.stringify(options)));
+
+//var parser = require('nomnom')
+//    .script('phantomjs decktape.js')
+//    .options({
+//        url: {
+//            position: 1,
+//            required: true,
+//            help: 'URL of the slides deck'
+//        },
+//        filename: {
+//            position: 2,
+//            required: true,
+//            help: 'Filename of the output PDF file'
+//        },
+//        size: {
+//            abbr: 's',
+//            callback: parseResolution,
+//            transform: parseResolution,
+//            help: 'Size of the slides deck viewport: <width>x<height>'
+//        },
+//        pause: {
+//            abbr: 'p',
+//            default: 1000,
+//            help: 'Duration in milliseconds before each slide is exported'
+//        },
+//        screenshots: {
+//            default: false,
+//            flag: true,
+//            help: 'Capture each slide as an image'
+//        },
+//        screenshotDirectory: {
+//            full: 'screenshots-directory',
+//            default: 'screenshots',
+//            help: 'Screenshots output directory'
+//        },
+//        screenshotSize: {
+//            full: 'screenshots-size',
+//            list: true,
+//            callback: parseResolution,
+//            transform: parseResolution,
+//            help: 'Screenshots resolution, can be repeated'
+//        },
+//        screenshotFormat: {
+//            full: 'screenshots-format',
+//            default: 'png',
+//            choices: ['jpg', 'png'],
+//            help: 'Screenshots image format, one of [jpg, png]'
+//        }
+//    });
 
 page.onLoadStarted = function () {
-    console.log('Loading page ' + options.url + ' ...');
+    console.log('Loading page ' + options['URL'] + ' ...');
 };
 
 page.onResourceTimeout = function (request) {
@@ -118,15 +229,15 @@ page.onConsoleMessage = function (msg) {
     console.log(msg);
 };
 
-page.open(options.url, function (status) {
+page.open(options['URL'], function (status) {
     if (status !== 'success') {
-        console.log('Unable to load the address: ' + options.url);
+        console.log('Unable to load the address: ' + options['URL']);
         phantom.exit(1);
     }
 
-    if (options.loadpause > 0)
+    if (options['--load-pause'] > 0)
         Promise.resolve()
-            .then(delay(options.loadpause))
+            .then(delay(options['--load-pause']))
             .then(exportSlides);
     else
         exportSlides();
@@ -134,16 +245,16 @@ page.open(options.url, function (status) {
 
 function exportSlides() {
     var plugin;
-    if (!options.command || options.command === 'automatic') {
+    if (!options.plugin || options.plugin === 'automatic') {
         plugin = createActivePlugin();
         if (!plugin) {
             console.log('No supported DeckTape plugin detected, falling back to generic plugin');
             plugin = plugins['generic'].create(page, options);
         }
     } else {
-        plugin = plugins[options.command].create(page, options);
+        plugin = plugins[options.plugin].create(page, options);
         if (!plugin.isActive()) {
-            console.log('Unable to activate the ' + plugin.getName() + ' DeckTape plugin for the address: ' + options.url);
+            console.log('Unable to activate the ' + plugin.getName() + ' DeckTape plugin for the address: ' + options['URL']);
             phantom.exit(1);
         }
     }
@@ -173,7 +284,7 @@ function createActivePlugin() {
 }
 
 function configure(plugin) {
-    if (!options.size)
+    if (!options['--size'])
         if (typeof plugin.size === 'function')
             options.size = plugin.size();
         else
@@ -185,7 +296,7 @@ function configure(plugin) {
         height: options.size.height + 'px',
         margin: '0px'
     };
-    printer.outputFileName = options.filename;
+    printer.outputFileName = options['FILE'];
     // TODO: ideally defined in the plugin prototype
     plugin.progressBarOverflow = 0;
     plugin.currentSlide = 1;
@@ -212,7 +323,7 @@ function exportSlide(plugin) {
     // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
     // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
     var decktape = Promise.resolve()
-        .then(delay(options.pause))
+        .then(delay(options['--pause']))
         .then(function () { system.stdout.write('\r' + progressBar(plugin)) })
         .then(function () { printer.printPage(page) });
 
@@ -223,7 +334,7 @@ function exportSlide(plugin) {
                 // e.g. for impress.js (may be needed to be configurable)
                 .then(delay(1000))
                 .then(function () {
-                    page.render(options.screenshotDirectory + '/' + options.filename.replace('.pdf', '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { onlyViewport: true });
+                    page.render(options.screenshotDirectory + '/' + options['FILE'].replace('.pdf', '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { onlyViewport: true });
                 })
             }, decktape)
             .then(function () { page.viewportSize = options.size })

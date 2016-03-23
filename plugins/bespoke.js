@@ -1,7 +1,11 @@
-exports.help =
-    'Requires the bespoke-extern module to expose the Bespoke.js API to a global variable named\n' +
-    '\'bespoke\' and provides access to the collection of deck instances via \'bespoke.decks\'\n' +
-    'and the most recent deck via \'bespoke.deck\'.';
+var chalk = require('chalk');
+
+exports.cmd = [
+    "Command:                                                                        ",
+    "  Requires the 'bespoke-extern' module to expose the Bespoke.js API to a global ",
+    "  variable named 'bespoke'. The plugin provides access to the collection of deck",
+    "  instances via 'bespoke.decks' and the most recent deck via 'bespoke.deck'.    "
+];
 
 exports.create = function (page) {
     return new Bespoke(page);
