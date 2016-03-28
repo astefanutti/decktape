@@ -132,9 +132,11 @@ ArgParser.prototype = {
 
     var argv = argv || process.argv.slice(2);
 
-    var arg = Arg(argv[0]).isValue && argv[0],
-        command = arg && this.commands[arg],
-        commandExpected = !_(this.commands).isEmpty();
+    var command = _(argv).find(function (arg) {
+        return Arg(arg).isValue && this.commands[arg];
+    }, this);
+    command = command && this.commands[command];
+    var commandExpected = !_(this.commands).isEmpty();
 
     if (commandExpected) {
        if (command) {
@@ -150,8 +152,8 @@ ArgParser.prototype = {
            help: command.help
          };
        }
-       else if (arg && !this.fallback) {
-          return this.print(this._script + ": no such command '" + arg + "'", 1);
+       else if (!this.fallback) {
+          return this.print(this._script + ": command expected", 1);
        }
        else {
           // no command but command expected e.g. 'git -v'
@@ -223,9 +225,6 @@ ArgParser.prototype = {
     .concat(Arg());
 
     var positionals = [];
-    // preserves positional argument indexes
-    if (!command && this.fallback)
-      positionals.push(undefined);
 
     /* parse the args */
     var that = this;
@@ -285,6 +284,13 @@ ArgParser.prototype = {
       return val;
     });
 
+    if (command && command.name !== positionals[0])
+      this.print("command '" + command.name + "' is expected to be the first argument", 1);
+
+    // preserve positional argument indexes
+    if (!command && this.fallback)
+      positionals.unshift(undefined);
+
     positionals.forEach(function(pos, index) {
       this.setOption(options, index, pos);
     }, this);
@@ -329,7 +335,7 @@ ArgParser.prototype = {
     }
 
     // todo: use a template
-    var str = "\n"
+    var str = "\n";
     if (!this._nocolors) {
       str += chalk.bold("Usage:");
     }
@@ -338,14 +344,14 @@ ArgParser.prototype = {
     }
     str += " " + this._script;
 
-    var positionals = _(this.specs).select(function(opt) {
-      return opt.position != undefined;
-    })
-    positionals = _(positionals).sortBy(function(opt) {
-      return opt.position;
+    var positionals = _(this.specs).select(function(spec) {
+      return spec.position != undefined && !spec.hidden;
     });
-    var options = _(this.specs).select(function(opt) {
-      return opt.position === undefined;
+    positionals = _(positionals).sortBy(function(spec) {
+      return spec.position;
+    });
+    var options = _(this.specs).select(function(spec) {
+      return spec.position === undefined;
     });
 
     if (options.length) {
@@ -360,22 +366,20 @@ ArgParser.prototype = {
 
     // assume there are no gaps in the specified pos. args
     positionals.forEach(function(pos) {
-      if (!pos.hidden) {
-        str += " ";
-        var posStr = pos.string;
-        if (!posStr) {
-          posStr = pos.name || "arg" + pos.position;
-          if (pos.required) {
-            posStr = "<" + posStr + ">";
-          } else {
-            posStr = "[" + posStr + "]";
-          }
-          if (pos.list) {
-            posStr += "...";
-          }
+      str += " ";
+      var posStr = pos.string;
+      if (!posStr) {
+        posStr = pos.name || "arg" + pos.position;
+        if (pos.required) {
+          posStr = "<" + posStr + ">";
+        } else {
+          posStr = "[" + posStr + "]";
         }
-        str += posStr;
+        if (pos.list) {
+          posStr += "...";
+        }
       }
+      str += posStr;
     });
 
     if (options.length || positionals.length) {
@@ -394,17 +398,15 @@ ArgParser.prototype = {
     }, 0);
 
     positionals.forEach(function(pos) {
-      if (!pos.hidden) {
-        var posStr = pos.string || pos.name;
-        str += posStr + spaces(longest - posStr.length) + "     ";
-        if (!this._nocolors) {
-          str += chalk.grey(pos.help || "")
-        }
-        else {
-          str += (pos.help || "")
-        }
-        str += "\n";
+      var posStr = pos.string || pos.name;
+      str += posStr + spaces(longest - posStr.length) + "     ";
+      if (!this._nocolors) {
+        str += chalk.grey(pos.help || "")
       }
+      else {
+        str += (pos.help || "")
+      }
+      str += "\n";
     }, this);
     if (positionals.length && options.length) {
       str += "\n";
@@ -417,9 +419,9 @@ ArgParser.prototype = {
       else {
         str += "Options:";
       }
-      str += "\n"
+      str += "\n";
 
-      var longest = options.reduce(function(max, opt) {
+      longest = options.reduce(function(max, opt) {
         return opt.string.length > max && !opt.hidden ? opt.string.length : max;
       }, 0);
 
