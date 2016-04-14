@@ -28,59 +28,59 @@ var plugins = loadAvailablePlugins(phantom.libraryPath + '/plugins/');
 parser.script('phantomjs decktape.js')
     .options({
         url: {
-            position: 1,
-            required: true,
-            help: 'URL of the slides deck'
+            position : 1,
+            required : true,
+            help     : 'URL of the slides deck'
         },
         filename: {
-            position: 2,
-            required: true,
-            help: 'Filename of the output PDF file'
+            position  : 2,
+            required  : true,
+            help      : 'Filename of the output PDF file'
         },
         size: {
-            abbr: 's',
-            metavar: '<size>',
-            callback: parseSize,
-            transform: parseSize,
-            help: 'Size of the slides deck viewport: <width>x<height>  (ex. 1280x720)'
+            abbr      : 's',
+            metavar   : '<size>',
+            callback  : parseSize,
+            transform : parseSize,
+            help      : 'Size of the slides deck viewport: <width>x<height>  (ex. 1280x720)'
         },
         pause: {
-            abbr: 'p',
-            metavar: '<ms>',
-            default: 1000,
-            help: 'Duration in milliseconds before each slide is exported'
+            abbr      : 'p',
+            metavar   : '<ms>',
+            default   : 1000,
+            help      : 'Duration in milliseconds before each slide is exported'
         },
         loadPause: {
-            full: "load-pause",
-            metavar: '<ms>',
-            default: 0,
-            help: 'Duration in milliseconds between the page has loaded and starting to export slides'
+            full      : "load-pause",
+            metavar   : '<ms>',
+            default   : 0,
+            help      : 'Duration in milliseconds between the page has loaded and starting to export slides'
         },
         screenshots: {
-            default: false,
-            flag: true,
-            help: 'Capture each slide as an image'
+            default   : false,
+            flag      : true,
+            help      : 'Capture each slide as an image'
         },
         screenshotDirectory: {
-            full: 'screenshots-directory',
-            metavar: '<dir>',
-            default: 'screenshots',
-            help: 'Screenshots output directory'
+            full      : 'screenshots-directory',
+            metavar   : '<dir>',
+            default   : 'screenshots',
+            help      : 'Screenshots output directory'
         },
         screenshotSize: {
-            full: 'screenshots-size',
-            metavar: '<size>',
-            list: true,
-            callback: parseSize,
-            transform: parseSize,
-            help: 'Screenshots resolution, can be repeated'
+            full      : 'screenshots-size',
+            metavar   : '<size>',
+            list      : true,
+            callback  : parseSize,
+            transform : parseSize,
+            help      : 'Screenshots resolution, can be repeated'
         },
         screenshotFormat: {
-            full: 'screenshots-format',
-            metavar: '<format>',
-            default: 'png',
-            choices: ['jpg', 'png'],
-            help: 'Screenshots image format, one of [jpg, png]'
+            full      : 'screenshots-format',
+            metavar   : '<format>',
+            default   : 'png',
+            choices   : ['jpg', 'png'],
+            help      : 'Screenshots image format, one of [jpg, png]'
         }
     });
 
