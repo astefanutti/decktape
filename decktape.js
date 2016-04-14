@@ -168,9 +168,15 @@ function exportSlides() {
         }
     }
     console.log(plugin.getName() + ' DeckTape plugin activated');
-    configure(plugin);
-    printer.begin();
-    exportSlide(plugin);
+
+    var decktape = Promise.resolve(plugin);
+    if (typeof plugin.configure === 'function')
+        decktape = decktape
+            .then(function () { plugin.configure() })
+            .then(function () { return plugin });
+    decktape
+        .then(configure)
+        .then(exportSlide);
 }
 
 function loadAvailablePlugins(pluginPath) {
@@ -200,18 +206,20 @@ function configure(plugin) {
             // TODO: per-plugin default size
             options.size = { width: 1280, height: 720 };
     page.viewportSize = options.size;
+
     printer.paperSize = {
         width: options.size.width + 'px',
         height: options.size.height + 'px',
         margin: '0px'
     };
     printer.outputFileName = options.filename;
+    printer.begin();
+
     // TODO: ideally defined in the plugin prototype
     plugin.progressBarOverflow = 0;
     plugin.currentSlide = 1;
     plugin.totalSlides = plugin.slideCount();
-    if (typeof plugin.configure === 'function')
-        return plugin.configure();
+    return plugin;
 }
 
 // TODO: ideally defined in the plugin prototype
