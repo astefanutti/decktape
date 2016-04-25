@@ -5,7 +5,7 @@ function Slidy(page) {
 Slidy.prototype = {
 
     getName: function () {
-        return 'HTML Slidy';
+        return 'Slidy';
     },
 
     isActive: function () {

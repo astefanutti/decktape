@@ -5,12 +5,12 @@ function Shower(page) {
 Shower.prototype = {
 
     getName: function () {
-        return 'Shower';
+        return 'Shower 1.x';
     },
 
     isActive: function () {
         return this.page.evaluate(function () {
-            return typeof shower === 'object';
+            return typeof shower === 'object' && typeof shower.modules === 'undefined';
         });
     },
 

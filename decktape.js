@@ -1,80 +1,99 @@
 require.paths.push(phantom.libraryPath + '/libs/');
 
-var page = require('webpage').create(),
-    printer = require('printer').create(),
-    system = require('system'),
-    fs = require('fs'),
-    Promise = require('promise');
+var system = require('system');
 
 // Node to PhantomJS bridging
 var process = {
-    platform: { mac: 'darwin', windows: 'win32' }[system.os.name] || system.os.name,
-    env: system.env,
-    argv: system.args,
+    platform : { mac: 'darwin', windows: 'win32' }[system.os.name] || system.os.name,
+    env      : system.env,
+    argv     : system.args,
     // To uncomment when system.stdout.isTTY is supported
-    //stdout: system.stdout,
-    exit: phantom.exit
+    //stdout : system.stdout,
+    exit     : phantom.exit
 };
-// As opposed to PhantomJS, global variables declared in the main script are not accessible
-// in modules loaded with require
+
+// As opposed to PhantomJS, global variables declared in the main script are not
+// accessible in modules loaded with require
 if (system.platform === 'slimerjs')
     require.globals.process = process;
 
+var fs      = require('fs'),
+    page    = require('webpage').create(),
+    parser  = require('nomnom'),
+    printer = require('printer').create(),
+    Promise = require('promise');
+
 var plugins = loadAvailablePlugins(phantom.libraryPath + '/plugins/');
 
-var parser = require('nomnom')
-    .script('phantomjs decktape.js')
+parser.script('phantomjs decktape.js')
     .options({
         url: {
-            position: 1,
-            required: true,
-            help: 'URL of the slides deck'
+            position : 1,
+            required : true,
+            help     : 'URL of the slides deck'
         },
         filename: {
-            position: 2,
-            required: true,
-            help: 'Filename of the output PDF file'
+            position  : 2,
+            required  : true,
+            help      : 'Filename of the output PDF file'
         },
         size: {
-            abbr: 's',
-            callback: parseResolution,
-            transform: parseResolution,
-            help: 'Size of the slides deck viewport: <width>x<height>'
+            abbr      : 's',
+            metavar   : '<size>',
+            callback  : parseSize,
+            transform : parseSize,
+            help      : 'Size of the slides deck viewport: <width>x<height>  (ex. 1280x720)'
         },
         pause: {
-            abbr: 'p',
-            default: 1000,
-            help: 'Duration in milliseconds before each slide is exported'
+            abbr      : 'p',
+            metavar   : '<ms>',
+            default   : 1000,
+            help      : 'Duration in milliseconds before each slide is exported'
         },
-        loadpause: {
-            abbr: 'l',
-            default: 0,
-            help: 'Duration in milliseconds to wait between loading the page and starting to export slides'
+        loadPause: {
+            full      : "load-pause",
+            metavar   : '<ms>',
+            default   : 0,
+            help      : 'Duration in milliseconds between the page has loaded and starting to export slides'
         },
         screenshots: {
-            default: false,
-            flag: true,
-            help: 'Capture each slide as an image'
+            default   : false,
+            flag      : true,
+            help      : 'Capture each slide as an image'
         },
         screenshotDirectory: {
-            full: 'screenshots-directory',
-            default: 'screenshots',
-            help: 'Screenshots output directory'
+            full      : 'screenshots-directory',
+            metavar   : '<dir>',
+            default   : 'screenshots',
+            help      : 'Screenshots output directory'
         },
         screenshotSize: {
-            full: 'screenshots-size',
-            list: true,
-            callback: parseResolution,
-            transform: parseResolution,
-            help: 'Screenshots resolution, can be repeated'
+            full      : 'screenshots-size',
+            metavar   : '<size>',
+            list      : true,
+            callback  : parseSize,
+            transform : parseSize,
+            help      : 'Screenshots resolution, can be repeated'
         },
         screenshotFormat: {
-            full: 'screenshots-format',
-            default: 'png',
-            choices: ['jpg', 'png'],
-            help: 'Screenshots image format, one of [jpg, png]'
+            full      : 'screenshots-format',
+            metavar   : '<format>',
+            default   : 'png',
+            choices   : ['jpg', 'png'],
+            help      : 'Screenshots image format, one of [jpg, png]'
         }
     });
+
+function parseSize(size) {
+    // TODO: support device viewport sizes and graphics display standard resolutions
+    // see http://viewportsizes.com/ and https://en.wikipedia.org/wiki/Graphics_display_resolution
+    var match = size.match(/^(\d+)x(\d+)$/);
+    if (!match)
+        return '<size> must follow the <width>x<height> notation, e.g., 1280x720';
+    else
+        return { width: match[1], height: match[2] };
+}
+
 parser.nocommand()
     .help('Defaults to the automatic command.\n' +
     'Iterates over the available plugins, picks the compatible one for presentation at the \n' +
@@ -119,43 +138,46 @@ page.onConsoleMessage = function (msg) {
     console.log(msg);
 };
 
-
-
 page.open(options.url, function (status) {
     if (status !== 'success') {
         console.log('Unable to load the address: ' + options.url);
         phantom.exit(1);
-    } else {
-        Promise.resolve()
-            .then(delay(options.loadpause))
-            .then( function() {
-
-            if (options.loadpause > 0) {
-                console.log("Done pausing page load");
-            }
-
-            var plugin;
-            if (!options.command || options.command === 'automatic') {
-                plugin = createActivePlugin();
-                if (!plugin) {
-                    console.log('No supported DeckTape plugin detected, falling back to generic plugin');
-                    plugin = plugins['generic'].create(page, options);
-                }
-            } else {
-                plugin = plugins[options.command].create(page, options);
-                if (!plugin.isActive()) {
-                    console.log('Unable to activate the ' + plugin.getName() + ' DeckTape plugin for the address: ' + options.url);
-                    phantom.exit(1);
-                }
-            }
-            console.log(plugin.getName() + ' DeckTape plugin activated');
-            configure(plugin);
-            printer.begin();
-            exportSlide(plugin);
-
-        });
     }
+
+    if (options.loadPause > 0)
+        Promise.resolve()
+            .then(delay(options.loadPause))
+            .then(exportSlides);
+    else
+        exportSlides();
 });
+
+function exportSlides() {
+    var plugin;
+    if (!options.command || options.command === 'automatic') {
+        plugin = createActivePlugin();
+        if (!plugin) {
+            console.log('No supported DeckTape plugin detected, falling back to generic plugin');
+            plugin = plugins['generic'].create(page, options);
+        }
+    } else {
+        plugin = plugins[options.command].create(page, options);
+        if (!plugin.isActive()) {
+            console.log('Unable to activate the ' + plugin.getName() + ' DeckTape plugin for the address: ' + options.url);
+            phantom.exit(1);
+        }
+    }
+    console.log(plugin.getName() + ' DeckTape plugin activated');
+
+    var decktape = Promise.resolve(plugin);
+    if (typeof plugin.configure === 'function')
+        decktape = decktape
+            .then(function () { plugin.configure() })
+            .then(function () { return plugin });
+    decktape
+        .then(configure)
+        .then(exportSlide);
+}
 
 function loadAvailablePlugins(pluginPath) {
     return fs.list(pluginPath).reduce(function (plugins, plugin) {
@@ -184,18 +206,20 @@ function configure(plugin) {
             // TODO: per-plugin default size
             options.size = { width: 1280, height: 720 };
     page.viewportSize = options.size;
+
     printer.paperSize = {
         width: options.size.width + 'px',
         height: options.size.height + 'px',
         margin: '0px'
     };
     printer.outputFileName = options.filename;
+    printer.begin();
+
     // TODO: ideally defined in the plugin prototype
     plugin.progressBarOverflow = 0;
     plugin.currentSlide = 1;
     plugin.totalSlides = plugin.slideCount();
-    if (typeof plugin.configure === 'function')
-        return plugin.configure();
+    return plugin;
 }
 
 // TODO: ideally defined in the plugin prototype
@@ -254,16 +278,6 @@ function delay(time) {
             setTimeout(fulfill, time);
         });
     }
-}
-
-function parseResolution(resolution) {
-    // TODO: support device viewport sizes and graphics display standard resolutions
-    // see http://viewportsizes.com/ and https://en.wikipedia.org/wiki/Graphics_display_resolution
-    var match = resolution.match(/^(\d+)x(\d+)$/);
-    if (!match)
-        return 'Resolution must follow the <width>x<height> notation, e.g., 1280x720';
-    else
-        return { width: match[1], height: match[2] };
 }
 
 // TODO: add progress bar, duration, ETA and file size

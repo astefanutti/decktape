@@ -8,6 +8,7 @@ Antonin Stefanutti <https://github.com/astefanutti[@astefanutti]>
 // Aliases
 :bullet: &#8201;&#8226;&#8201;
 ifdef::env-github[]
+:note-caption: :information_source:
 :icon-ban: :no_entry_sign:
 :icon-check: :white_check_mark:
 :icon-clock: :clock10:
@@ -130,12 +131,14 @@ url          URL of the slides deck
 filename     Filename of the output PDF file
 
 Options:
-   -s, --size                Size of the slides deck viewport: <width>x<height>  [1280x720]
-   -p, --pause               Duration in milliseconds before each slide is exported  [1000]
-   --screenshots             Capture each slide as an image  [false]
-   --screenshots-directory   Screenshots output directory  [screenshots]
-   --screenshots-size        Screenshots resolution, can be repeated  [--size]
-   --screenshots-format      Screenshots image format, one of [jpg, png]  [png]
+   -s <size>, --size <size>        Size of the slides deck viewport: <width>x<height>  (ex. 1280x720)
+   -p <ms>, --pause <ms>           Duration in milliseconds before each slide is exported  [1000]
+   --load-pause <ms>               Duration in milliseconds between the page has loaded
+                                   and starting to export slides  [0]
+   --screenshots                   Capture each slide as an image  [false]
+   --screenshots-directory <dir>   Screenshots output directory  [screenshots]
+   --screenshots-size <size>       Screenshots resolution, can be repeated  [--size]
+   --screenshots-format <format>   Screenshots image format, one of [jpg, png]  [png]
 
 Defaults to the automatic command.
 Iterates over the available plugins, picks the compatible one for presentation at the
@@ -156,13 +159,13 @@ Iterates over the available link:plugins[], picks the compatible one for present
 [#generic]
 === `generic`
 
-Emulates the end-user interaction by pressing the key with the specified `keycode` option and iterates over the presentation as long as:
+Emulates the end-user interaction by pressing the key with the specified `--keycode` option and iterates over the presentation as long as:
 
 [loweralpha]
-. Any change to the DOM is detected by observing mutation events targeting the body element and its subtree or
-. the number of slides exported has reached the specified `maxSlides` option.
+. Any change to the DOM is detected by observing mutation events targeting the body element and its subtree nor
+. the number of slides exported has reached the specified `--max-slides` option.
 
-The `keycode` value must be one of the {uri-phantomjs-page-event-keys}[PhantomJS page event keys] and defaults to `Right`, e.g.:
+The `--keycode` value must be one of the {uri-phantomjs-page-event-keys}[PhantomJS page event keys] and defaults to `Right`, e.g.:
 
  $ ./bin/phantomjs decktape.js generic --keycode=Space
 
@@ -170,10 +173,9 @@ The `keycode` value must be one of the {uri-phantomjs-page-event-keys}[PhantomJS
 
 === `--screenshots`
 
-Captures each slide as an image at the `screenshots-size` resolution, exports it to the `screenshots-format` image format and writes the output into the `screenshots-directory` directory.
+Captures each slide as an image at the `--screenshots-size` resolution, exports it to the `--screenshots-format` image format and writes the output into the `--screenshots-directory` directory.
 
-The `screenshots-size` option can be set multiple times.
-For example:
+The `--screenshots-size` option can be set multiple times. For example:
 
  $ ./bin/phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
 

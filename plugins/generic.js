@@ -4,20 +4,23 @@
 exports.options = {
     keycode: {
         default: 'Right',
+        metavar: '<code>',
         help: 'Key code pressed to navigate to next slide'
     },
     maxSlides: {
+        full: 'max-slides',
+        metavar: '<size>',
         help: 'Maximum number of slides to export'
     }
 };
 
 exports.help =
-    'Emulates the end-user interaction by pressing the key with the specified [keycode] option\n' +
+    'Emulates the end-user interaction by pressing the key with the specified --keycode option\n' +
     'and iterates over the presentation as long as:\n' +
     '- Any change to the DOM is detected by observing mutation events targeting the body element\n' +
     '  and its subtree,\n' +
-    '- Nor the number of slides exported has reached the specified [maxSlides] option.\n' +
-    'The [keycode] option must be one of the PhantomJS page event keys and defaults to [Right].';
+    '- Nor the number of slides exported has reached the specified --max-slides option.\n' +
+    'The --keycode option must be one of the PhantomJS page event keys and defaults to [Right].';
 
 exports.create = function (page, options) {
     return new Generic(page, options);
