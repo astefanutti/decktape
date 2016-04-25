@@ -81,7 +81,16 @@ parser.script('phantomjs decktape.js')
             default   : 'png',
             choices   : ['jpg', 'png'],
             help      : 'Screenshots image format, one of [jpg, png]'
+        },
+        pages: {
+            full      : 'pages-to-print',
+            metavar   : '<pagenumbers>',
+            default   : 'all',
+            callback  : parsePages,
+            transform : parsePages,
+            help      : 'Print specific pages/slides. Use "all" to print all pages. Specify single pages with their number "1". Use ranges to specify a to and from "1-2". Or more complex "1-2 6-7 10" that would print slides 1, 2, 6, 7, and 10.'
         }
+
     });
 
 function parseSize(size) {
@@ -93,6 +102,76 @@ function parseSize(size) {
     else
         return { width: match[1], height: match[2] };
 }
+
+var largestPageNumber = 0;
+
+function parsePages(pages) {
+    if (pages == "") {
+        return 'No pages specified to print. To print all pages, use "all".'
+    } else if (pages.toLowerCase() == "all") {
+        // Specified to print all pages
+        // An empty array means to print all pages
+        return []
+    } else {
+        // Ranges specified. Parse and return
+        pagesToPrint = mixrange(pages)
+
+        // Get the largest page number to stop outputting
+        // at that page number
+        largestPageNumber = Math.max.apply(Math, pagesToPrint);
+
+        // Leaving this here for debugging purposes
+        // console.log("Will print pages: " + pagesToPrint);
+
+        return pagesToPrint
+    }
+}
+
+// Gets the ranges to include
+function mixrange(s) {
+    r = []
+
+    var rangeSplit = s.split(" ")
+
+    for (var i = 0; i < rangeSplit.length; i++) {
+        if (rangeSplit[i].indexOf('-') == -1) {
+            r.push(parseInt(rangeSplit[i]))
+        } else {
+            numberSplit = rangeSplit[i].split("-")
+
+            start = parseInt(numberSplit[0])
+            stop = parseInt(numberSplit[1])
+
+            rangeArray = this.range(start, stop + 1)
+
+            for (var j = 0; j < rangeArray.length; j++) {
+                r.push(rangeArray[j])
+            }
+        }
+    }
+
+    return r;
+}
+
+// Gets an array based on the array
+function range(start, stop, step){
+    if (typeof stop=='undefined'){
+        // one param defined
+        stop = start;
+        start = 0;
+    };
+    if (typeof step=='undefined'){
+        step = 1;
+    };
+    if ((step>0 && start>=stop) || (step<0 && start<=stop)){
+        return [];
+    };
+    var result = []
+    for (var i=start; step>0 ? i<stop : i>stop; i+=step){
+        result.push(i);
+    };
+    return result;
+};
 
 parser.nocommand()
     .help('Defaults to the automatic command.\n' +
@@ -236,13 +315,29 @@ function nextSlide(plugin) {
     return plugin.nextSlide();
 }
 
+var pagesPrinted = 0;
+
 function exportSlide(plugin) {
     // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
     // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
     var decktape = Promise.resolve()
         .then(delay(options.pause))
         .then(function () { system.stdout.write('\r' + progressBar(plugin)) })
-        .then(function () { printer.printPage(page) });
+        .then(function () {
+            // Check if specific pages are supposed to be printed
+            if (options.pages.length != 0) {
+                // Specific pages chosen, see if the current slide
+                // is in the list of pages to print
+                if (options.pages.indexOf(plugin.currentSlide) != -1) {
+                    printer.printPage(page);
+                    pagesPrinted++;
+                }
+            } else {
+                // No specific pages chosen, print everything
+                printer.printPage(page);
+                pagesPrinted++;
+            }
+        });
 
     if (options.screenshots) {
         decktape = (options.screenshotSize || [options.size]).reduce(function (decktape, resolution) {
@@ -261,12 +356,25 @@ function exportSlide(plugin) {
     decktape
         .then(function () { return hasNextSlide(plugin) })
         .then(function (hasNext) {
-            if (hasNext) {
+            atLargestPage = false;
+
+            if (options.pages.length != 0) {
+                // Check if we are rendering the largest page number
+                // that needs to be output. This only applies
+                // when we've specified pages to render
+                if (plugin.currentSlide > largestPageNumber) {
+                    // We are at the last page, stop rendering now
+                    system.stdout.write('\nRendered the last specified page. Writing out and exiting.\n');
+                    atLargestPage = true;
+                }
+            }
+
+            if (hasNext && !atLargestPage) {
                 nextSlide(plugin);
                 exportSlide(plugin);
             } else {
                 printer.end();
-                system.stdout.write('\nPrinted ' + plugin.currentSlide + ' slides\n');
+                system.stdout.write('\nPrinted ' + pagesPrinted + ' slides\n');
                 phantom.exit();
             }
         });
