@@ -139,6 +139,7 @@ Options:
    --screenshots-directory <dir>   Screenshots output directory  [screenshots]
    --screenshots-size <size>       Screenshots resolution, can be repeated  [--size]
    --screenshots-format <format>   Screenshots image format, one of [jpg, png]  [png]
+   --pages-to-print <pagenumbers>  Print specific pages/slides. Use "all" to print all pages. Specify single pages with their number "1". Use ranges to specify a to and from "1-2". Or more complex "1-2 6-7 10" that would print slides 1, 2, 6, 7, and 10.  [all]
 
 Defaults to the automatic command.
 Iterates over the available plugins, picks the compatible one for presentation at the
@@ -178,6 +179,16 @@ Captures each slide as an image at the `--screenshots-size` resolution, exports 
 The `--screenshots-size` option can be set multiple times. For example:
 
  $ ./bin/phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
+
+=== `--pages-to-print`
+
+Specifies the pages to print similar to how you specify ranges on a printing dialog box. To specify a single page, you give the slide or page number `--pages-to-print "3"`. To capture a range of slide or page numbers, you would use `--pages-to-print "3-10"`, which outputs all pages between three and ten.
+
+The `--pages-to-print` option can be more complex and mix individual pages with ranges. For example:
+
+ $ ./bin/phantomjs decktape.js --pages-to-print "1 2 3-10"
+
+The rendering will stop and the file written out after the largest numbered page is written.
 
 == Examples
 
