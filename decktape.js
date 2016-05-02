@@ -82,15 +82,13 @@ parser.script('phantomjs decktape.js')
             choices   : ['jpg', 'png'],
             help      : 'Screenshots image format, one of [jpg, png]'
         },
-        pages: {
-            full      : 'pages-to-print',
-            metavar   : '<pagenumbers>',
-            default   : 'all',
-            callback  : parsePages,
-            transform : parsePages,
-            help      : 'Print specific pages/slides. Use "all" to print all pages. Specify single pages with their number "1". Use ranges to specify a to and from "1-2". Or more complex "1-2 6-7 10" that would print slides 1, 2, 6, 7, and 10.'
+        slides: {
+            metavar   : '<range>',
+            type      : 'string',
+            callback  : parseRange,
+            transform : parseRange,
+            help      : 'Range of slides to be exported, a combination of slide indexes and ranges (e.g. \'1-3,5,8\')'
         }
-
     });
 
 function parseSize(size) {
@@ -103,75 +101,21 @@ function parseSize(size) {
         return { width: match[1], height: match[2] };
 }
 
-var largestPageNumber = 0;
+function parseRange(range) {
+    var regex = /(\d)+(?:-(\d+))?/g;
+    if (!range.match(regex))
+        return '<range> must be a combination of slide indexes and ranges, e.g., \'1-3,5,8\'';
+    var slide;
+    var slides = {};
+    while ((slide = regex.exec(range)) !== null)
+        if (typeof slide[2] !== 'undefined')
+            for (var i = parseInt(slide[1]); i <= parseInt(slide[2]); i++)
+                slides[i] = true;
+        else
+            slides[parseInt(slide[1])] = true;
 
-function parsePages(pages) {
-    if (pages == "") {
-        return 'No pages specified to print. To print all pages, use "all".'
-    } else if (pages.toLowerCase() == "all") {
-        // Specified to print all pages
-        // An empty array means to print all pages
-        return []
-    } else {
-        // Ranges specified. Parse and return
-        pagesToPrint = mixrange(pages)
-
-        // Get the largest page number to stop outputting
-        // at that page number
-        largestPageNumber = Math.max.apply(Math, pagesToPrint);
-
-        // Leaving this here for debugging purposes
-        // console.log("Will print pages: " + pagesToPrint);
-
-        return pagesToPrint
-    }
+    return slides;
 }
-
-// Gets the ranges to include
-function mixrange(s) {
-    r = []
-
-    var rangeSplit = s.split(" ")
-
-    for (var i = 0; i < rangeSplit.length; i++) {
-        if (rangeSplit[i].indexOf('-') == -1) {
-            r.push(parseInt(rangeSplit[i]))
-        } else {
-            numberSplit = rangeSplit[i].split("-")
-
-            start = parseInt(numberSplit[0])
-            stop = parseInt(numberSplit[1])
-
-            rangeArray = this.range(start, stop + 1)
-
-            for (var j = 0; j < rangeArray.length; j++) {
-                r.push(rangeArray[j])
-            }
-        }
-    }
-
-    return r;
-}
-
-// Gets an array based on the array
-function range(start, stop, step){
-    if (typeof stop=='undefined'){
-        // one param defined
-        stop = start;
-        start = 0;
-    };
-    if (typeof step=='undefined'){
-        step = 1;
-    };
-    if ((step>0 && start>=stop) || (step<0 && start<=stop)){
-        return [];
-    };
-    var result = []
-    for (var i=start; step>0 ? i<stop : i>stop; i+=step){
-        result.push(i);
-    };
-    return result;
-};
 
 parser.nocommand()
     .help('Defaults to the automatic command.\n' +
@@ -297,6 +241,7 @@ function configure(plugin) {
     // TODO: ideally defined in the plugin prototype
     plugin.progressBarOverflow = 0;
     plugin.currentSlide = 1;
+    plugin.exportedSlides = 0;
     plugin.totalSlides = plugin.slideCount();
     return plugin;
 }
@@ -315,31 +260,25 @@ function nextSlide(plugin) {
     return plugin.nextSlide();
 }
 
-var pagesPrinted = 0;
+// TODO: ideally defined in the plugin prototype
+function printSlide(plugin) {
+    printer.printPage(page);
+    plugin.exportedSlides++;
+}
 
 function exportSlide(plugin) {
     // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
     // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
+    var isInRange = !options.slides || options.slides[plugin.currentSlide];
+
     var decktape = Promise.resolve()
         .then(delay(options.pause))
-        .then(function () { system.stdout.write('\r' + progressBar(plugin)) })
-        .then(function () {
-            // Check if specific pages are supposed to be printed
-            if (options.pages.length != 0) {
-                // Specific pages chosen, see if the current slide
-                // is in the list of pages to print
-                if (options.pages.indexOf(plugin.currentSlide) != -1) {
-                    printer.printPage(page);
-                    pagesPrinted++;
-                }
-            } else {
-                // No specific pages chosen, print everything
-                printer.printPage(page);
-                pagesPrinted++;
-            }
-        });
+        .then(function () { system.stdout.write('\r' + progressBar(plugin)) });
 
-    if (options.screenshots) {
+    if (isInRange)
+        decktape = decktape.then(function () { printSlide(plugin) });
+
+    if (isInRange && options.screenshots) {
         decktape = (options.screenshotSize || [options.size]).reduce(function (decktape, resolution) {
             return decktape.then(function () { page.viewportSize = resolution })
                 // Delay page rendering to wait for the resize event to complete,
@@ -356,25 +295,12 @@ function exportSlide(plugin) {
     decktape
         .then(function () { return hasNextSlide(plugin) })
         .then(function (hasNext) {
-            atLargestPage = false;
-
-            if (options.pages.length != 0) {
-                // Check if we are rendering the largest page number
-                // that needs to be output. This only applies
-                // when we've specified pages to render
-                if (plugin.currentSlide > largestPageNumber) {
-                    // We are at the last page, stop rendering now
-                    system.stdout.write('\nRendered the last specified page. Writing out and exiting.\n');
-                    atLargestPage = true;
-                }
-            }
-
-            if (hasNext && !atLargestPage) {
+            if (hasNext && (!options.slides || plugin.currentSlide < Math.max.apply(null, Object.keys(options.slides)))) {
                 nextSlide(plugin);
                 exportSlide(plugin);
             } else {
                 printer.end();
-                system.stdout.write('\nPrinted ' + pagesPrinted + ' slides\n');
+                system.stdout.write('\nPrinted ' + plugin.exportedSlides + ' slides\n');
                 phantom.exit();
             }
         });
