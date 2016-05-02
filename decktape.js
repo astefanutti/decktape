@@ -40,6 +40,7 @@ parser.script('phantomjs decktape.js')
         size: {
             abbr      : 's',
             metavar   : '<size>',
+            type      : 'string',
             callback  : parseSize,
             transform : parseSize,
             help      : 'Size of the slides deck viewport: <width>x<height>  (ex. 1280x720)'
@@ -70,6 +71,7 @@ parser.script('phantomjs decktape.js')
         screenshotSize: {
             full      : 'screenshots-size',
             metavar   : '<size>',
+            type      : 'string',
             list      : true,
             callback  : parseSize,
             transform : parseSize,
