@@ -22,7 +22,7 @@ COPY phantomjs.json ./
 RUN mkdir bin
 
 RUN curl -k \
-    -L https://astefanutti.github.io/decktape/downloads/phantomjs-linux-debian8-x86-64 \
+    -L http://astefanutti.github.io/decktape/downloads/phantomjs-linux-debian8-x86-64 \
     -o bin/phantomjs
 
 RUN chmod +x bin/phantomjs
