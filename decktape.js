@@ -163,19 +163,24 @@ page.onConsoleMessage = function (msg) {
     console.log(msg);
 };
 
-page.open(options.url, function (status) {
-    if (status !== 'success') {
-        console.log('Unable to load the address: ' + options.url);
+openUrl(page, options.url)
+    .then(delay(options.loadPause))
+    .then(exportSlides)
+    .catch(function (url) {
+        console.log('Unable to load the URL: ' + url);
         phantom.exit(1);
-    }
+    });
 
-    if (options.loadPause > 0)
-        Promise.resolve()
-            .then(delay(options.loadPause))
-            .then(exportSlides);
-    else
-        exportSlides();
-});
+function openUrl(page, url) {
+    return new Promise(function (resolve, reject) {
+        page.open(url, function (status) {
+            if (status !== 'success')
+                reject(url);
+            else
+                resolve();
+        });
+    });
+}
 
 function exportSlides() {
     var plugin;
