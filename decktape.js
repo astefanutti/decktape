@@ -163,7 +163,24 @@ page.onConsoleMessage = function (msg) {
     console.log(msg);
 };
 
+function mathjax() {
+    return new Promise(function (fullfill) {
+        page.onCallback = function (payload) {
+            fullfill(payload);
+        };
+        page.evaluate(function () {
+            if (window.MathJax)
+                MathJax.Hub.Register.StartupHook('End', function () {
+                    window.callPhantom({ mathjax: true });
+                });
+            else
+                window.callPhantom({ mathjax: false });
+        });
+    });
+}
+
 openUrl(page, options.url)
+    .then(all(mathjax))
     .then(delay(options.loadPause))
     .then(exportSlides)
     .catch(function (url) {
@@ -318,6 +335,15 @@ function delay(time) {
         return new Promise(function (fulfill) {
             setTimeout(fulfill, time);
         });
+    }
+}
+
+function all() {
+    var args = Array.prototype.slice.call(arguments);
+    return function () {
+        return Promise.all(args.map(function (arg) {
+            return arg.call();
+        }));
     }
 }
 
