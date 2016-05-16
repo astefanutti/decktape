@@ -15,22 +15,19 @@ Shower.prototype = {
     },
 
     configure: function () {
-        var resolved;
-        var promise = new Promise(function (fulfill) {
-            resolved = fulfill;
-        });
-        this.page.onCallback = function () {
-            resolved();
-        };
-        this.page.evaluate(function () {
-            shower.modules.require(['shower.global'], function (sh) {
-                window.decktape = {};
-                decktape.shower = sh.getInited()[0];
-                decktape.shower.container.enterSlideMode();
-                window.callPhantom();
+        return new Promise(function (resolve) {
+            this.page.onCallback = function () {
+                resolve();
+            };
+            this.page.evaluate(function () {
+                shower.modules.require(['shower.global'], function (sh) {
+                    window.decktape = {};
+                    decktape.shower = sh.getInited()[0];
+                    decktape.shower.container.enterSlideMode();
+                    window.callPhantom();
+                });
             });
         });
-        return promise;
     },
 
     slideCount: function () {
