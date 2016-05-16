@@ -147,10 +147,10 @@ page.onResourceTimeout = function (request) {
     console.log('+- Request timeout: ' + JSON.stringify(request));
 };
 
-page.onResourceError = function (resourceError) {
-    console.log('+- Unable to load resource from URL: ' + resourceError.url);
-    console.log('|_ Error code: ' + resourceError.errorCode);
-    console.log('|_ Description: ' + resourceError.errorString);
+page.onResourceError = function (resource) {
+    console.log('+- Unable to load resource from URL: ' + resource.url);
+    console.log('|_ Error code: ' + resource.errorCode);
+    console.log('|_ Description: ' + resource.errorString);
 };
 
 // PhantomJS emits this event for both pages and frames
@@ -165,9 +165,17 @@ page.onConsoleMessage = function (msg) {
 
 openUrl(page, options.url)
     .then(delay(options.loadPause))
+    .then(createPlugin)
+    .then(configurePlugin)
+    .then(configurePrinter)
     .then(exportSlides)
-    .catch(function (url) {
-        console.log('Unable to load the URL: ' + url);
+    .then(function (plugin) {
+        printer.end();
+        system.stdout.write('\nPrinted ' + plugin.exportedSlides + ' slides\n');
+        phantom.exit();
+    })
+    .catch(function (error) {
+        console.log(error);
         phantom.exit(1);
     });
 
@@ -175,14 +183,14 @@ function openUrl(page, url) {
     return new Promise(function (resolve, reject) {
         page.open(url, function (status) {
             if (status !== 'success')
-                reject(url);
+                reject(Error('Unable to load the URL: ' + url));
             else
                 resolve();
         });
     });
 }
 
-function exportSlides() {
+function createPlugin() {
     var plugin;
     if (!options.command || options.command === 'automatic') {
         plugin = createActivePlugin();
@@ -193,20 +201,11 @@ function exportSlides() {
     } else {
         plugin = plugins[options.command].create(page, options);
         if (!plugin.isActive()) {
-            console.log('Unable to activate the ' + plugin.getName() + ' DeckTape plugin for the address: ' + options.url);
-            phantom.exit(1);
+            throw Error('Unable to activate the ' + plugin.getName() + ' DeckTape plugin for the address: ' + options.url);
         }
     }
     console.log(plugin.getName() + ' DeckTape plugin activated');
-
-    var decktape = Promise.resolve(plugin);
-    if (typeof plugin.configure === 'function')
-        decktape = decktape
-            .then(function () { plugin.configure() })
-            .then(function () { return plugin });
-    decktape
-        .then(configure)
-        .then(exportSlide);
+    return plugin;
 }
 
 function loadAvailablePlugins(pluginPath) {
@@ -228,7 +227,22 @@ function createActivePlugin() {
     }
 }
 
-function configure(plugin) {
+function configurePlugin(plugin) {
+    var config;
+    if (typeof plugin.configure === 'function')
+        config = Promise.resolve(plugin.configure()).then(value(plugin));
+    else
+        config = Promise.resolve(plugin);
+    return config.then(function (plugin) {
+        plugin.progressBarOverflow = 0;
+        plugin.currentSlide = 1;
+        plugin.exportedSlides = 0;
+        plugin.totalSlides = plugin.slideCount();
+        return plugin;
+    });
+}
+
+function configurePrinter(plugin) {
     if (!options.size)
         if (typeof plugin.size === 'function')
             options.size = plugin.size();
@@ -245,11 +259,6 @@ function configure(plugin) {
     printer.outputFileName = options.filename;
     printer.begin();
 
-    // TODO: ideally defined in the plugin prototype
-    plugin.progressBarOverflow = 0;
-    plugin.currentSlide = 1;
-    plugin.exportedSlides = 0;
-    plugin.totalSlides = plugin.slideCount();
     return plugin;
 }
 
@@ -273,19 +282,32 @@ function printSlide(plugin) {
     plugin.exportedSlides++;
 }
 
-function exportSlide(plugin) {
+function exportSlides(plugin) {
     // TODO: support a more advanced "fragment to pause" mapping for special use cases like GIF animations
     // TODO: support plugin optional promise to wait until a particular mutation instead of a pause
-    var isInRange = !options.slides || options.slides[plugin.currentSlide];
-
-    var decktape = Promise.resolve()
+    return Promise.resolve(plugin)
         .then(delay(options.pause))
-        .then(function () { system.stdout.write('\r' + progressBar(plugin)) });
+        .then(exportSlide)
+        .then(hasNextSlide)
+        .then(function (hasNext) {
+            if (hasNext && (!options.slides || plugin.currentSlide < Math.max.apply(null, Object.keys(options.slides)))) {
+                nextSlide(plugin);
+                return exportSlides(plugin);
+            } else {
+                return plugin;
+            }
+        });
+}
 
-    if (isInRange)
-        decktape = decktape.then(function () { printSlide(plugin) });
+function exportSlide(plugin) {
+    // TODO: better logging when slide is skipped and move it to the main loop
+    system.stdout.write('\r' + progressBar(plugin));
+    if (options.slides && !options.slides[plugin.currentSlide])
+        return Promise.resolve(plugin);
 
-    if (isInRange && options.screenshots) {
+    var decktape = Promise.resolve(plugin).then(printSlide);
+
+    if (options.screenshots)
         decktape = (options.screenshotSize || [options.size]).reduce(function (decktape, resolution) {
             return decktape.then(function () { page.viewportSize = resolution })
                 // Delay page rendering to wait for the resize event to complete,
@@ -297,27 +319,21 @@ function exportSlide(plugin) {
             }, decktape)
             .then(function () { page.viewportSize = options.size })
             .then(delay(1000));
-    }
 
-    decktape
-        .then(function () { return hasNextSlide(plugin) })
-        .then(function (hasNext) {
-            if (hasNext && (!options.slides || plugin.currentSlide < Math.max.apply(null, Object.keys(options.slides)))) {
-                nextSlide(plugin);
-                exportSlide(plugin);
-            } else {
-                printer.end();
-                system.stdout.write('\nPrinted ' + plugin.exportedSlides + ' slides\n');
-                phantom.exit();
-            }
-        });
+    return decktape.then(value(plugin));
 }
 
 function delay(time) {
-    return function () {
+    return function (value) {
         return new Promise(function (fulfill) {
-            setTimeout(fulfill, time);
+            setTimeout(fulfill, time, value);
         });
+    }
+}
+
+function value(value) {
+    return function () {
+        return value;
     }
 }
 
