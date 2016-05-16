@@ -312,8 +312,9 @@ The following table documents the patches we've made to PhantomJS and tracks the
 |{icon-exclamation} todo
 
 |Add support for capturing viewport when rendering images (required to capture snapshots properly)
-|https://github.com/ariya/phantomjs/pull/13422[ariya/phantomjs#13422]
-|{icon-clock} review
+ https://github.com/ariya/phantomjs/issues/10619[ariya/phantomjs#10619]
+|https://github.com/ariya/phantomjs/commit/bfccbd65f2855d38b9c8d826813315857b6379b0[ariya/phantomjs@bfccbd6]
+|{icon-check} merged
 
 |Enable outline annotations to be rendered outside printing context (required for clickable hyperlinks with the printer module)
 |https://github.com/astefanutti/qtwebkit/commit/b83bf9342b819dff7721092675f25bc5eb3fa1dc[astefanutti/qtwebkit@b83bf93]
