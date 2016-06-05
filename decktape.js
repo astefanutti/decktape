@@ -21,7 +21,7 @@ var fs      = require('fs'),
     page    = require('webpage').create(),
     parser  = require('nomnom'),
     printer = require('printer').create(),
-    Promise = require('promise');
+    Promise = require('es6-promise').Promise;
 
 var plugins = loadAvailablePlugins(phantom.libraryPath + '/plugins/');
 
