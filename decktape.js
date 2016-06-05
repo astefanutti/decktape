@@ -163,6 +163,13 @@ page.onConsoleMessage = function (msg) {
     console.log(msg);
 };
 
+page.onError = function (msg, trace) {
+    console.log('+- ' + msg);
+    (trace || []).forEach(function (t) {
+        console.log('|_ ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function +'")' : ''));
+    });
+};
+
 openUrl(page, options.url)
     .then(delay(options.loadPause))
     .then(createPlugin)
