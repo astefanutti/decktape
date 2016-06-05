@@ -343,7 +343,7 @@ To build the {uri-phantomjs-fork}[forked version] of PhantomJS for DeckTape, you
 
 . Initialize and check out the `phantomjs` submodule:
 
- $ git submodule update --init --recursive
+ $ git submodule update --init --recursive --remote
 
 . Change into the `phantomjs` directory:
 
