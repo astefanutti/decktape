@@ -1,5 +1,5 @@
-// The generic plugin emulates end-user interaction by pressing keyboard and detects changes to the DOM.
-// The deck is considered over when no change is detected afterward.
+// RISE plugin emulates end-user interaction by pressing keyboard and detects changes to the DOM.
+// (clone from generic.js)
 
 exports.options = {
     keycode: {
