@@ -105,6 +105,8 @@ What follows is a list of precompiled binaries for various platforms.
  $ curl -L {uri-phantomjs-download}/phantomjs-linux-centos7-x86-64 -o bin/phantomjs
  # Linux (Debian 8), 64-bit
  $ curl -L {uri-phantomjs-download}/phantomjs-linux-debian8-x86-64 -o bin/phantomjs
+ # Linux (Ubuntu 16.04), 64-bit
+ $ curl -L {uri-phantomjs-download}/phantomjs-linux-ubuntu16-x86-64 -o bin/phantomjs
 --
 
 . Set the execute permission (non-Windows OS binaries only):
