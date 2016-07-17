@@ -45,6 +45,7 @@ endif::[]
 :uri-phantomjs-page-event-keys: https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329
 :uri-remark: http://remarkjs.com
 :uri-revealjs: http://lab.hakim.se/reveal-js
+:uri-rise: https://github.com/damianavila/RISE
 :uri-shower: http://shwr.me
 :uri-slidy: http://www.w3.org/Talks/Tools/Slidy/
 :uri-qt-webkit: https://wiki.qt.io/Qt_WebKit
@@ -60,9 +61,9 @@ DeckTape currently supports the following presentation frameworks out of the box
 
 [subs="normal"]
 ....
-{bullet}{uri-bespokejs}[Bespoke.js]     {bullet}{uri-dzslides}[DZSlides]        {bullet}{uri-remark}[remark]        {bullet}{uri-slidy}[Slidy]
-{bullet}{uri-csss}[CSSS]           {bullet}{uri-flowtimejs}[Flowtime.js]     {bullet}{uri-revealjs}[reveal.js]
-{bullet}{uri-deckjs}[deck.js]        {bullet}{uri-impressjs}[impress.js]      {bullet}{uri-shower}[Shower]
+{bullet}{uri-bespokejs}[Bespoke.js]      {bullet}{uri-dzslides}[DZSlides]        {bullet}{uri-remark}[remark]          {bullet}{uri-shower}[Shower]
+{bullet}{uri-csss}[CSSS]            {bullet}{uri-flowtimejs}[Flowtime.js]     {bullet}{uri-revealjs}[reveal.js]       {bullet}{uri-slidy}[Slidy]
+{bullet}{uri-deckjs}[deck.js]         {bullet}{uri-impressjs}[impress.js]      {bullet}{uri-rise}[RISE]
 ....
 
 DeckTape also provides a <<generic,generic command>> that works by emulating the end-user interaction, allowing it to be used to convert presentations from virtually any kind of framework.
