@@ -24,19 +24,25 @@ Reveal.prototype = {
 
     configure: function () {
         this.page.evaluate(function () {
-            Reveal.configure({ controls: false, progress: false });
+            Reveal.configure({
+                controls: false,
+                progress: false,
+                fragments: false
+            });
         });
     },
 
     slideCount: function () {
         return this.page.evaluate(function () {
-            // TODO: the getTotalSlides API does not report the number of slides accurately as it does not take stacks and some index-less fragments into account
+            // TODO: the getTotalSlides API does not report the number of slides accurately
+            // as it does not take stacks and some index-less fragments into account
             // getTotalSlides API is only available starting reveal.js version 3.0.0
             return typeof Reveal.getTotalSlides === 'function' ? Reveal.getTotalSlides() : undefined;
         });
     },
 
     hasNextSlide: function () {
+        // FIXME: does not work when there is a stack or some index-less fragments into account
         return this.page.evaluate(function () {
             return !Reveal.isLastSlide();
         });
