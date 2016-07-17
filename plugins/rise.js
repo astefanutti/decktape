@@ -28,12 +28,12 @@ RISE.prototype = {
                         controls: false,
                         progress: false,
                         // FIXME: 0 is still displayed when slideNumber is set to false!
-                        // slideNumber:false,
-                        fragments:false
+                        // slideNumber: false,
+                        fragments: false
                     });
                 });
                 resolve();
-            }, 1000);
+            }, 2000);
         });
     },
 
