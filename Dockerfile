@@ -26,5 +26,7 @@ RUN curl -k \
 
 RUN chmod +x bin/phantomjs
 
-ENTRYPOINT ["/decktape/bin/phantomjs", "decktape.js"]
+WORKDIR /slides
+
+ENTRYPOINT ["/decktape/bin/phantomjs", "/decktape/decktape.js"]
 CMD ["-h"]
