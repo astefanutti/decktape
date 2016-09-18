@@ -321,7 +321,12 @@ function exportSlide(plugin) {
                 // e.g. for impress.js (may be needed to be configurable)
                 .then(delay(1000))
                 .then(function () {
-                    page.render(options.screenshotDirectory + '/' + options.filename.replace('.pdf', '_' + plugin.currentSlide + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { onlyViewport: true });
+                    function paddedSlideNum() {
+                        width = Math.ceil(Math.log(plugin.totalSlides + 1)/Math.log(10))
+                        n = plugin.currentSlide + '';
+                        return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+                    };
+                    page.render(options.screenshotDirectory + '/' + options.filename.replace('.pdf', '_' + paddedSlideNum() + '_' + resolution.width + 'x' + resolution.height + '.' + options.screenshotFormat), { onlyViewport: true });
                 })
             }, decktape)
             .then(function () { page.viewportSize = options.size })
