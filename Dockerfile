@@ -9,7 +9,8 @@ RUN apt-get update && \
     libfontconfig \
     libjpeg62 \
     libssl1.0.0 \
-    libicu52
+    libicu52 \
+    libsqlite3-dev
 
 WORKDIR /decktape
 
@@ -23,7 +24,7 @@ COPY phantomjs.json ./
 RUN mkdir bin
 
 RUN curl -k \
-    -L http://astefanutti.github.io/decktape/downloads/phantomjs-linux-debian8-x86-64 \
+    -L https://github.com/astefanutti/decktape/releases/download/v1.0.0/phantomjs-linux-debian8-x86-64 \
     -o bin/phantomjs
 
 RUN chmod +x bin/phantomjs
