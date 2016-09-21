@@ -23,7 +23,7 @@ COPY phantomjs.json ./
 
 RUN mkdir bin
 
-RUN curl -k \
+RUN curl -kf \
     -L https://github.com/astefanutti/decktape/releases/download/v1.0.0/phantomjs-linux-debian8-x86-64 \
     -o bin/phantomjs
 
