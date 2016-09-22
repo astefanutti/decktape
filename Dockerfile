@@ -5,12 +5,7 @@ ENV TERM xterm-color
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
-    libwebp5 \
-    libfontconfig \
-    libjpeg62 \
-    libssl1.0.0 \
-    libicu52 \
-    libsqlite3-dev
+    libfontconfig
 
 WORKDIR /decktape
 
@@ -24,7 +19,7 @@ COPY phantomjs.json ./
 RUN mkdir bin
 
 RUN curl -kf \
-    -L https://github.com/astefanutti/decktape/releases/download/v1.0.0/phantomjs-linux-debian8-x86-64 \
+    -L https://github.com/astefanutti/decktape/releases/download/v1.0.0/phantomjs-linux-x86-64 \
     -o bin/phantomjs
 
 RUN chmod +x bin/phantomjs
