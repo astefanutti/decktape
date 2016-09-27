@@ -5,7 +5,8 @@ ENV TERM xterm-color
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
-    libfontconfig
+    libfontconfig \
+    ca-certificates
 
 WORKDIR /decktape
 
