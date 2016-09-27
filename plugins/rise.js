@@ -15,15 +15,23 @@ RISE.prototype = {
     },
 
     configure: function () {
-        return new Promise(function (resolve) {
-            // Click on the Enter/Exit Live Reveal Slideshow button in the notebook toolbar
-            this.page.evaluate(function () {
-                $('#start_livereveal').click();
-                $('#help_b,#exit_b').fadeToggle();
-            });
-            // Then wait a while and configure Reveal.js
-            setTimeout(function () {
+        return Promise.resolve()
+            // Wait a while until the RISE extension has loaded
+            // It'd be better to rely on a deterministic condition though the Jupyter JS API
+            // isn't stable and documented yet...
+            .then(delay(2000))
+            // Click on the 'Enter/Exit Live Reveal Slideshow' button in the notebook toolbar
+            .then(function () {
                 this.page.evaluate(function () {
+                    $('#start_livereveal').click();
+                    $('#help_b, #exit_b').fadeToggle();
+                });
+            })
+            // Then wait a bit until Reveal.js gets configured by the RISE extension
+            .then(delay(2000))
+            // Finally override Reveal.js configuration
+            .then(function() {
+                page.evaluate(function () {
                     Reveal.configure({
                         controls: false,
                         progress: false,
@@ -32,9 +40,7 @@ RISE.prototype = {
                         fragments: false
                     });
                 });
-                resolve();
-            }, 2000);
-        });
+            });
     },
 
     slideCount: function () {
