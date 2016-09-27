@@ -20,11 +20,11 @@ RUN mkdir bin
 
 RUN curl -kf \
     -L https://github.com/astefanutti/decktape/releases/download/v1.0.0/phantomjs-linux-x86-64 \
-    -o bin/phantomjs
+    -o phantomjs
 
-RUN chmod +x bin/phantomjs
+RUN chmod +x phantomjs
 
 WORKDIR /slides
 
-ENTRYPOINT ["/decktape/bin/phantomjs", "/decktape/decktape.js"]
+ENTRYPOINT ["/decktape/phantomjs", "/decktape/decktape.js"]
 CMD ["-h"]
