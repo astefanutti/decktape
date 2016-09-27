@@ -10,7 +10,7 @@ RISE.prototype = {
 
     isActive: function () {
         return this.page.evaluate(function () {
-            return typeof $('#start_livereveal') === 'object';
+            return typeof $ !== 'undefined' && typeof $('#start_livereveal') === 'object';
         });
     },
 
