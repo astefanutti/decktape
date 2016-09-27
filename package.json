@@ -4,7 +4,7 @@
   "description": "high-quality PDF exporter for HTML5 presentation frameworks",
   "main": "decktape.js",
   "scripts": {
-    "start": "./bin/phantomjs decktape.js",
+    "start": "./phantomjs decktape.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
