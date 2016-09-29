@@ -318,7 +318,7 @@ The following table documents the patches we've made to PhantomJS and tracks the
 |Description |Reference to Patch |Merge Status
 
 |Printer module API
-|https://github.com/astefanutti/phantomjs/commit/d8bc4b071f7fa776f9a38f1cdb1e921c64f48a8c[astefanutti/phantomjs@d8bc4b0]
+|https://github.com/astefanutti/phantomjs/commit/f0259c95942a24163eb16ef19887cc313525573d[astefanutti/phantomjs@f0259c9]
 |{icon-exclamation} todo
 
 |Add support for capturing viewport when rendering images (required to capture snapshots properly)
@@ -327,33 +327,29 @@ The following table documents the patches we've made to PhantomJS and tracks the
 |{icon-check} merged
 
 |Enable outline annotations to be rendered outside printing context (required for clickable hyperlinks with the printer module)
-|https://github.com/astefanutti/qtwebkit/commit/b83bf9342b819dff7721092675f25bc5eb3fa1dc[astefanutti/qtwebkit@b83bf93]
+|https://github.com/astefanutti/qtwebkit/commit/9f8fd880e7e40ad184a72ed0d8a5779918739583[astefanutti/qtwebkit@9f8fd88]
 |{icon-exclamation-dim} todo
 
-|PDF font embedding fails on Mac 64-bit due to unimplemented methods in `QCoreTextFontEngine`
-|https://github.com/ariya/phantomjs/pull/13243[ariya/phantomjs#13243]
+|Render anchors as clickable links in PDF documents https://bugreports.qt.io/browse/QTBUG-44563[QTBUG-44563]
+|https://github.com/qt/qtwebkit/commit/62dd2add32c7c4d5d409d457c818ac88c952e7f6[qt/qtwebkit@62dd2ad]
 |{icon-check} merged
 
-|Render anchors as clickable links in PDF documents
-|https://github.com/Vitallium/qtwebkit/commit/ef91a2535b50d7e7dc2c3b0b9795d5a2c4e616dd[Vitallium/qtwebkit@ef91a25]
+|Add support for drawing a hyperlink in `QPdfEngine` https://bugreports.qt.io/browse/QTBUG-44563[QTBUG-44563]
+|https://github.com/qt/qtbase/commit/e9eeb68a656bd52c4a783dc4247c627c5363209a[qt/qtbase@e9eeb68]
 |{icon-check} merged
 
-|Add support for drawing a hyperlink in `QPdfEngine`
-|https://github.com/Vitallium/qtbase/commit/d50c481c90669336debef397c97ca830417bc593[Vitallium/qtbase@d50c481]
-|{icon-check} merged
-
-|PhantomJS default configuration file support (optional)
-|https://github.com/ariya/phantomjs/issues/13300[ariya/phantomjs#13300]
-|{icon-ban} declined
+|Web fonts are not embedded in PDF on Linux and render as vector outlines https://bugreports.qt.io/browse/QTBUG-52417[QTBUG-52417] https://github.com/ariya/phantomjs/issues/13997[ariya/phantomjs#13997]
+|https://github.com/astefanutti/qtbase/commit/cf12105f0ad516a72d4018885b37f415d53a5564[astefanutti/qtbase@cf12105]
+|{icon-exclamation-dim} todo
 |===
 
 === Build
 
-To build the {uri-phantomjs-fork}[forked version] of PhantomJS for DeckTape, you have to execute the following commands from the DeckTape install directory:
+To build the {uri-phantomjs-fork}[forked version] of PhantomJS for DeckTape, you have to execute the following commands:
 
-. Initialize and check out the `phantomjs` submodule:
+. Clone the `phantomjs` repository:
 
- $ git submodule update --init --recursive --remote
+ $ git clone https://github.com/astefanutti/phantomjs.git
 
 . Change into the `phantomjs` directory:
 
