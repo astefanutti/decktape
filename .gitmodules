@@ -1,4 +1,0 @@
-[submodule "phantomjs"]
-	path = phantomjs
-	url = https://github.com/astefanutti/phantomjs.git
-        branch = decktape
