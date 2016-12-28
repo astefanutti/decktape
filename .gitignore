@@ -1,1 +1,8 @@
-bin/phantomjs
+*
+!*/*.js
+!.dockerignore
+!.gitignore
+!decktape.js
+!Dockerfile
+!package.json
+!README.adoc
