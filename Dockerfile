@@ -16,7 +16,7 @@ COPY libs libs/
 COPY plugins plugins/
 COPY decktape.js ./
 
-RUN curl -kf \
+RUN curl -f \
     -L https://github.com/astefanutti/decktape/releases/download/v1.0.0/phantomjs-linux-x86-64 \
     -o phantomjs
 
