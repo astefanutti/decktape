@@ -56,6 +56,7 @@ endif::[]
 :uri-rise: https://github.com/damianavila/RISE
 :uri-shower: http://shwr.me
 :uri-slidy: http://www.w3.org/Talks/Tools/Slidy/
+:uri-webslides: https://github.com/jlantunez/webslides
 
 {description}
 
@@ -69,7 +70,7 @@ DeckTape currently supports the following presentation frameworks out of the box
 ....
 {bullet}{uri-bespokejs}[Bespoke.js]      {bullet}{uri-dzslides}[DZSlides]        {bullet}{uri-remark}[remark]          {bullet}{uri-shower}[Shower]
 {bullet}{uri-csss}[CSSS]            {bullet}{uri-flowtimejs}[Flowtime.js]     {bullet}{uri-revealjs}[reveal.js]       {bullet}{uri-slidy}[Slidy]
-{bullet}{uri-deckjs}[deck.js]         {bullet}{uri-impressjs}[impress.js]      {bullet}{uri-rise}[RISE]
+{bullet}{uri-deckjs}[deck.js]         {bullet}{uri-impressjs}[impress.js]      {bullet}{uri-rise}[RISE]            {bullet}{uri-webslides}[WebSlides]
 ....
 
 DeckTape also provides a <<generic,generic command>> that works by emulating the end-user interaction, allowing it to be used to convert presentations from virtually any kind of framework.
@@ -130,7 +131,7 @@ $ ./phantomjs decktape.js -h
 Usage: phantomjs decktape.js [options] [command] <url> <filename>
 
 command      one of: automatic, bespoke, csss, deck, dzslides, flowtime, generic, impress,
-             remark, reveal, shower, slidy
+             remark, reveal, shower, slidy, webslides
 url          URL of the slides deck
 filename     Filename of the output PDF file
 
@@ -174,6 +175,16 @@ Emulates the end-user interaction by pressing the key with the specified `--keyc
 The `--keycode` value must be one of the {uri-phantomjs-page-event-keys}[PhantomJS page event keys] and defaults to `Right`, e.g.:
 
  $ ./phantomjs decktape.js generic --keycode=Space
+
+=== `webslides`
+
+PhantomJS doesn't support flexbox very well and WebSlides makes heavy use of flexbox.
+For DeckTape to print WebSlides properly, it'll need the right vendor prefixes on the flexbox attributes.
+
+In https://github.com/jlantunez/webslides/blob/master/static/css/base.css#L3147[base.css line 3147] change `display: block !important;` to `display: flex: !important` and run base.css through https://autoprefixer.github.io/ with filter `safari >= 4`.
+
+For more info why the vendor prefixes are necessary, check the https://github.com/jlantunez/webslides/issues/5[Issue on WebSlides] or the https://github.com/ariya/phantomjs/issues/14365[Issue on PhantomJS].
+PhantomJS 2.5 will support flexbox. The prefixing of the CSS will be unnecessary once PhantomJS v2.5 has been released and the DeckTape fork has been rebased on v2.5.
 
 == Options
 
