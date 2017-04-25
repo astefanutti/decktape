@@ -104,7 +104,7 @@ function parseSize(size) {
 }
 
 function parseRange(range) {
-    var regex = /(\d)+(?:-(\d+))?/g;
+    var regex = /(\d+)(?:-(\d+))?/g;
     if (!range.match(regex))
         return '<range> must be a combination of slide indexes and ranges, e.g., \'1-3,5,8\'';
     var slide;
