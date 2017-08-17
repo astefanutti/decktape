@@ -33,7 +33,7 @@ Reveal.prototype = {
         // It seems passing 'fragments=true' in the URL query string does not take precedence
         // over globally configured 'fragments' and prevents from being able to toggle fragments
         // with ...?fragments=<true|false> so we work around that by parsing the page query string
-        }, (URI(this.page.url).query(true)['fragments'] || 'false').toLowerCase() === 'true');
+        }, (URI(this.page.url()).query(true)['fragments'] || 'false').toLowerCase() === 'true');
     },
 
     slideCount: function () {
@@ -46,9 +46,9 @@ Reveal.prototype = {
     },
 
     hasNextSlide: function () {
-        // FIXME: does not work when there is a stack or some index-less fragments into account
         return this.page.evaluate(function () {
-            return !Reveal.isLastSlide();
+            // check with fragments option?
+            return !Reveal.isLastSlide() || Reveal.availableFragments().next;
         });
     },
 
