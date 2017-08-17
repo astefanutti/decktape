@@ -1,6 +1,8 @@
-const fs     = require('fs'),
-      os     = require('os'),
-      parser = require('./libs/nomnom');
+const fs        = require('fs'),
+      hummus    = require('hummus'),
+      os        = require('os'),
+      parser    = require('./libs/nomnom'),
+      puppeteer = require('puppeteer');
 
 const plugins = loadAvailablePlugins('./plugins/');
 
@@ -120,11 +122,9 @@ var options = parser.parse(process.argv.slice(2));
 
 (async() => {
 
-const puppeteer = require('puppeteer');
-const browser = await puppeteer.launch();
+// TODO: support passing args to the the Chromium instance
+const browser = await puppeteer.launch({ headless: true });
 const page = await browser.newPage();
-
-const hummus = require('hummus');
 const pdfWriter = hummus.createWriter(options.filename);
 
 page.onLoadStarted = function () {
@@ -146,7 +146,6 @@ page.onLoadFinished = function (status) {
     console.log('Loading page finished with status: ' + status);
 };
 
-// Must be set before the page is opened
 page.on('console', (...args) => console.log(args));
 
 page.onError = function (msg, trace) {
@@ -156,23 +155,45 @@ page.onError = function (msg, trace) {
     });
 };
 
-openUrl(page, options.url)
-    .then(delay(options.loadPause))
-    .then(createPlugin)
-    .then(configurePlugin)
-    .then(configurePrinter)
-    .then(exportSlides)
-    .then(function (plugin) {
-        pdfWriter.end();
-        process.stdout.write('\nPrinted ' + plugin.exportedSlides + ' slides\n');
-        browser.close();
-        process.exit();
-    })
-    .catch(function (error) {
-        console.log(error);
-        browser.close();
-        process.exit(1);
-    });
+page.goto(options.url, { waitUntil: 'load', timeout: 60000 })
+  .then(removeCssPrintStyles)
+  .then(delay(options.loadPause))
+  .then(createPlugin)
+  .then(configurePlugin)
+  .then(configurePrinter)
+  .then(exportSlides)
+  .then(plugin => {
+    pdfWriter.end();
+    process.stdout.write(`\nPrinted ${plugin.exportedSlides} slides\n`);
+    browser.close();
+    process.exit();
+  })
+  .catch(error => {
+    console.log(error);
+    browser.close();
+    process.exit(1);
+  });
+
+// Can be removed when Puppeteer supports setting media type in rendering emulation
+// See: https://github.com/GoogleChrome/puppeteer/issues/312
+function removeCssPrintStyles() {
+  return page.evaluate(_ => {
+    // if (!document.styleSheets) return;
+    for (let j = 0; j < document.styleSheets.length; j++) {
+      const sheet = document.styleSheets[j];
+      if (!sheet.rules) continue;
+      for (let i = sheet.rules.length - 1; i >= 0; i--) {
+        if (sheet.rules[i].cssText.indexOf('@media print') !== -1) {
+          sheet.deleteRule(i);
+        } else if (sheet.rules[i].cssText.indexOf('@media screen') !== -1) {
+          const rule = sheet.rules[i].cssText;
+          sheet.deleteRule(i);
+          sheet.insertRule(rule.replace('@media screen', '@media all'), i);
+        }
+      }
+    }
+  });
+}
 
 async function createPlugin() {
     var plugin;
@@ -270,10 +291,6 @@ async function exportSlide(plugin) {
 }
 
 })();
-
-function openUrl(page, url) {
-    return page.goto(url, { waitUntil: 'networkidle' });
-}
 
 function loadAvailablePlugins(pluginPath) {
     return fs.readdirSync(pluginPath).reduce(function (plugins, plugin) {
