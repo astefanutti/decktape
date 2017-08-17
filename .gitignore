@@ -1,5 +1,6 @@
 *
-!*/*.js
+!libs
+!plugins
 !.dockerignore
 !.gitignore
 !decktape.js

@@ -1,31 +1,10 @@
-require.paths.push(phantom.libraryPath + '/libs/');
+const fs     = require('fs'),
+      os     = require('os'),
+      parser = require('./libs/nomnom');
 
-var system = require('system');
+const plugins = loadAvailablePlugins('./plugins/');
 
-// Node to PhantomJS bridging
-var process = {
-    platform : { mac: 'darwin', windows: 'win32' }[system.os.name] || system.os.name,
-    env      : system.env,
-    argv     : system.args,
-    // To uncomment when system.stdout.isTTY is supported
-    //stdout : system.stdout,
-    exit     : phantom.exit
-};
-
-// As opposed to PhantomJS, global variables declared in the main script are not
-// accessible in modules loaded with require
-if (system.platform === 'slimerjs')
-    require.globals.process = process;
-
-var fs      = require('fs'),
-    page    = require('webpage').create(),
-    parser  = require('nomnom'),
-    printer = require('printer').create(),
-    Promise = require('es6-promise').Promise;
-
-var plugins = loadAvailablePlugins(phantom.libraryPath + '/plugins/');
-
-parser.script('phantomjs decktape.js')
+parser.script('decktape')
     .options({
         url: {
             position : 1,
@@ -133,11 +112,20 @@ Object.keys(plugins).forEach(function (id) {
     if (typeof plugins[id].help === 'string')
         command.help(plugins[id].help);
 });
-// TODO: should be deactivated as well when PhantomJS does not execute in a TTY context
-if (system.os.name === 'windows')
+// TODO: should be deactivated as well when it does not execute in a TTY context
+if (os.name === 'windows')
     parser.nocolors();
 
-var options = parser.parse(system.args.slice(1));
+var options = parser.parse(process.argv.slice(2));
+
+(async() => {
+
+const puppeteer = require('puppeteer');
+const browser = await puppeteer.launch();
+const page = await browser.newPage();
+
+const hummus = require('hummus');
+const pdfWriter = hummus.createWriter(options.filename);
 
 page.onLoadStarted = function () {
     console.log('Loading page ' + options.url + ' ...');
@@ -159,9 +147,7 @@ page.onLoadFinished = function (status) {
 };
 
 // Must be set before the page is opened
-page.onConsoleMessage = function (msg) {
-    console.log(msg);
-};
+page.on('console', (...args) => console.log(args));
 
 page.onError = function (msg, trace) {
     console.log('+- ' + msg);
@@ -177,37 +163,28 @@ openUrl(page, options.url)
     .then(configurePrinter)
     .then(exportSlides)
     .then(function (plugin) {
-        printer.end();
-        system.stdout.write('\nPrinted ' + plugin.exportedSlides + ' slides\n');
-        phantom.exit();
+        pdfWriter.end();
+        process.stdout.write('\nPrinted ' + plugin.exportedSlides + ' slides\n');
+        browser.close();
+        process.exit();
     })
     .catch(function (error) {
         console.log(error);
-        phantom.exit(1);
+        browser.close();
+        process.exit(1);
     });
 
-function openUrl(page, url) {
-    return new Promise(function (resolve, reject) {
-        page.open(url, function (status) {
-            if (status !== 'success')
-                reject(Error('Unable to load the URL: ' + url));
-            else
-                resolve();
-        });
-    });
-}
-
-function createPlugin() {
+async function createPlugin() {
     var plugin;
     if (!options.command || options.command === 'automatic') {
-        plugin = createActivePlugin();
+        plugin = await createActivePlugin();
         if (!plugin) {
             console.log('No supported DeckTape plugin detected, falling back to generic plugin');
             plugin = plugins['generic'].create(page, options);
         }
     } else {
         plugin = plugins[options.command].create(page, options);
-        if (!plugin.isActive()) {
+        if (!await plugin.isActive()) {
             throw Error('Unable to activate the ' + plugin.getName() + ' DeckTape plugin for the address: ' + options.url);
         }
     }
@@ -215,38 +192,14 @@ function createPlugin() {
     return plugin;
 }
 
-function loadAvailablePlugins(pluginPath) {
-    return fs.list(pluginPath).reduce(function (plugins, plugin) {
-        var matches = plugin.match(/^(.*)\.js$/);
-        if (matches && fs.isFile(pluginPath + plugin))
-            plugins[matches[1]] = require(pluginPath + matches[1]);
-        return plugins;
-    }, {});
-}
-
-function createActivePlugin() {
+async function createActivePlugin() {
     for (var id in plugins) {
         if (id === 'generic')
             continue;
         var plugin = plugins[id].create(page, options);
-        if (plugin.isActive())
+        if (await plugin.isActive())
             return plugin;
     }
-}
-
-function configurePlugin(plugin) {
-    var config;
-    if (typeof plugin.configure === 'function')
-        config = Promise.resolve(plugin.configure()).then(value(plugin));
-    else
-        config = Promise.resolve(plugin);
-    return config.then(function (plugin) {
-        plugin.progressBarOverflow = 0;
-        plugin.currentSlide = 1;
-        plugin.exportedSlides = 0;
-        plugin.totalSlides = plugin.slideCount();
-        return plugin;
-    });
 }
 
 function configurePrinter(plugin) {
@@ -256,37 +209,23 @@ function configurePrinter(plugin) {
         else
             // TODO: per-plugin default size
             options.size = { width: 1280, height: 720 };
-    page.viewportSize = options.size;
-
-    printer.paperSize = {
-        width: options.size.width + 'px',
-        height: options.size.height + 'px',
-        margin: '0px'
-    };
-    printer.outputFileName = options.filename;
-    printer.begin();
+    page.setViewport({ width: options.size.width, height: options.size.height });
 
     return plugin;
 }
 
 // TODO: ideally defined in the plugin prototype
-function hasNextSlide(plugin) {
-    if (typeof plugin.hasNextSlide === 'function')
-        return plugin.hasNextSlide();
-    else
-        return plugin.currentSlide < plugin.totalSlides;
-}
-
-// TODO: ideally defined in the plugin prototype
-function nextSlide(plugin) {
-    plugin.currentSlide++;
-    return plugin.nextSlide();
-}
-
-// TODO: ideally defined in the plugin prototype
-function printSlide(plugin) {
-    printer.printPage(page);
+async function printSlide(plugin) {
+    const buffer = await page.pdf({
+        width: options.size.width + 'px',
+        height: options.size.height + 'px',
+        printBackground: true,
+        pageRanges: '1',
+        displayHeaderFooter: false,
+    });
+    pdfWriter.appendPDFPagesFromPDF(new BufferReader(buffer), { specificRanges: [[0, 0]] });
     plugin.exportedSlides++;
+    return buffer;
 }
 
 function exportSlides(plugin) {
@@ -306,9 +245,9 @@ function exportSlides(plugin) {
         });
 }
 
-function exportSlide(plugin) {
+async function exportSlide(plugin) {
     // TODO: better logging when slide is skipped and move it to the main loop
-    system.stdout.write('\r' + progressBar(plugin));
+    process.stdout.write('\r' + await progressBar(plugin));
     if (options.slides && !options.slides[plugin.currentSlide])
         return Promise.resolve(plugin);
 
@@ -330,6 +269,50 @@ function exportSlide(plugin) {
     return decktape.then(value(plugin));
 }
 
+})();
+
+function openUrl(page, url) {
+    return page.goto(url, { waitUntil: 'networkidle' });
+}
+
+function loadAvailablePlugins(pluginPath) {
+    return fs.readdirSync(pluginPath).reduce(function (plugins, plugin) {
+        var matches = plugin.match(/^(.*)\.js$/);
+        if (matches && fs.statSync(pluginPath + plugin).isFile())
+            plugins[matches[1]] = require(pluginPath + matches[1]);
+        return plugins;
+    }, {});
+}
+
+function configurePlugin(plugin) {
+    var config;
+    if (typeof plugin.configure === 'function')
+        config = Promise.resolve(plugin.configure()).then(value(plugin));
+    else
+        config = Promise.resolve(plugin);
+    return config.then(async function (plugin) {
+        plugin.progressBarOverflow = 0;
+        plugin.currentSlide = 1;
+        plugin.exportedSlides = 0;
+        plugin.totalSlides = await plugin.slideCount();
+        return plugin;
+    });
+}
+
+// TODO: ideally defined in the plugin prototype
+function hasNextSlide(plugin) {
+    if (typeof plugin.hasNextSlide === 'function')
+        return plugin.hasNextSlide();
+    else
+        return plugin.currentSlide < plugin.totalSlides;
+}
+
+// TODO: ideally defined in the plugin prototype
+function nextSlide(plugin) {
+    plugin.currentSlide++;
+    return plugin.nextSlide();
+}
+
 function delay(time) {
     return function (value) {
         return new Promise(function (fulfill) {
@@ -345,9 +328,9 @@ function value(value) {
 }
 
 // TODO: add progress bar, duration, ETA and file size
-function progressBar(plugin) {
+async function progressBar(plugin) {
     var cols = [];
-    var index = plugin.currentSlideIndex();
+    var index = await plugin.currentSlideIndex();
     cols.push('Printing slide ');
     cols.push(padding('#' + index, 8, ' ', false));
     cols.push(' (');
@@ -371,4 +354,40 @@ function padding(str, len, char, left) {
     return left === undefined || left ?
         p.join('').concat(str) :
         str.concat(p.join(''));
+}
+
+class BufferReader {
+
+    constructor(buffer) {
+        this.rposition = 0;
+        this.buffer = buffer;
+    }
+    read(inAmount) {
+        var arr = [];
+        const amount = this.rposition + inAmount;
+        if (amount > this.buffer.length) {
+            amount = this.buffer.length - this.rposition;
+        }
+        for (var i = this.rposition; i < amount; ++i)
+            arr.push(this.buffer[i]);
+        this.rposition = amount;
+        return arr;
+    }
+    notEnded() {
+        return this.rposition < this.buffer.length;
+    }
+    setPosition(inPosition) {
+        this.rposition = inPosition;
+    }
+    setPositionFromEnd(inPosition) {
+        this.rposition = this.buffer.length - inPosition;
+    }
+    skip(inAmount) {
+        this.rposition += inAmount;
+    }
+    getCurrentPosition() {
+        return this.rposition;
+    }
+    close() {
+    }
 }
