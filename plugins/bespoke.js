@@ -18,13 +18,13 @@ Bespoke.prototype = {
     },
 
     isActive: function () {
-        return page.evaluate(function () {
+        return this.page.evaluate(function () {
             return (window.bespoke || {}).deck ? (deck = bespoke.deck) : false;
         });
     },
 
     configure: function () {
-        page.evaluate(function () {
+        this.page.evaluate(function () {
             document.body.classList.add('export');
             if (deck.parent.classList.contains('bespoke-overview')) deck.fire('overview');
             deck.slide(0);
@@ -38,7 +38,7 @@ Bespoke.prototype = {
     },
 
     size: function () {
-        return page.evaluate(function () {
+        return this.page.evaluate(function () {
             var style = getComputedStyle(deck.slides[0]);
             return {
                 width: parseInt(style.width, 10),
@@ -48,19 +48,19 @@ Bespoke.prototype = {
     },
 
     slideCount: function () {
-        return page.evaluate(function () {
+        return this.page.evaluate(function () {
             return deck.slides.length;
         });
     },
 
     currentSlideIndex: function () {
-        return page.evaluate(function () {
+        return this.page.evaluate(function () {
             return deck.slide() + 1;
         });
     },
 
     nextSlide: function () {
-        page.evaluate(function () {
+        this.page.evaluate(function () {
             // Advance to last build on next slide (internal state in bespoke-bullets makes this tricky)
             var next = deck.slide() + 1, beforeLast = (next === deck.slides.length - 1), builds = 0;
             if (beforeLast) deck.slides.push(document.createElement('section'));

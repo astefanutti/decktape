@@ -1,20 +1,28 @@
 {
   "name": "decktape",
-  "version": "1.0.0",
-  "description": "high-quality PDF exporter for HTML5 presentation frameworks",
+  "description": "High-quality PDF exporter for HTML5 presentation frameworks",
+  "author": "Antonin Stefanutti",
+  "version": "2.0.0",
+  "homepage": "https://github.com/astefanutti/decktape",
   "main": "decktape.js",
+  "bin": {
+    "decktape": "decktape.js"
+  },
   "scripts": {
-    "start": "./phantomjs decktape.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node decktape.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/astefanutti/decktape.git"
   },
-  "author": "astefanutti",
-  "license": "unknown",
   "bugs": {
     "url": "https://github.com/astefanutti/decktape/issues"
   },
-  "homepage": "https://github.com/astefanutti/decktape"
+  "dependencies": {
+    "hummus": "^1.0.79",
+    "puppeteer": "^0.9.0"
+  },
+  "engines": {
+    "node": ">=7.10.0"
+  }
 }
