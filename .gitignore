@@ -8,4 +8,5 @@
 !decktape.js
 !Dockerfile
 !package.json
+!package-lock.json
 !README.adoc
