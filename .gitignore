@@ -4,6 +4,7 @@
 !plugins
 !.dockerignore
 !.gitignore
+!.npmignore
 !decktape.js
 !Dockerfile
 !package.json
