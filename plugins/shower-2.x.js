@@ -15,16 +15,14 @@ Shower.prototype = {
     },
 
     configure: function () {
-        return new Promise(function (resolve) {
-            this.page.onCallback = function () {
-                resolve();
-            };
-            this.page.evaluate(function () {
+        return new Promise(async resolve => {
+            await this.page.exposeFunction('onShowerInit', _ => resolve());
+            await this.page.evaluate(_ => {
                 shower.modules.require(['shower.global'], function (sh) {
                     window.decktape = {};
                     decktape.shower = sh.getInited()[0];
                     decktape.shower.container.enterSlideMode();
-                    window.callPhantom();
+                    window.onShowerInit();
                 });
             });
         });
