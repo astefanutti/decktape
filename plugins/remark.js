@@ -1,45 +1,35 @@
-function Remark(page) {
-    this.page = page;
-}
-
 // TODO: improve backward compatibility (e.g. getCurrentSlideIndex was getCurrentSlideNo in earlier versions)
-Remark.prototype = {
+exports.create = page => new Remark(page);
 
-    getName: function () {
-        return 'Remark JS';
-    },
+class Remark {
 
-    isActive: function () {
-        return this.page.evaluate(function () {
-            return typeof remark === 'object' && typeof slideshow === 'object';
-        });
-    },
+  constructor(page) {
+    this.page = page;
+  }
 
-    slideCount: function () {
-        return this.page.evaluate(function () {
-            return slideshow.getSlideCount();
-        });
-    },
+  getName() {
+    return 'Remark JS';
+  }
 
-    hasNextSlide: function () {
-        return this.page.evaluate(function () {
-            return slideshow.getCurrentSlideIndex() + 1 < slideshow.getSlideCount();
-        });
-    },
+  isActive() {
+    return this.page.evaluate(_ =>
+      typeof remark === 'object' && typeof slideshow === 'object');
+  }
 
-    nextSlide: function () {
-        this.page.evaluate(function () {
-            slideshow.gotoNextSlide();
-        });
-    },
+  slideCount() {
+    return this.page.evaluate(_ => slideshow.getSlideCount());
+  }
 
-    currentSlideIndex: function () {
-        return this.page.evaluate(function () {
-            return slideshow.getCurrentSlideIndex() + 1;
-        });
-    }
-};
+  hasNextSlide() {
+    return this.page.evaluate(_ =>
+      slideshow.getCurrentSlideIndex() + 1 < slideshow.getSlideCount());
+  }
 
-exports.create = function (page) {
-    return new Remark(page);
-};
+  nextSlide() {
+    return this.page.evaluate(_ => slideshow.gotoNextSlide());
+  }
+
+  currentSlideIndex() {
+    return this.page.evaluate(_ => slideshow.getCurrentSlideIndex() + 1);
+  }
+}

@@ -1,47 +1,34 @@
-function DZSlides(page) {
+exports.create = page => new DZSlides(page);
+
+class DZSlides {
+
+  constructor(page) {
     this.page = page;
+  }
+
+  getName() {
+    return 'DZ Slides';
+  }
+
+  isActive() {
+    return this.page.evaluate(_ => typeof Dz !== 'undefined');
+  }
+
+  slideCount() {
+    return this.page.evaluate(_ =>
+      Dz.slides.reduce((count, slide) => count + slide.$$('.incremental > *').length + 1, 0));
+  }
+
+  hasNextSlide() {
+    return this.page.evaluate(_ => !(Dz.idx == Dz.slides.length
+      && Dz.step == Dz.slides[Dz.idx - 1].$$('.incremental > *').length));
+  }
+
+  nextSlide() {
+    return this.page.evaluate(_ => Dz.forward());
+  }
+
+  currentSlideIndex() {
+    return this.page.evaluate(_ => Dz.idx + '.' + Dz.step);
+  }
 }
-
-DZSlides.prototype = {
-
-    getName: function () {
-        return 'DZ Slides';
-    },
-
-    isActive: function () {
-        return this.page.evaluate(function () {
-            return typeof Dz !== 'undefined';
-        });
-    },
-
-    slideCount: function () {
-        return this.page.evaluate(function () {
-            return Dz.slides.reduce(function (count, slide) {
-                var fragments = slide.$$('.incremental > *').length;
-                return count + (fragments ? fragments + 1 : 1);
-            }, 0);
-        });
-    },
-
-    hasNextSlide: function () {
-        return this.page.evaluate(function () {
-            return !(Dz.idx == Dz.slides.length && Dz.step == Dz.slides[Dz.idx - 1].$$('.incremental > *').length);
-        });
-    },
-
-    nextSlide: function () {
-        this.page.evaluate(function () {
-            Dz.forward();
-        });
-    },
-
-    currentSlideIndex: function () {
-        return this.page.evaluate(function () {
-            return Dz.idx + '.' + Dz.step;
-        });
-    }
-};
-
-exports.create = function (page) {
-    return new DZSlides(page);
-};

@@ -1,38 +1,28 @@
-function Deck(page) {
+exports.create = page => new Deck(page);
+
+class Deck {
+
+  constructor(page) {
     this.page = page;
+  }
+
+  getName() {
+    return 'Deck JS';
+  }
+
+  isActive() {
+    return this.page.evaluate(_ => typeof $ === 'function' && typeof $.deck === 'function');
+  }
+
+  slideCount() {
+    return this.page.evaluate(_ => $.deck('getSlides').length);
+  }
+
+  nextSlide() {
+    return this.page.evaluate(_ => $.deck('next'));
+  }
+
+  currentSlideIndex() {
+    return this.page.evaluate(_ => $.deck('getSlide').attr('id'));
+  }
 }
-
-Deck.prototype = {
-
-    getName: function () {
-        return 'Deck JS';
-    },
-
-    isActive: function () {
-        return this.page.evaluate(function () {
-            return typeof $ === 'function' && typeof $.deck === 'function';
-        });
-    },
-
-    slideCount: function () {
-        return this.page.evaluate(function () {
-            return $.deck('getSlides').length;
-        });
-    },
-
-    nextSlide: function () {
-        this.page.evaluate(function () {
-            $.deck('next');
-        });
-    },
-
-    currentSlideIndex: function () {
-        return this.page.evaluate(function () {
-            return $.deck('getSlide').attr('id');
-        });
-    }
-};
-
-exports.create = function (page) {
-    return new Deck(page);
-};

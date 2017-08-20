@@ -1,49 +1,40 @@
-function Flowtime(page) {
+exports.create = page => new Flowtime(page);
+
+class Flowtime {
+
+  constructor(page) {
     this.page = page;
+  }
+
+  getName() {
+    return 'Flowtime JS';
+  }
+
+  isActive() {
+    return this.page.evaluate(_ => typeof Flowtime === 'object');
+  }
+
+  configure() {
+    return this.page.evaluate(_ => {
+      Flowtime.showProgress(false);
+      Flowtime.loop(false);
+    });
+  }
+
+  slideCount() {
+    return undefined;
+  }
+
+  hasNextSlide() {
+    return this.page.evaluate(_ => Flowtime.getNextPage() || Flowtime.getNextSection());
+  }
+
+  nextSlide() {
+    return this.page.evaluate(_ => Flowtime.next());
+  }
+
+  currentSlideIndex() {
+    return this.page.evaluate(_ =>
+      `/section-${Flowtime.getSectionIndex() + 1}/page-${Flowtime.getPageIndex() + 1}`);
+  }
 }
-
-Flowtime.prototype = {
-
-    getName: function () {
-        return 'Flowtime JS';
-    },
-
-    isActive: function () {
-        return this.page.evaluate(function () {
-            return typeof Flowtime === 'object';
-        });
-    },
-
-    configure: function () {
-        this.page.evaluate(function () {
-            Flowtime.showProgress(false);
-            Flowtime.loop(false);
-        });
-    },
-
-    slideCount: function () {
-        return undefined;
-    },
-
-    hasNextSlide: function () {
-        return this.page.evaluate(function () {
-            return Flowtime.getNextPage() || Flowtime.getNextSection();
-        });
-    },
-
-    nextSlide: function () {
-        this.page.evaluate(function () {
-            Flowtime.next();
-        });
-    },
-
-    currentSlideIndex: function () {
-        return this.page.evaluate(function () {
-            return '/section-' + (Flowtime.getSectionIndex() + 1) + '/page-' + (Flowtime.getPageIndex() + 1);
-        });
-    }
-};
-
-exports.create = function (page) {
-    return new Flowtime(page);
-};
