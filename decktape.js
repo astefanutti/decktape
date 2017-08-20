@@ -257,9 +257,9 @@ function exportSlides(plugin) {
         .then(delay(options.pause))
         .then(exportSlide)
         .then(hasNextSlide)
-        .then(function (hasNext) {
+        .then(async function (hasNext) {
             if (hasNext && (!options.slides || plugin.currentSlide < Math.max.apply(null, Object.keys(options.slides)))) {
-                nextSlide(plugin);
+                await nextSlide(plugin);
                 return exportSlides(plugin);
             } else {
                 return plugin;

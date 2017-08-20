@@ -1,52 +1,41 @@
-function Shower(page) {
+exports.create = page => new Shower(page);
+
+class Shower {
+
+  constructor(page) {
     this.page = page;
+  }
+
+  getName() {
+    return 'Shower 1.x';
+  }
+
+  isActive() {
+    return this.page.evaluate(_ =>
+      typeof shower === 'object' && typeof shower.modules === 'undefined');
+  }
+
+  configure() {
+    return this.page.evaluate(_ => {
+      shower.showPresenterNotes = _ => {};
+      shower.first();
+      shower.enterSlideMode();
+    });
+  }
+
+  slideCount() {
+    return this.page.evaluate(_ => shower.slideList.length);
+  }
+
+  hasNextSlide() {
+    return this.page.evaluate(_ => shower.getCurrentSlideNumber() + 1 in shower.slideList);
+  }
+
+  nextSlide() {
+    return this.page.evaluate(_ => shower.next());
+  }
+
+  currentSlideIndex() {
+    return this.page.evaluate(_ => shower.getSlideHash(shower.getCurrentSlideNumber()).substring(1));
+  }
 }
-
-Shower.prototype = {
-
-    getName: function () {
-        return 'Shower 1.x';
-    },
-
-    isActive: function () {
-        return this.page.evaluate(function () {
-            return typeof shower === 'object' && typeof shower.modules === 'undefined';
-        });
-    },
-
-    configure: function () {
-        this.page.evaluate(function () {
-            shower.showPresenterNotes = function () {};
-            shower.first();
-            shower.enterSlideMode();
-        });
-    },
-
-    slideCount: function () {
-        return this.page.evaluate(function () {
-            return shower.slideList.length;
-        });
-    },
-
-    hasNextSlide: function () {
-        return this.page.evaluate(function () {
-            return (shower.getCurrentSlideNumber() + 1) in shower.slideList;
-        });
-    },
-
-    nextSlide: function () {
-        this.page.evaluate(function () {
-            shower.next();
-        });
-    },
-
-    currentSlideIndex: function () {
-        return this.page.evaluate(function () {
-            return shower.getSlideHash(shower.getCurrentSlideNumber()).substring(1);
-        });
-    }
-};
-
-exports.create = function (page) {
-    return new Shower(page);
-};
