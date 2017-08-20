@@ -162,7 +162,7 @@ page.goto(options.url, { waitUntil: 'load', timeout: 60000 })
   .then(delay(options.loadPause))
   .then(createPlugin)
   .then(configurePlugin)
-  .then(configurePrinter)
+  .then(configurePage)
   .then(exportSlides)
   .then(plugin => {
     pdfWriter.end();
@@ -225,15 +225,14 @@ async function createActivePlugin() {
     }
 }
 
-function configurePrinter(plugin) {
-    if (!options.size)
-        if (typeof plugin.size === 'function')
-            options.size = plugin.size();
-        else
+async function configurePage(plugin) {
+    if (!options.size) {
+        options.size = typeof plugin.size === 'function'
+            ? await plugin.size()
             // TODO: per-plugin default size
-            options.size = { width: 1280, height: 720 };
-    page.setViewport({ width: options.size.width, height: options.size.height });
-
+            : { width: 1280, height: 720 };
+    }
+    await page.setViewport({ width: options.size.width, height: options.size.height });
     return plugin;
 }
 
