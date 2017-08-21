@@ -2,7 +2,7 @@
 Antonin Stefanutti <https://github.com/astefanutti[@astefanutti]>
 // Meta
 :description: DeckTape is a high-quality PDF exporter for HTML5 presentation frameworks.
-:decktape-version: 1.0.0
+:decktape-version: 2.0.0
 :decktape-tag: v{decktape-version}
 // Settings
 :idprefix:
@@ -30,19 +30,13 @@ endif::[]
 // URIs
 :uri-decktape-release: https://github.com/astefanutti/decktape/releases/latest
 
-:uri-phantomjs: http://phantomjs.org
-:uri-phantomjs-download: https://github.com/astefanutti/decktape/releases/download/{decktape-tag}
-:uri-phantomjs-build: {uri-phantomjs}/build.html
-:uri-phantomjs-fork: https://github.com/astefanutti/phantomjs/commits/decktape
-:uri-phantomjs-page-event-keys: https://github.com/ariya/phantomjs/blob/cab2635e66d74b7e665c44400b8b20a8f225153a/src/modules/webpage.js#L329
+:uri-puppeteer: https://github.com/GoogleChrome/puppeteer
+:uri-w3c-uievents-key: https://www.w3.org/TR/uievents-key/
 
 :uri-docker: https://www.docker.com
 :uri-docker-hub: https://hub.docker.com
 :uri-docker-image: https://hub.docker.com/r/astefanutti/decktape
 :uri-docker-ref: http://docs.docker.com/engine/reference
-
-:uri-qt-webkit: https://wiki.qt.io/Qt_WebKit
-:uri-qt-webkit-build: https://wiki.qt.io/Building_Qt_5_from_Git
 
 :uri-bespokejs: http://markdalgleish.com/projects/bespoke.js
 :uri-csss: http://leaverou.github.io/csss
@@ -60,9 +54,7 @@ endif::[]
 
 {description}
 
-DeckTape supports all the features that you would expect from a PDF exporter like font embedding, selectable text, hyperlinks, SVG graphics objects, file compression.
-
-DeckTape is built on top of {uri-phantomjs}[PhantomJS] which relies on {uri-qt-webkit}[Qt WebKit] for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
+DeckTape is built on top of {uri-puppeteer}[Puppeteer] which relies on Google Chrome for laying out and rendering Web pages and provides a headless Chrome instance scriptable with a JavaScript API.
 
 NOTE: DeckTape 2.0 beta is available and now uses headless Chrome to render Web pages. See the https://github.com/astefanutti/decktape/tree/2.x[2.x] branch for more information.
 
@@ -87,50 +79,22 @@ You can browse some slide deck <<examples,examples>> below that have been export
 
 == Install
 
-You can install DeckTape by downloading the source and executable manually from the {uri-decktape-release}[latest release], or by executing the instructions below from the command-line:
+=== NPM
 
-. Download DeckTape source:
-+
-[subs=attributes+]
- $ curl -L https://github.com/astefanutti/decktape/archive/{decktape-tag}.tar.gz | tar -xz --exclude phantomjs
+Install DeckTape globally and run it:
 
-. Change into the `decktape` directory:
-+
-[subs=attributes+]
- $ cd decktape-{decktape-version}
-
-. Download PhantomJS executable:
-+
---
-NOTE: DeckTape currently depends on a <<phantomjs,forked version>> of PhantomJS.
-What follows is a list of pre-compiled binaries for various platforms.
-
-[source,shell,subs=attributes+]
-# Windows (MSVC 2013), for Windows Vista or later, bundles VC++ Runtime 2013
-$ curl -L {uri-phantomjs-download}/phantomjs-msvc2013-x86.exe -o phantomjs.exe
-# Mac OS X (Cocoa), 64-bit, for OS X 10.6 or later
-$ curl -L {uri-phantomjs-download}/phantomjs-osx-cocoa-x86-64 -o phantomjs
-# Linux (static build), 64-bit, requires fontconfig (CentOS) or libfontconfig (Debian, Ubuntu)
-$ curl -L {uri-phantomjs-download}/phantomjs-linux-x86-64 -o phantomjs
---
-
-. Set the execute permission (non-Windows OS binaries only):
-
- $ chmod +x phantomjs
-
-If the executable isn't available for your target platform, follow the instructions in the <<build>> section.
-Alternatively, DeckTape provides a {uri-docker-image}[Docker image] so that you can directly execute it with {uri-docker}[Docker].
-See the <<docker>> section for more information.
+```sh
+$ npm install -g decktape
+$ decktape
+```
 
 == Usage
 
-Inside the DeckTape install directory, run:
-
 [source]
 ----
-$ ./phantomjs decktape.js -h
+$ decktape -h
 
-Usage: phantomjs decktape.js [options] [command] <url> <filename>
+Usage: decktape [options] [command] <url> <filename>
 
 command      one of: automatic, bespoke, csss, deck, dzslides, flowtime, generic, impress,
              remark, reveal, shower, slidy, webslides
@@ -156,7 +120,7 @@ specified <url> and uses it to export and write the PDF into the specified <file
 
 In addition to the general options listed above, command specific options can be displayed the following way:
 
- $ ./phantomjs decktape.js <command> -h
+ $ decktape <command> -h
 
 == Commands
 
@@ -168,25 +132,15 @@ Iterates over the available link:plugins[], picks the compatible one for present
 [#generic]
 === `generic`
 
-Emulates the end-user interaction by pressing the key with the specified `--keycode` option and iterates over the presentation as long as:
+Emulates the end-user interaction by pressing the key with the specified `--key` option and iterates over the presentation as long as:
 
 [loweralpha]
 . Any change to the DOM is detected by observing mutation events targeting the body element and its subtree nor
 . the number of slides exported has reached the specified `--max-slides` option.
 
-The `--keycode` value must be one of the {uri-phantomjs-page-event-keys}[PhantomJS page event keys] and defaults to `Right`, e.g.:
+The `--key` value must be one of the {uri-w3c-uievents-key}[UI events `KeyboardEvent` key values] and defaults to `ArrowRight`, e.g.:
 
- $ ./phantomjs decktape.js generic --keycode=Space
-
-=== `webslides`
-
-PhantomJS doesn't support flexbox very well and WebSlides makes heavy use of flexbox.
-For DeckTape to print WebSlides properly, it'll need the right vendor prefixes on the flexbox attributes.
-
-In https://github.com/jlantunez/webslides/blob/master/static/css/base.css#L3147[base.css line 3147] change `display: block !important;` to `display: flex: !important` and run base.css through https://autoprefixer.github.io/ with filter `safari >= 4`.
-
-For more info why the vendor prefixes are necessary, check the https://github.com/jlantunez/webslides/issues/5[Issue on WebSlides] or the https://github.com/ariya/phantomjs/issues/14365[Issue on PhantomJS].
-PhantomJS 2.5 will support flexbox. The prefixing of the CSS will be unnecessary once PhantomJS v2.5 has been released and the DeckTape fork has been rebased on v2.5.
+ $ decktape generic --key=ArrowDown
 
 == Options
 
@@ -196,7 +150,7 @@ Captures each slide as an image at the `--screenshots-size` resolution, exports 
 
 The `--screenshots-size` option can be set multiple times. For example:
 
- $ ./phantomjs decktape.js --screenshots --screenshots-size=400x300 --screenshots-size=800x600
+ $ decktape --screenshots --screenshots-size=400x300 --screenshots-size=800x600
 
 === `--slides`
 
@@ -205,13 +159,13 @@ Exports only the slides specified as a series of slides indexes and ranges, e.g.
 [source,shell]
 ----
 # Capture a single slide
-$ ./phantomjs decktape.js --slides 1
+$ decktape --slides 1
 # Capture a series of slides
-$ ./phantomjs decktape.js --slides 1,3,5
+$ decktape --slides 1,3,5
 # Capture a range of slides
-$ ./phantomjs decktape.js --slides 1-10
+$ decktape --slides 1-10
 # Capture a combination of slides and ranges
-$ ./phantomjs decktape.js --slides 1,2,5-10
+$ decktape --slides 1,2,5-10
 ----
 
 The rendering stops and the file written out after the largest numbered slide is exported.
@@ -244,7 +198,7 @@ The following slide deck examples have been exported using DeckTape:
 |deck.js `1.1.0`
 |https://astefanutti.github.io/decktape/examples/deck-js-presentation.pdf[deck-js-presentation.pdf] (1.1MB)
 
-|http://flowtime-js.marcolago.com[Flowtime.js Presentation Framework]
+|https://marcolago.github.io/flowtime.js/[Flowtime.js Presentation Framework]
 |Flowtime.js
 |https://astefanutti.github.io/decktape/examples/flowtime-js-presentation.pdf[flowtime-js-presentation.pdf] (7.5MB)
 
@@ -312,67 +266,6 @@ Finally, if you want to execute DeckTape using a local clone of the DeckTape rep
 
 [source,shell]
 $ docker run --rm -v `pwd`:`pwd` -w `pwd` astefanutti/decktape slides.html slides.pdf
-
-== PhantomJS
-
-=== Overview
-
-DeckTape relies on a {uri-phantomjs-fork}[forked version] of PhantomJS, which is maintained as a submodule of this project.
-The fork primarily adds a printer API to PhantomJS that allows DeckTape to generate a multi-page PDF document.
-By default, PhantomJS can only produce a single-page PDF for each capture.
-
-=== Status
-
-Our goal is to get all the patches from this fork merged into the upstream so the fork is no longer required.
-
-The following table documents the patches we've made to PhantomJS and tracks the status of getting them merged into the upstream project.
-
-|===
-|Description |Reference to Patch |Merge Status
-
-|Printer module API
-|https://github.com/astefanutti/phantomjs/commit/f0259c95942a24163eb16ef19887cc313525573d[astefanutti/phantomjs@f0259c9]
-|{icon-exclamation} todo
-
-|Add support for capturing viewport when rendering images (required to capture snapshots properly)
- https://github.com/ariya/phantomjs/issues/10619[ariya/phantomjs#10619]
-|https://github.com/ariya/phantomjs/commit/bfccbd65f2855d38b9c8d826813315857b6379b0[ariya/phantomjs@bfccbd6]
-|{icon-check} merged
-
-|Enable outline annotations to be rendered outside printing context (required for clickable hyperlinks with the printer module)
-|https://github.com/astefanutti/qtwebkit/commit/9f8fd880e7e40ad184a72ed0d8a5779918739583[astefanutti/qtwebkit@9f8fd88]
-|{icon-exclamation-dim} todo
-
-|Render anchors as clickable links in PDF documents https://bugreports.qt.io/browse/QTBUG-44563[QTBUG-44563]
-|https://github.com/qt/qtwebkit/commit/62dd2add32c7c4d5d409d457c818ac88c952e7f6[qt/qtwebkit@62dd2ad]
-|{icon-check} merged
-
-|Add support for drawing a hyperlink in `QPdfEngine` https://bugreports.qt.io/browse/QTBUG-44563[QTBUG-44563]
-|https://github.com/qt/qtbase/commit/e9eeb68a656bd52c4a783dc4247c627c5363209a[qt/qtbase@e9eeb68]
-|{icon-check} merged
-
-|Web fonts are not embedded in PDF on Linux and render as vector outlines https://bugreports.qt.io/browse/QTBUG-52417[QTBUG-52417] https://github.com/ariya/phantomjs/issues/13997[ariya/phantomjs#13997]
-|https://github.com/astefanutti/qtbase/commit/cf12105f0ad516a72d4018885b37f415d53a5564[astefanutti/qtbase@cf12105]
-|{icon-exclamation-dim} todo
-|===
-
-=== Build
-
-To build the {uri-phantomjs-fork}[forked version] of PhantomJS for DeckTape, you have to execute the following commands:
-
-. Clone the `phantomjs` repository:
-
- $ git clone https://github.com/astefanutti/phantomjs.git
-
-. Change into the `phantomjs` directory:
-
- $ cd phantomjs
-
-. Launch the build script:
-
- $ ./build.py
-
-More information can be found in {uri-phantomjs-build}[Compiling PhantomJS from source] and in {uri-qt-webkit-build}[Building Qt 5 from Git].
 
 == Plugin API
 
