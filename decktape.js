@@ -5,11 +5,12 @@ const BufferReader = require("./libs/buffer")
       hummus       = require('hummus'),
       os           = require('os'),
       parser       = require('./libs/nomnom'),
+      path         = require('path'),
       puppeteer    = require('puppeteer');
 
 const { delay, value } = require('./libs/promise');
 
-const plugins = loadAvailablePlugins('./plugins/');
+const plugins = loadAvailablePlugins(path.join(path.dirname(__filename), 'plugins'));
 
 parser.script('decktape')
     .options({
@@ -296,11 +297,11 @@ async function exportSlide(plugin) {
 
 })();
 
-function loadAvailablePlugins(pluginPath) {
-    return fs.readdirSync(pluginPath).reduce(function (plugins, plugin) {
-        var matches = plugin.match(/^(.*)\.js$/);
-        if (matches && fs.statSync(pluginPath + plugin).isFile())
-            plugins[matches[1]] = require(pluginPath + matches[1]);
+function loadAvailablePlugins(pluginsPath) {
+    return fs.readdirSync(pluginsPath).reduce((plugins, pluginPath) => {
+        const [, plugin] = pluginPath.match(/^(.*)\.js$/);
+        if (plugin && fs.statSync(path.join(pluginsPath, pluginPath)).isFile())
+            plugins[plugin] = require('./plugins/' + plugin);
         return plugins;
     }, {});
 }
