@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
-const fs        = require('fs'),
-      hummus    = require('hummus'),
-      os        = require('os'),
-      parser    = require('./libs/nomnom'),
-      puppeteer = require('puppeteer');
+const BufferReader = require("./libs/buffer")
+      fs           = require('fs'),
+      hummus       = require('hummus'),
+      os           = require('os'),
+      parser       = require('./libs/nomnom'),
+      puppeteer    = require('puppeteer');
+
+const { delay, value } = require('./libs/promise');
 
 const plugins = loadAvailablePlugins('./plugins/');
 
@@ -331,20 +334,6 @@ function nextSlide(plugin) {
     return plugin.nextSlide();
 }
 
-function delay(time) {
-    return function (value) {
-        return new Promise(function (fulfill) {
-            setTimeout(fulfill, time, value);
-        });
-    }
-}
-
-function value(value) {
-    return function () {
-        return value;
-    }
-}
-
 // TODO: add progress bar, duration, ETA and file size
 async function progressBar(plugin) {
     var cols = [];
@@ -372,40 +361,4 @@ function padding(str, len, char, left) {
     return left === undefined || left ?
         p.join('').concat(str) :
         str.concat(p.join(''));
-}
-
-class BufferReader {
-
-    constructor(buffer) {
-        this.rposition = 0;
-        this.buffer = buffer;
-    }
-    read(inAmount) {
-        var arr = [];
-        const amount = this.rposition + inAmount;
-        if (amount > this.buffer.length) {
-            amount = this.buffer.length - this.rposition;
-        }
-        for (var i = this.rposition; i < amount; ++i)
-            arr.push(this.buffer[i]);
-        this.rposition = amount;
-        return arr;
-    }
-    notEnded() {
-        return this.rposition < this.buffer.length;
-    }
-    setPosition(inPosition) {
-        this.rposition = inPosition;
-    }
-    setPositionFromEnd(inPosition) {
-        this.rposition = this.buffer.length - inPosition;
-    }
-    skip(inAmount) {
-        this.rposition += inAmount;
-    }
-    getCurrentPosition() {
-        return this.rposition;
-    }
-    close() {
-    }
 }

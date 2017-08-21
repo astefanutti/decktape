@@ -24,7 +24,7 @@ class Reveal {
   }
 
   configure() {
-    const URI = require('URI');
+    const URI = require('urijs');
     return this.page.evaluate(fragments => Reveal.configure({
         controls  : false,
         progress  : false,
