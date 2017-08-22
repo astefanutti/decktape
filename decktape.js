@@ -109,19 +109,24 @@ function parseRange(range) {
   return slides;
 }
 
-parser
-  .nocommand()
-  .help(
+parser.command('version')
+  .root(true)
+  .help('Display decktape package version')
+  .callback(_ => {
+    console.log(require('./package.json').version);
+    process.exit();
+  });
+parser.nocommand()
+.help(
 `Defaults to the automatic command.
 Iterates over the available plugins, picks the compatible one for presentation at the
 specified <url> and uses it to export and write the PDF into the specified <filename>.`
-  );
-parser
-  .command('automatic')
-  .help(
+);
+parser.command('automatic')
+.help(
 `Iterates over the available plugins, picks the compatible one for presentation at the
 specified <url> and uses it to export and write the PDF into the specified <filename>.`
-  );
+);
 Object.keys(plugins).forEach(id => {
   const command = parser.command(id);
   if (typeof plugins[id].options === 'object')
