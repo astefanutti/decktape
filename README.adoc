@@ -93,6 +93,7 @@ $ decktape
 $ decktape -h
 
 Usage: decktape [options] [command] <url> <filename>
+       decktape version
 
 command      one of: automatic, bespoke, csss, deck, dzslides, flowtime, generic, impress,
              remark, reveal, shower, slidy, webslides

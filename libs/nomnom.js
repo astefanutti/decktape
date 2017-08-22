@@ -47,6 +47,10 @@ ArgParser.prototype = {
       usage : function(usage) {
         command._usage = usage;
         return chain;
+      },
+      root : function(root) {
+        command.root = root;
+        return chain;
       }
     };
     return chain;
@@ -140,7 +144,12 @@ ArgParser.prototype = {
 
     if (commandExpected) {
        if (command) {
-          _(this.specs).extend(command.specs);
+          if (command.root) {
+            this.specs = command.specs;
+          } else {
+            _(this.specs).extend(command.specs);
+          }
+          this.subcommand = true;
           this._script += " " + command.name;
           if (command.help) {
             this._help = command.help;
@@ -159,7 +168,7 @@ ArgParser.prototype = {
           // no command but command expected e.g. 'git -v'
           var helpStringBuilder = {
             list : function() {
-               return 'one of: ' + _(this.commands).keys().join(", ");
+               return 'one of: ' + _(this.commands).keys().filter(cmd => !this.commands[cmd].root).join(", ");
             },
             twoColumn : function() {
               // find the longest command name to ensure horizontal alignment
@@ -382,8 +391,14 @@ ArgParser.prototype = {
       str += posStr;
     });
 
+    const rootCmds = this.subcommand ? [] : Object.entries(this.commands).filter(([name, cmd]) => cmd.root);
+    if (rootCmds.length) {
+      str += '\n';
+    }
+    rootCmds.forEach(([name, cmd]) => str += '       ' + this._script + ' ' + cmd.name + '\n');
+
     if (options.length || positionals.length) {
-      str += "\n\n";
+      str += rootCmds.length ? '\n' : '\n\n';
     }
 
     function spaces(length) {
