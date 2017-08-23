@@ -64,6 +64,8 @@ DeckTape supports all the features that you would expect from a PDF exporter lik
 
 DeckTape is built on top of {uri-phantomjs}[PhantomJS] which relies on {uri-qt-webkit}[Qt WebKit] for laying out and rendering Web pages and provides a headless WebKit scriptable with a JavaScript API.
 
+NOTE: DeckTape 2.0 beta is available and now uses headless Chrome to render Web pages. See the https://github.com/astefanutti/decktape/tree/2.x[2.x] branch for more information.
+
 DeckTape currently supports the following presentation frameworks out of the box:
 
 [subs="normal"]
