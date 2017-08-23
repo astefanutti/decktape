@@ -259,16 +259,17 @@ async function exportSlides(plugin, page, printer) {
   while (hasNext && (!options.slides || plugin.currentSlide < Math.max.apply(null, Object.keys(options.slides)))) {
     await nextSlide(plugin);
     await pause(options.pause);
-    await exportSlide(plugin, page, printer);
+    if (options.slides && !options.slides[plugin.currentSlide]) {
+      process.stdout.write('\r' + await progressBar(plugin, { skip: true }));
+    } else {
+      await exportSlide(plugin, page, printer);
+    }
     hasNext = await hasNextSlide(plugin);
   }
 }
 
 async function exportSlide(plugin, page, printer) {
-  // TODO: better logging when slide is skipped and move it to the main loop
   process.stdout.write('\r' + await progressBar(plugin));
-  if (options.slides && !options.slides[plugin.currentSlide])
-    return Promise.resolve(plugin);
 
   const decktape = printSlide(plugin, page, printer);
 
@@ -315,10 +316,10 @@ async function nextSlide(plugin) {
 }
 
 // TODO: add progress bar, duration, ETA and file size
-async function progressBar(plugin) {
+async function progressBar(plugin, { skip } = { skip : false } ) {
   const cols = [];
   const index = await plugin.currentSlideIndex();
-  cols.push('Printing slide ');
+  cols.push(`${skip ? 'Skipping' : 'Printing'} slide `);
   cols.push(padding('#' + index, 8, ' ', false));
   cols.push(' (');
   cols.push(padding(plugin.currentSlide, plugin.totalSlides ? plugin.totalSlides.toString().length : 3, ' '));
