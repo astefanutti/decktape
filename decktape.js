@@ -146,28 +146,14 @@ const options = parser.parse(process.argv.slice(2));
   const page    = await browser.newPage();
   const printer = hummus.createWriter(options.filename);
 
-  page.onLoadStarted = _ => console.log('Loading page', options.url, '...');
+  page
+    .on('console', console.log)
+    .on('pageerror', error => console.log('\nPage error:', error.message))
+    .on('requestfailed', request => console.log('Unable to load resource from URL:', request.url));
 
-  page.onResourceTimeout = request => console.log('+- Request timeout:', JSON.stringify(request));
-
-  page.onResourceError = resource => {
-    console.log('+- Unable to load resource from URL:', resource.url);
-    console.log('|_ Error code:', resource.errorCode);
-    console.log('|_ Description:', resource.errorString);
-  };
-
-  page.onLoadFinished = status => console.log('Loading page finished with status:', status);
-
-  page.on('console', (...args) => console.log(args));
-
-  page.onError = (msg, trace) => {
-    console.log('+-', msg);
-    (trace || [])
-      .map(t => `|_ ${t.file}: ${t.line}${t.function ? ` (in function "${t.function}")` : ''}`)
-      .forEach(console.log)
-  };
-
+  console.log('Loading page', options.url, '...');
   page.goto(options.url, { waitUntil: 'load', timeout: 60000 })
+    .then(response => console.log('Loading page finished with status:', response.status))
     .then(removeCssPrintStyles)
     .then(delay(options.loadPause))
     .then(createPlugin)
