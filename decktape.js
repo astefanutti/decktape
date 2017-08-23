@@ -10,7 +10,7 @@ const BufferReader = require('./libs/buffer'),
       path         = require('path'),
       puppeteer    = require('puppeteer');
 
-const { delay, value } = require('./libs/promise');
+const { delay, pause } = require('./libs/promise');
 
 const plugins = loadAvailablePlugins(path.join(path.dirname(__filename), 'plugins'));
 
@@ -154,137 +154,43 @@ const options = parser.parse(process.argv.slice(2));
   console.log('Loading page', options.url, '...');
   page.goto(options.url, { waitUntil: 'load', timeout: 60000 })
     .then(response => console.log('Loading page finished with status:', response.status))
-    .then(removeCssPrintStyles)
+    .then(_ => removeCssPrintStyles(page))
     .then(delay(options.loadPause))
-    .then(createPlugin)
-    .then(configurePlugin)
-    .then(configurePage)
-    .then(exportSlides)
-    .then(plugin => {
-      printer.end();
-      process.stdout.write(`\nPrinted ${plugin.exportedSlides} slides\n`);
-      browser.close();
-      process.exit();
-    })
-    .catch(error => {
-      console.log(error);
+    .then(_ => createPlugin(page))
+    .then(plugin => configurePlugin(plugin)
+      .then(_ => configurePage(plugin, page))
+      .then(_ => exportSlides(plugin, page, printer))
+      .then(_ => {
+        printer.end();
+        process.stdout.write(`\nPrinted ${plugin.exportedSlides} slides\n`);
+      }))
+    .catch(error => console.log(error))
+    .then(_ => {
       browser.close();
       process.exit(1);
     });
 
-  // Can be removed when Puppeteer supports setting media type in rendering emulation
-  // See: https://github.com/GoogleChrome/puppeteer/issues/312
-  function removeCssPrintStyles() {
-    return page.evaluate(_ => {
-      for (let j = 0; j < document.styleSheets.length; j++) {
-        const sheet = document.styleSheets[j];
-        if (!sheet.rules) continue;
-        for (let i = sheet.rules.length - 1; i >= 0; i--) {
-          if (sheet.rules[i].cssText.indexOf('@media print') !== -1) {
-            sheet.deleteRule(i);
-          } else if (sheet.rules[i].cssText.indexOf('@media screen') !== -1) {
-            const rule = sheet.rules[i].cssText;
-            sheet.deleteRule(i);
-            sheet.insertRule(rule.replace('@media screen', '@media all'), i);
-          }
+})();
+
+// Can be removed when Puppeteer supports setting media type in rendering emulation
+// See: https://github.com/GoogleChrome/puppeteer/issues/312
+function removeCssPrintStyles(page) {
+  return page.evaluate(_ => {
+    for (let j = 0; j < document.styleSheets.length; j++) {
+      const sheet = document.styleSheets[j];
+      if (!sheet.rules) continue;
+      for (let i = sheet.rules.length - 1; i >= 0; i--) {
+        if (sheet.rules[i].cssText.indexOf('@media print') !== -1) {
+          sheet.deleteRule(i);
+        } else if (sheet.rules[i].cssText.indexOf('@media screen') !== -1) {
+          const rule = sheet.rules[i].cssText;
+          sheet.deleteRule(i);
+          sheet.insertRule(rule.replace('@media screen', '@media all'), i);
         }
       }
-    });
-  }
-
-  async function createPlugin() {
-    let plugin;
-    if (!options.command || options.command === 'automatic') {
-      plugin = await createActivePlugin();
-      if (!plugin) {
-        console.log('No supported DeckTape plugin detected, falling back to generic plugin');
-        plugin = plugins['generic'].create(page, options);
-      }
-    } else {
-      plugin = plugins[options.command].create(page, options);
-      if (!await plugin.isActive()) {
-        throw Error(`Unable to activate the ${plugin.getName()} DeckTape plugin for the address: ${options.url}`);
-      }
     }
-    console.log(plugin.getName(), 'DeckTape plugin activated');
-    return plugin;
-  }
-
-  async function createActivePlugin() {
-    for (let id in plugins) {
-      if (id === 'generic') continue;
-      const plugin = plugins[id].create(page, options);
-      if (await plugin.isActive()) return plugin;
-    }
-  }
-
-  async function configurePage(plugin) {
-    if (!options.size) {
-      options.size = typeof plugin.size === 'function'
-        ? await plugin.size()
-        // TODO: per-plugin default size
-        : { width: 1280, height: 720 };
-    }
-    await page.setViewport(options.size);
-    return plugin;
-  }
-
-  // TODO: ideally defined in the plugin prototype
-  async function printSlide(plugin) {
-    const buffer = await page.pdf({
-      width               : options.size.width + 'px',
-      height              : options.size.height + 'px',
-      printBackground     : true,
-      pageRanges          : '1',
-      displayHeaderFooter : false,
-    });
-    printer.appendPDFPagesFromPDF(new BufferReader(buffer), { specificRanges: [[0, 0]] });
-    plugin.exportedSlides++;
-    return buffer;
-  }
-
-  function exportSlides(plugin) {
-    // TODO: support a more advanced "fragment to pause" mapping
-    // for special use cases like GIF animations
-    // TODO: support plugin optional promise to wait until a particular mutation
-    // instead of a pause
-    return Promise.resolve(plugin)
-      .then(delay(options.pause))
-      .then(exportSlide)
-      .then(hasNextSlide)
-      .then(hasNext =>
-        hasNext && (!options.slides || plugin.currentSlide < Math.max.apply(null, Object.keys(options.slides)))
-          ? nextSlide(plugin).then(_ => exportSlides(plugin))
-          : plugin)
-  }
-
-  async function exportSlide(plugin) {
-    // TODO: better logging when slide is skipped and move it to the main loop
-    process.stdout.write('\r' + await progressBar(plugin));
-    if (options.slides && !options.slides[plugin.currentSlide])
-      return Promise.resolve(plugin);
-
-    const decktape = Promise.resolve(plugin).then(printSlide);
-
-    if (options.screenshots)
-      decktape = (options.screenshotSize || [options.size])
-        .reduce((decktape, resolution) => decktape
-          .then(_ => page.viewportSize = resolution)
-          // Delay page rendering to wait for the resize event to complete,
-          // e.g. for impress.js (may be needed to be configurable)
-          .then(delay(1000))
-          .then(_ => page.render(options.screenshotDirectory + '/'
-            + options.filename.replace('.pdf', `_${plugin.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`),
-            { onlyViewport: true })
-          ),
-          decktape)
-        .then(_ => page.viewportSize = options.size)
-        .then(delay(1000));
-
-    return decktape.then(value(plugin));
-  }
-
-})();
+  });
+}
 
 function loadAvailablePlugins(pluginsPath) {
   return fs.readdirSync(pluginsPath).reduce((plugins, pluginPath) => {
@@ -295,6 +201,42 @@ function loadAvailablePlugins(pluginsPath) {
   }, {});
 }
 
+async function createPlugin(page) {
+  let plugin;
+  if (!options.command || options.command === 'automatic') {
+    plugin = await createActivePlugin(page);
+    if (!plugin) {
+      console.log('No supported DeckTape plugin detected, falling back to generic plugin');
+      plugin = plugins['generic'].create(page, options);
+    }
+  } else {
+    plugin = plugins[options.command].create(page, options);
+    if (!await plugin.isActive()) {
+      throw Error(`Unable to activate the ${plugin.getName()} DeckTape plugin for the address: ${options.url}`);
+    }
+  }
+  console.log(plugin.getName(), 'DeckTape plugin activated');
+  return plugin;
+}
+
+async function createActivePlugin(page) {
+  for (let id in plugins) {
+    if (id === 'generic') continue;
+    const plugin = plugins[id].create(page, options);
+    if (await plugin.isActive()) return plugin;
+  }
+}
+
+async function configurePage(plugin, page) {
+  if (!options.size) {
+    options.size = typeof plugin.size === 'function'
+      ? await plugin.size()
+      // TODO: per-plugin default size
+      : { width: 1280, height: 720 };
+  }
+  await page.setViewport(options.size);
+}
+
 async function configurePlugin(plugin) {
   if (typeof plugin.configure === 'function')
     await plugin.configure();
@@ -303,21 +245,73 @@ async function configurePlugin(plugin) {
   plugin.currentSlide = 1;
   plugin.exportedSlides = 0;
   plugin.totalSlides = await plugin.slideCount();
-  return plugin;
 }
 
-// TODO: ideally defined in the plugin prototype
-function hasNextSlide(plugin) {
+async function exportSlides(plugin, page, printer) {
+  // TODO: support a more advanced "fragment to pause" mapping
+  // for special use cases like GIF animations
+  // TODO: support plugin optional promise to wait until a particular mutation
+  // instead of a pause
+  await pause(options.pause);
+  await exportSlide(plugin, page, printer);
+
+  let hasNext = await hasNextSlide(plugin);
+  while (hasNext && (!options.slides || plugin.currentSlide < Math.max.apply(null, Object.keys(options.slides)))) {
+    await nextSlide(plugin);
+    await pause(options.pause);
+    await exportSlide(plugin, page, printer);
+    hasNext = await hasNextSlide(plugin);
+  }
+}
+
+async function exportSlide(plugin, page, printer) {
+  // TODO: better logging when slide is skipped and move it to the main loop
+  process.stdout.write('\r' + await progressBar(plugin));
+  if (options.slides && !options.slides[plugin.currentSlide])
+    return Promise.resolve(plugin);
+
+  const decktape = printSlide(plugin, page, printer);
+
+  if (options.screenshots)
+    decktape = (options.screenshotSize || [options.size])
+      .reduce((decktape, resolution) => decktape
+        .then(_ => page.viewportSize = resolution)
+        // Delay page rendering to wait for the resize event to complete,
+        // e.g. for impress.js (may be needed to be configurable)
+        .then(delay(1000))
+        .then(_ => page.render(options.screenshotDirectory + '/'
+          + options.filename.replace('.pdf', `_${plugin.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`),
+          { onlyViewport: true })
+        ),
+        decktape)
+      .then(_ => page.viewportSize = options.size)
+      .then(delay(1000));
+
+  return decktape;
+}
+
+async function printSlide(plugin, page, printer) {
+  const buffer = await page.pdf({
+    width               : options.size.width + 'px',
+    height              : options.size.height + 'px',
+    printBackground     : true,
+    pageRanges          : '1',
+    displayHeaderFooter : false,
+  });
+  printer.appendPDFPagesFromPDF(new BufferReader(buffer), { specificRanges: [[0, 0]] });
+  plugin.exportedSlides++;
+}
+
+async function hasNextSlide(plugin) {
   if (typeof plugin.hasNextSlide === 'function')
-    return plugin.hasNextSlide();
+    return await plugin.hasNextSlide();
   else
     return plugin.currentSlide < plugin.totalSlides;
 }
 
-// TODO: ideally defined in the plugin prototype
-function nextSlide(plugin) {
+async function nextSlide(plugin) {
   plugin.currentSlide++;
-  return Promise.resolve(plugin.nextSlide());
+  return plugin.nextSlide();
 }
 
 // TODO: add progress bar, duration, ETA and file size
