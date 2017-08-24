@@ -164,7 +164,7 @@ const options = parser.parse(process.argv.slice(2));
         printer.end();
         process.stdout.write(`\nPrinted ${plugin.exportedSlides} slides\n`);
       }))
-    .catch(error => console.log(error))
+    .catch(console.log)
     .then(_ => {
       browser.close();
       process.exit(1);
@@ -270,25 +270,24 @@ async function exportSlides(plugin, page, printer) {
 
 async function exportSlide(plugin, page, printer) {
   process.stdout.write('\r' + await progressBar(plugin));
+  await printSlide(plugin, page, printer);
 
-  const decktape = printSlide(plugin, page, printer);
-
-  if (options.screenshots)
-    decktape = (options.screenshotSize || [options.size])
-      .reduce((decktape, resolution) => decktape
-        .then(_ => page.viewportSize = resolution)
-        // Delay page rendering to wait for the resize event to complete,
-        // e.g. for impress.js (may be needed to be configurable)
-        .then(delay(1000))
-        .then(_ => page.render(options.screenshotDirectory + '/'
-          + options.filename.replace('.pdf', `_${plugin.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`),
-          { onlyViewport: true })
-        ),
-        decktape)
-      .then(_ => page.viewportSize = options.size)
-      .then(delay(1000));
-
-  return decktape;
+  if (options.screenshots) {
+    for (let resolution of options.screenshotSize || [options.size]) {
+      await page.setViewport(resolution);
+      // Delay page rendering to wait for the resize event to complete,
+      // e.g. for impress.js (may be needed to be configurable)
+      await pause(1000);
+      await page.screenshot({
+        path           : path.join(options.screenshotDirectory, options.filename.replace('.pdf',
+                         `_${plugin.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`)),
+        fullPage       : false,
+        omitBackground : true,
+      });
+      await page.setViewport(options.size);
+      await pause(1000);
+    }
+  }
 }
 
 async function printSlide(plugin, page, printer) {
@@ -316,7 +315,7 @@ async function nextSlide(plugin) {
 }
 
 // TODO: add progress bar, duration, ETA and file size
-async function progressBar(plugin, { skip } = { skip : false } ) {
+async function progressBar(plugin, { skip } = { skip : false }) {
   const cols = [];
   const index = await plugin.currentSlideIndex();
   cols.push(`${skip ? 'Skipping' : 'Printing'} slide `);
