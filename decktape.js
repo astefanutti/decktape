@@ -79,6 +79,13 @@ parser.script('decktape').options({
     transform : parseRange,
     help      : 'Range of slides to be exported, a combination of slide indexes and ranges (e.g. \'1-3,5,8\')',
   },
+  // Chrome options
+  executablePath : {
+    full    : '--executablePath',
+    metavar : '<path>',
+    hidden  : true,
+    type    : 'string',
+  },
   noSandbox : {
     full   : '--no-sandbox',
     hidden : true,
@@ -146,10 +153,17 @@ const options = parser.parse(process.argv.slice(2));
 
 (async () => {
 
-  // TODO: generic support for passing args to the the Chromium instance
   const browser = await puppeteer.launch({
-    headless: true,
-    args: options.sandbox === false ? ['--no-sandbox'] : [],
+    headless : true,
+    executablePath: options.executablePath,
+    args     : Object.keys(options).reduce((args, option) => {
+      switch (option) {
+        case 'sandbox':
+          if (options.sandbox === false) args.push('--no-sandbox');
+          break;
+      }
+      return args;
+    }, [])
   });
   const page    = await browser.newPage();
   const printer = hummus.createWriter(options.filename);
