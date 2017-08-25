@@ -1,7 +1,7 @@
 = DeckTape
 Antonin Stefanutti <https://github.com/astefanutti[@astefanutti]>
 // Meta
-:description: DeckTape is a high-quality PDF exporter for HTML5 presentation frameworks.
+:description: DeckTape is a high-quality PDF exporter for HTML presentation frameworks.
 :decktape-version: 2.0.0
 :decktape-tag: v{decktape-version}
 // Settings
@@ -56,7 +56,8 @@ endif::[]
 
 DeckTape is built on top of {uri-puppeteer}[Puppeteer] which relies on Google Chrome for laying out and rendering Web pages and provides a headless Chrome instance scriptable with a JavaScript API.
 
-NOTE: DeckTape 2.0 beta is available and now uses headless Chrome to render Web pages. See the https://github.com/astefanutti/decktape/tree/2.x[2.x] branch for more information.
+NOTE: DeckTape 1.0 was built on top of http://phantomjs.org[PhantomJS] which relies on https://wiki.qt.io/Qt_WebKit[Qt WebKit].
+See the https://github.com/astefanutti/decktape/tree/1.x[1.x] branch for more information.
 
 DeckTape currently supports the following presentation frameworks out of the box:
 
