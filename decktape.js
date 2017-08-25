@@ -165,8 +165,10 @@ const options = parser.parse(process.argv.slice(2));
       return args;
     }, [])
   });
-  const page    = await browser.newPage();
+  const page = await browser.newPage();
   const printer = hummus.createWriter(options.filename);
+  const info = printer.getDocumentContext().getInfoDictionary();
+  info.creator = 'Decktape';
 
   // TODO: add coloring
   page
