@@ -2,4 +2,4 @@
 !libs
 !plugins
 !decktape.js
-!phantomjs.json
+!package.json

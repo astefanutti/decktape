@@ -78,7 +78,12 @@ parser.script('decktape').options({
     callback  : parseRange,
     transform : parseRange,
     help      : 'Range of slides to be exported, a combination of slide indexes and ranges (e.g. \'1-3,5,8\')',
-  }
+  },
+  noSandbox : {
+    full   : '--no-sandbox',
+    hidden : true,
+    flag   : true,
+  },
 });
 
 function parseSize(size) {
@@ -141,15 +146,18 @@ const options = parser.parse(process.argv.slice(2));
 
 (async () => {
 
-  // TODO: support passing args to the the Chromium instance
-  const browser = await puppeteer.launch({ headless: true });
+  // TODO: generic support for passing args to the the Chromium instance
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: options.sandbox === false ? ['--no-sandbox'] : [],
+  });
   const page    = await browser.newPage();
   const printer = hummus.createWriter(options.filename);
 
   page
     .on('console', console.log)
     .on('pageerror', error => console.log('\nPage error:', error.message))
-    .on('requestfailed', request => console.log('Unable to load resource from URL:', request.url));
+    .on('requestfailed', request => console.log('\nUnable to load resource from URL:', request.url));
 
   console.log('Loading page', options.url, '...');
   page.goto(options.url, { waitUntil: 'load', timeout: 60000 })
