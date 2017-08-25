@@ -1,3 +1,5 @@
+const { pause } = require('../libs/util');
+
 exports.create = page => new RISE(page);
 
 class RISE {
@@ -15,28 +17,26 @@ class RISE {
       typeof $ !== 'undefined' && typeof $('#start_livereveal') === 'object');
   }
 
-  configure() {
-    return Promise.resolve()
-      // Wait a while until the RISE extension has loaded
-      // It'd be better to rely on a deterministic condition though the Jupyter JS API
-      // isn't stable and documented yet...
-      .then(delay(2000))
-      // Click on the 'Enter/Exit Live Reveal Slideshow' button in the notebook toolbar
-      .then(_ => this.page.evaluate(_ => {
-        $('#start_livereveal').click();
-        $('#help_b, #exit_b').fadeToggle();
-      }))
-      // Then wait a bit until Reveal.js gets configured by the RISE extension
-      .then(delay(2000))
-      // Finally override Reveal.js configuration
-      .then(_ => this.page.evaluate(_ => Reveal.configure({
-          controls       : false,
-          progress       : false,
-          // FIXME: 0 is still displayed when slideNumber is set to false!
-          // slideNumber : false,
-          fragments      : false,
-        }
-      )));
+  async configure() {
+    // Wait a while until the RISE extension has loaded
+    // It'd be better to rely on a deterministic condition though the Jupyter JS API
+    // isn't stable and documented yet...
+    await pause(2000);
+    // Click on the 'Enter/Exit Live Reveal Slideshow' button in the notebook toolbar
+    await this.page.evaluate(_ => {
+      $('#start_livereveal').click();
+      $('#help_b, #exit_b').fadeToggle();
+    });
+    // Then wait a bit until Reveal.js gets configured by the RISE extension
+    await pause(2000);
+    // Finally override Reveal.js configuration
+    await this.page.evaluate(_ => Reveal.configure({
+      controls       : false,
+      progress       : false,
+      // FIXME: 0 is still displayed when slideNumber is set to false!
+      // slideNumber : false,
+      fragments      : false,
+    }));
   }
 
   slideCount() {
