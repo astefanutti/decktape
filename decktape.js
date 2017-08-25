@@ -10,7 +10,7 @@ const BufferReader = require('./libs/buffer'),
       path         = require('path'),
       puppeteer    = require('puppeteer');
 
-const { delay, pause } = require('./libs/promise');
+const { delay, pause } = require('./libs/util');
 
 const plugins = loadAvailablePlugins(path.join(path.dirname(__filename), 'plugins'));
 
@@ -168,6 +168,7 @@ const options = parser.parse(process.argv.slice(2));
   const page    = await browser.newPage();
   const printer = hummus.createWriter(options.filename);
 
+  // TODO: add coloring
   page
     .on('console', console.log)
     .on('pageerror', error => console.log('\nPage error:', error.message))
