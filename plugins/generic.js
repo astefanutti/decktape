@@ -2,6 +2,8 @@
 // and detects changes to the DOM. The deck is considered over when no change
 // is detected afterward.
 
+const { pause } = require('../libs/util');
+
 exports.options = {
   key : {
     default : 'ArrowRight',
@@ -43,7 +45,7 @@ class Generic {
 
   async configure() {
     await this.page.exposeFunction('onMutation', _ => (this.isNextSlideDetected = true));
-    return this.page.evaluate(_ =>
+    await this.page.evaluate(_ =>
       new MutationObserver(_ => window.onMutation()).observe(document, {
         attributes : true,
         childList  : true,
@@ -66,7 +68,8 @@ class Generic {
     // TODO: use mutation event directly instead of relying on a timeout
     // TODO: detect cycle to avoid infinite navigation for frameworks
     // that support loopable presentations like impress.js and flowtime.js
-    return new Promise(fulfill => setTimeout(_ => fulfill(this.isNextSlideDetected), 1000));
+    await pause(1000);
+    return this.isNextSlideDetected;
   }
 
   nextSlide() {
