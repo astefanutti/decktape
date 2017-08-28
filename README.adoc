@@ -89,6 +89,13 @@ $ npm install -g decktape
 $ decktape
 ```
 
+Or locally:
+
+```sh
+$ npm install decktape
+$ `npm bin`/decktape
+```
+
 == Usage
 
 [source]
