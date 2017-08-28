@@ -166,6 +166,7 @@ const options = parser.parse(process.argv.slice(2));
     }, [])
   });
   const page = await browser.newPage();
+  await page.emulateMedia('screen');
   const printer = hummus.createWriter(options.filename);
   const info = printer.getDocumentContext().getInfoDictionary();
   info.creator = 'Decktape';
@@ -179,7 +180,6 @@ const options = parser.parse(process.argv.slice(2));
   console.log('Loading page', options.url, '...');
   page.goto(options.url, { waitUntil: 'load', timeout: 60000 })
     .then(response => console.log('Loading page finished with status:', response.status))
-    .then(_ => removeCssPrintStyles(page))
     .then(delay(options.loadPause))
     .then(_ => createPlugin(page))
     .then(plugin => configurePlugin(plugin)
@@ -196,26 +196,6 @@ const options = parser.parse(process.argv.slice(2));
     });
 
 })();
-
-// Can be removed when Puppeteer supports setting media type in rendering emulation
-// See: https://github.com/GoogleChrome/puppeteer/issues/312
-function removeCssPrintStyles(page) {
-  return page.evaluate(_ => {
-    for (let j = 0; j < document.styleSheets.length; j++) {
-      const sheet = document.styleSheets[j];
-      if (!sheet.rules) continue;
-      for (let i = sheet.rules.length - 1; i >= 0; i--) {
-        if (sheet.rules[i].cssText.indexOf('@media print') !== -1) {
-          sheet.deleteRule(i);
-        } else if (sheet.rules[i].cssText.indexOf('@media screen') !== -1) {
-          const rule = sheet.rules[i].cssText;
-          sheet.deleteRule(i);
-          sheet.insertRule(rule.replace('@media screen', '@media all'), i);
-        }
-      }
-    }
-  });
-}
 
 function loadAvailablePlugins(pluginsPath) {
   return fs.readdirSync(pluginsPath).reduce((plugins, pluginPath) => {

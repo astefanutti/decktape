@@ -21,7 +21,7 @@
   "dependencies": {
     "chalk": "^2.1.0",
     "hummus": "^1.0.79",
-    "puppeteer": "^0.9.0",
+    "puppeteer": "^0.10.1",
     "underscore": "^1.8.3",
     "urijs": "^1.18.12"
   },
