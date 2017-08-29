@@ -1,5 +1,4 @@
-var _ = require("underscore"), chalk = require('chalk');
-
+var chalk = require('chalk');
 
 function ArgParser() {
    this.commands = {};  // expected commands
@@ -136,18 +135,16 @@ ArgParser.prototype = {
 
     var argv = argv || process.argv.slice(2);
 
-    var command = _(argv).find(function (arg) {
-        return Arg(arg).isValue && this.commands[arg];
-    }, this);
+    var command = argv.find(arg => Arg(arg).isValue && this.commands[arg], this);
     command = command && this.commands[command];
-    var commandExpected = !_(this.commands).isEmpty();
+    var commandExpected = Object.keys(this.commands).length > 0;
 
     if (commandExpected) {
        if (command) {
           if (command.root) {
             this.specs = command.specs;
           } else {
-            _(this.specs).extend(command.specs);
+            Object.assign(this.specs, command.specs);
           }
           this.subcommand = true;
           this._script += " " + command.name;
@@ -168,16 +165,15 @@ ArgParser.prototype = {
           // no command but command expected e.g. 'git -v'
           var helpStringBuilder = {
             list : function() {
-               return 'one of: ' + _(this.commands).keys().filter(cmd => !this.commands[cmd].root).join(", ");
+               return 'one of: ' + Object.entries(this.commands)
+                .filter(([key, cmd]) => !cmd.root)
+                .map(([key, cmd]) => key).join(', ');
             },
             twoColumn : function() {
               // find the longest command name to ensure horizontal alignment
-              var maxLength = _(this.commands).max(function (cmd) {
-                return cmd.name.length;
-              }).name.length;
-
+              var maxLength = Math.max(...Object.values(this.commands).map(cmd => cmd.name.length));
               // create the two column text strings
-              var cmdHelp = _.map(this.commands, function(cmd, name) {
+              var cmdHelp = Object.entries(this.commands).map(([name, cmd]) => {
                 var diff = maxLength - name.length;
                 var pad = new Array(diff + 4).join(" ");
                 return "  " + [ name, pad, cmd.help ].join(" ");
@@ -191,8 +187,8 @@ ArgParser.prototype = {
           // The arbitrary choice of "20" comes from the number commands git
           // displays as "common commands"
           var helpType = 'list';
-          if (_(this.commands).size() <= 20) {
-            if (_(this.commands).every(function (cmd) { return cmd.help; })) {
+          if (Object.keys(this.commands).length <= 20) {
+            if (Object.values(this.commands).every(cmd => cmd.help)) {
                 helpType = 'twoColumn';
             }
           }
@@ -204,7 +200,7 @@ ArgParser.prototype = {
           };
 
           if (this.fallback) {
-            _(this.specs).extend(this.fallback.specs);
+            Object.assign(this.specs, this.fallback.specs);
             this._help = this.fallback.help;
           } else {
             this.specs.command.required = true;
@@ -214,24 +210,19 @@ ArgParser.prototype = {
 
     if (this.specs.length === undefined) {
       // specs is a hash not an array
-      this.specs = _(this.specs).map(function(opt, name) {
+      this.specs = Object.entries(this.specs).map(([name, opt]) => {
         opt.name = name;
         return opt;
       });
     }
-    this.specs = this.specs.map(function(opt) {
-      return Opt(opt);
-    });
+    this.specs = this.specs.map(opt => Opt(opt));
 
     if (argv.indexOf("--help") >= 0 || argv.indexOf("-h") >= 0) {
       return this.print(this.getUsage());
     }
 
     var options = {};
-    var args = argv.map(function(arg) {
-      return Arg(arg);
-    })
-    .concat(Arg());
+    var args = argv.map(arg => Arg(arg)).concat(Arg());
 
     var positionals = [];
 
@@ -353,15 +344,10 @@ ArgParser.prototype = {
     }
     str += " " + this._script;
 
-    var positionals = _(this.specs).select(function(spec) {
-      return spec.position != undefined && !spec.hidden;
-    });
-    positionals = _(positionals).sortBy(function(spec) {
-      return spec.position;
-    });
-    var options = _(this.specs).select(function(spec) {
-      return spec.position === undefined;
-    });
+    const positionals = this.specs
+      .filter(spec => spec.position != undefined && !spec.hidden)
+      .sort((s1, s2) => s1.position - s2.position);
+    const options = this.specs.filter(spec => spec.position === undefined);
 
     if (options.length) {
       if (!this._nocolors) {
@@ -391,11 +377,11 @@ ArgParser.prototype = {
       str += posStr;
     });
 
-    const rootCmds = this.subcommand ? [] : Object.entries(this.commands).filter(([name, cmd]) => cmd.root);
+    const rootCmds = this.subcommand ? [] : Object.values(this.commands).filter(cmd => cmd.root);
     if (rootCmds.length) {
       str += '\n';
     }
-    rootCmds.forEach(([name, cmd]) => str += '       ' + this._script + ' ' + cmd.name + '\n');
+    rootCmds.forEach(cmd => str += '       ' + this._script + ' ' + cmd.name + '\n');
 
     if (options.length || positionals.length) {
       str += rootCmds.length ? '\n' : '\n\n';
@@ -408,9 +394,7 @@ ArgParser.prototype = {
       }
       return spaces;
     }
-    var longest = positionals.reduce(function(max, pos) {
-      return pos.name.length > max ? pos.name.length : max;
-    }, 0);
+    var longest = Math.max(...positionals.map(pos => pos.name.length));
 
     positionals.forEach(function(pos) {
       var posStr = pos.string || pos.name;
@@ -436,9 +420,7 @@ ArgParser.prototype = {
       }
       str += "\n";
 
-      longest = options.reduce(function(max, opt) {
-        return opt.string.length > max && !opt.hidden ? opt.string.length : max;
-      }, 0);
+      longest = Math.max(...options.map(opt => opt.string.length));
 
       options.forEach(function(opt) {
         if (!opt.hidden) {
@@ -584,7 +566,7 @@ var Opt = function(opt) {
     }
   }
 
-  opt = _(opt).extend({
+  opt = Object.assign(opt, {
     name: opt.name || full || abbr,
     string: string,
     abbr: abbr,
@@ -603,12 +585,4 @@ var createParser = function() {
   return new ArgParser();
 }
 
-var nomnom = createParser();
-
-for (var i in nomnom) {
-  if (typeof nomnom[i] == "function") {
-     createParser[i] = _(nomnom[i]).bind(nomnom);
-  }
-}
-
-module.exports = createParser;
+module.exports = createParser();
