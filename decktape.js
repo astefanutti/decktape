@@ -109,13 +109,13 @@ function parseRange(range) {
     return '<range> must be a combination of slide indexes and ranges, e.g., \'1-3,5,8\'';
   let slide, slides = {};
   while ((slide = regex.exec(range)) !== null) {
-    const [, m, n] = slide;
-    if (typeof n !== 'undefined') {
-      for (let i = parseInt(m); i <= parseInt(n); i++) {
+    const [, m, n] = slide.map(i => parseInt(i));
+    if (isNaN(n)) {
+      slides[m] = true;
+    } else {
+      for (let i = m; i <= n; i++) {
         slides[i] = true;
       }
-    } else {
-      slides[parseInt(m)] = true;
     }
   }
   return slides;
