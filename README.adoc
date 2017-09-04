@@ -266,15 +266,10 @@ Alternatively, you can use the {uri-docker-ref}/commandline/cp[`docker cp`] comm
 # Run docker run without the --rm option
 $ docker run astefanutti/decktape {uri-revealjs} slides.pdf
 # Copy the exported PDF from the latest used container to the local file system
-$ docker cp `docker ps -lq`:decktape/slides.pdf .
+$ docker cp `docker ps -lq`:slides/slides.pdf .
 # Finally remove the latest used container
 $ docker rm `docker ps -lq`
 ----
-
-Finally, if you want to execute DeckTape using a local clone of the DeckTape repository in order to take your changes into account, you can run:
-
-[source,shell]
-$ docker run --rm -v `pwd`:`pwd` -w `pwd` astefanutti/decktape slides.html slides.pdf
 
 == Plugin API
 

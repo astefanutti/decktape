@@ -20,6 +20,10 @@ COPY decktape.js ./
 
 RUN chown -R node:node /decktape
 
+# https://github.com/moby/moby/issues/20295
+RUN mkdir /slides
+RUN chown -R node:node /slides
+
 USER node
 
 RUN npm install
