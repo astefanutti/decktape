@@ -139,12 +139,12 @@ parser.command('automatic')
 `Iterates over the available plugins, picks the compatible one for presentation at the
 specified <url> and uses it to export and write the PDF into the specified <filename>.`
 );
-Object.keys(plugins).forEach(id => {
+Object.entries(plugins).forEach(([id, plugin]) => {
   const command = parser.command(id);
-  if (typeof plugins[id].options === 'object')
-    command.options(plugins[id].options);
-  if (typeof plugins[id].help === 'string')
-    command.help(plugins[id].help);
+  if (typeof plugin.options === 'object')
+    command.options(plugin.options);
+  if (typeof plugin.help === 'string')
+    command.help(plugin.help);
 });
 // TODO: should be deactivated as well when it does not execute in a TTY context
 if (os.name === 'windows') parser.nocolors();
@@ -260,8 +260,9 @@ async function exportSlides(plugin, page, printer) {
   await pause(options.pause);
   await exportSlide(plugin, page, printer);
 
+  const maxSlide = options.slides ? Math.max(...Object.keys(options.slides)) : Infinity;
   let hasNext = await hasNextSlide(plugin);
-  while (hasNext && (!options.slides || plugin.currentSlide < Math.max.apply(null, Object.keys(options.slides)))) {
+  while (hasNext && plugin.currentSlide < maxSlide) {
     await nextSlide(plugin);
     await pause(options.pause);
     if (options.slides && !options.slides[plugin.currentSlide]) {
@@ -324,26 +325,14 @@ async function progressBar(plugin, { skip } = { skip : false }) {
   const cols = [];
   const index = await plugin.currentSlideIndex();
   cols.push(`${skip ? 'Skipping' : 'Printing'} slide `);
-  cols.push(padding('#' + index, 8, ' ', false));
+  cols.push(`#${index}`.padEnd(8));
   cols.push(' (');
-  cols.push(padding(plugin.currentSlide, plugin.totalSlides ? plugin.totalSlides.toString().length : 3, ' '));
+  cols.push(`${plugin.currentSlide}`.padStart(plugin.totalSlides ? plugin.totalSlides.toString().length : 3));
   cols.push('/');
   cols.push(plugin.totalSlides || ' ?');
   cols.push(') ...');
   // erase overflowing slide fragments
-  cols.push(padding('', plugin.progressBarOverflow - Math.max(index.length + 1 - 8, 0), ' ', false));
+  cols.push(' '.repeat(Math.max(plugin.progressBarOverflow - Math.max(index.length + 1 - 8, 0), 0)));
   plugin.progressBarOverflow = Math.max(index.length + 1 - 8, 0);
   return cols.join('');
-}
-
-function padding(str, len, char, left) {
-  if (typeof str === 'number')
-    str = str.toString();
-  let l = len - str.length;
-  const p = [];
-  while (l-- > 0)
-    p.push(char);
-  return left === undefined || left
-    ? p.join('').concat(str)
-    : str.concat(p.join(''));
 }
