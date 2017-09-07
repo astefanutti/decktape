@@ -18,17 +18,15 @@ class RISE {
   }
 
   async configure() {
-    // Wait a while until the RISE extension has loaded
-    // It'd be better to rely on a deterministic condition though the Jupyter JS API
-    // isn't stable and documented yet...
-    await pause(2000);
+    // Wait until the RISE extension has loaded
+    await this.page.waitForSelector('#start_livereveal', { timeout: 30000 });
     // Click on the 'Enter/Exit Live Reveal Slideshow' button in the notebook toolbar
     await this.page.evaluate(_ => {
       $('#start_livereveal').click();
       $('#help_b, #exit_b').fadeToggle();
     });
-    // Then wait a bit until Reveal.js gets configured by the RISE extension
-    await pause(2000);
+    // Then wait until Reveal.js gets configured by the RISE extension
+    await this.page.waitForFunction('typeof Reveal !== \'undefined\'', { timeout: 30000 });
     // Finally override Reveal.js configuration
     await this.page.evaluate(_ => Reveal.configure({
       controls       : false,
@@ -49,12 +47,7 @@ class RISE {
   }
 
   hasNextSlide() {
-    // The way RISE re-arranges cell DOM elements to fit into
-    // the expected Reveal.js structure is not compatible with the
-    // isLastSlide API exposed by Reveal.js
-    // return !Reveal.isLastSlide();
-    return this.page.evaluate(_ =>
-      Reveal.getCurrentSlide().parentNode.nextElementSibling.nodeName.match(/section/i));
+    return this.page.evaluate(_ => !Reveal.isLastSlide());
   }
 
   nextSlide() {
