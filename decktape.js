@@ -3,6 +3,7 @@
 'use strict';
 
 const BufferReader = require('./libs/buffer'),
+      chalk        = require('chalk'),
       fs           = require('fs'),
       hummus       = require('hummus'),
       os           = require('os'),
@@ -168,14 +169,13 @@ const options = parser.parse(process.argv.slice(2));
   const page = await browser.newPage();
   await page.emulateMedia('screen');
   const printer = hummus.createWriter(options.filename);
-  const info = printer.getDocumentContext().getInfoDictionary();
-  info.creator = 'Decktape';
+  const metadata = printer.getDocumentContext().getInfoDictionary();
+  metadata.creator = 'Decktape';
 
-  // TODO: add coloring
   page
-    .on('console', console.log)
-    .on('pageerror', error => console.log('\nPage error:', error.message))
-    .on('requestfailed', request => console.log('\nUnable to load resource from URL:', request.url));
+    .on('console', (...args) => console.log(chalk`{gray ${args}}`))
+    .on('pageerror', error => console.log(chalk`\n{red Page error: ${error.message}}`))
+    .on('requestfailed', request => console.log(chalk`\n{keyword('orange') Unable to load resource from URL: ${request.url}}`));
 
   console.log('Loading page', options.url, '...');
   page.goto(options.url, { waitUntil: 'load', timeout: 60000 })
@@ -187,7 +187,7 @@ const options = parser.parse(process.argv.slice(2));
       .then(_ => exportSlides(plugin, page, printer))
       .then(_ => {
         printer.end();
-        process.stdout.write(`\nPrinted ${plugin.exportedSlides} slides\n`);
+        console.log(chalk`{green \nPrinted {bold ${plugin.exportedSlides}} slides}`);
       }))
     .catch(console.log)
     .then(_ => {
@@ -220,7 +220,7 @@ async function createPlugin(page) {
       throw Error(`Unable to activate the ${plugin.getName()} DeckTape plugin for the address: ${options.url}`);
     }
   }
-  console.log(plugin.getName(), 'DeckTape plugin activated');
+  console.log(chalk`{cyan {bold ${plugin.getName()}} plugin activated}`);
   return plugin;
 }
 
