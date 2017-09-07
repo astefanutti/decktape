@@ -1,4 +1,3 @@
-// TODO: improve backward compatibility (e.g. getCurrentSlideIndex was getCurrentSlideNo in earlier versions)
 exports.create = page => new Remark(page);
 
 class Remark {
@@ -17,17 +16,27 @@ class Remark {
   }
 
   async configure() {
-    await this.page.emulateMedia(null);
     await this.page.evaluate(_ => {
       for (let j = 0; j < document.styleSheets.length; j++) {
         const sheet = document.styleSheets[j];
         if (!sheet.rules) continue;
         for (let i = sheet.rules.length - 1; i >= 0; i--) {
-          if (sheet.rules[i].cssText.indexOf('@media print') >= 0) {
+          if (sheet.rules[i] instanceof window.CSSPageRule) {
             sheet.deleteRule(i);
           }
         }
       }
+    });
+  }
+
+  size() {
+    return this.page.evaluate(_ => {
+      const [referenceWidth, referenceHeight] = [908, 681];
+      const [width, height] = slideshow.getRatio().split(':').map(d => parseInt(d, 10));
+      return {
+        width  : Math.floor(referenceHeight * width / height) + 2,
+        height : referenceHeight + 1,
+      };
     });
   }
 
