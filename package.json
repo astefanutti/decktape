@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "chalk": "^2.1.0",
-    "hummus": "^1.0.79",
+    "hummus": "^1.0.80",
     "puppeteer": "^0.10.2",
     "urijs": "^1.18.12"
   },
