@@ -304,8 +304,29 @@ async function printSlide(plugin, page, printer) {
     pageRanges          : '1',
     displayHeaderFooter : false,
   });
-  printer.appendPDFPagesFromPDF(new BufferReader(buffer), { specificRanges: [[0, 0]] });
+  printSlideWithAnnotations(printer, new BufferReader(buffer));
   plugin.exportedSlides++;
+}
+
+// https://github.com/galkahana/HummusJS/wiki/Embedding-pdf#low-levels
+function printSlideWithAnnotations(printer, buffer) {
+  const objCxt = printer.getObjectsContext();
+  const cpyCxt = printer.createPDFCopyingContext(buffer);
+  const cpyCxtParser = cpyCxt.getSourceDocumentParser();
+  const pageDictionary = cpyCxtParser.parsePageDictionary(0);
+
+  if (pageDictionary.exists('Annots')) {
+    const annotations = cpyCxtParser.queryDictionaryObject(pageDictionary, 'Annots').toJSArray()
+      .filter(annotation => annotation.toJSObject().Subtype.value === 'Link');
+    printer.getEvents().once('OnPageWrite', event => {
+      event.pageDictionaryContext.writeKey('Annots');
+      objCxt.startArray();
+      annotations.forEach(annotation => cpyCxt.copyDirectObjectAsIs(annotation));
+      objCxt.endArray(hummus.eTokenSeparatorEndLine);
+    });
+  }
+
+  cpyCxt.appendPDFPageFromPDF(0);
 }
 
 async function hasNextSlide(plugin) {
