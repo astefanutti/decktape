@@ -188,9 +188,11 @@ const options = parser.parse(process.argv.slice(2));
       .then(_ => {
         printer.end();
         console.log(chalk`{green \nPrinted {bold ${plugin.exportedSlides}} slides}`);
+        browser.close();
+        process.exit();
       }))
-    .catch(console.log)
-    .then(_ => {
+    .catch(error => {
+      console.log(chalk`{red ${error}}`);
       browser.close();
       process.exit(1);
     });
