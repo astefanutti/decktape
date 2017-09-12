@@ -259,9 +259,10 @@ async function exportSlides(plugin, page, printer) {
   // for special use cases like GIF animations
   // TODO: support plugin optional promise to wait until a particular mutation
   // instead of a pause
-  await pause(options.pause);
-  await exportSlide(plugin, page, printer);
-
+  if (!options.slides || options.slides[plugin.currentSlide]) {
+    await pause(options.pause);
+    await exportSlide(plugin, page, printer);
+  }
   const maxSlide = options.slides ? Math.max(...Object.keys(options.slides)) : Infinity;
   let hasNext = await hasNextSlide(plugin);
   while (hasNext && plugin.currentSlide < maxSlide) {
