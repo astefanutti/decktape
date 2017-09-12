@@ -152,6 +152,11 @@ if (os.name === 'windows') parser.nocolors();
 
 const options = parser.parse(process.argv.slice(2));
 
+process.on('unhandledRejection', error => {
+  console.log(error.stack);
+  process.exit(1);
+});
+
 (async () => {
 
   const browser = await puppeteer.launch({
@@ -192,7 +197,7 @@ const options = parser.parse(process.argv.slice(2));
         process.exit();
       }))
     .catch(error => {
-      console.log(chalk`{red ${error}}`);
+      console.log(chalk`{red \n${error}}`);
       browser.close();
       process.exit(1);
     });
