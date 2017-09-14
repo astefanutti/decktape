@@ -190,9 +190,9 @@ process.on('unhandledRejection', error => {
     .then(plugin => configurePlugin(plugin)
       .then(_ => configurePage(plugin, page))
       .then(_ => exportSlides(plugin, page, printer))
-      .then(_ => {
+      .then(context => {
         printer.end();
-        console.log(chalk`{green \nPrinted {bold ${plugin.exportedSlides}} slides}`);
+        console.log(chalk`{green \nPrinted {bold ${context.exportedSlides}} slides}`);
         browser.close();
         process.exit();
       }))
@@ -252,39 +252,52 @@ async function configurePage(plugin, page) {
 async function configurePlugin(plugin) {
   if (typeof plugin.configure === 'function')
     await plugin.configure();
-
-  plugin.progressBarOverflow = 0;
-  plugin.currentSlide = 1;
-  plugin.exportedSlides = 0;
-  plugin.totalSlides = await plugin.slideCount();
 }
 
 async function exportSlides(plugin, page, printer) {
+  const context = {
+    progressBarOverflow : 0,
+    currentSlide        : 1,
+    exportedSlides      : 0,
+    totalSlides         : await plugin.slideCount(),
+  };
   // TODO: support a more advanced "fragment to pause" mapping
   // for special use cases like GIF animations
   // TODO: support plugin optional promise to wait until a particular mutation
   // instead of a pause
-  if (!options.slides || options.slides[plugin.currentSlide]) {
+  if (options.slides && !options.slides[context.currentSlide]) {
+    process.stdout.write('\r' + await progressBar(plugin, context, { skip: true }));
+  } else {
     await pause(options.pause);
-    await exportSlide(plugin, page, printer);
+    await exportSlide(plugin, page, printer, context);
   }
   const maxSlide = options.slides ? Math.max(...Object.keys(options.slides)) : Infinity;
-  let hasNext = await hasNextSlide(plugin);
-  while (hasNext && plugin.currentSlide < maxSlide) {
-    await nextSlide(plugin);
+  let hasNext = await hasNextSlide(plugin, context);
+  while (hasNext && context.currentSlide < maxSlide) {
+    await nextSlide(plugin, context);
     await pause(options.pause);
-    if (options.slides && !options.slides[plugin.currentSlide]) {
-      process.stdout.write('\r' + await progressBar(plugin, { skip: true }));
+    if (options.slides && !options.slides[context.currentSlide]) {
+      process.stdout.write('\r' + await progressBar(plugin, context, { skip: true }));
     } else {
-      await exportSlide(plugin, page, printer);
+      await exportSlide(plugin, page, printer, context);
     }
-    hasNext = await hasNextSlide(plugin);
+    hasNext = await hasNextSlide(plugin, context);
   }
+  return context;
 }
 
-async function exportSlide(plugin, page, printer) {
-  process.stdout.write('\r' + await progressBar(plugin));
-  await printSlide(plugin, page, printer);
+async function exportSlide(plugin, page, printer, context) {
+  process.stdout.write('\r' + await progressBar(plugin, context));
+
+  const buffer = await page.pdf({
+    width               : options.size.width + 'px',
+    height              : options.size.height + 'px',
+    printBackground     : true,
+    pageRanges          : '1',
+    displayHeaderFooter : false,
+  });
+  printSlide(printer, new BufferReader(buffer));
+  context.exportedSlides++;
 
   if (options.screenshots) {
     for (let resolution of options.screenshotSize || [options.size]) {
@@ -294,7 +307,7 @@ async function exportSlide(plugin, page, printer) {
       await pause(1000);
       await page.screenshot({
         path           : path.join(options.screenshotDirectory, options.filename.replace('.pdf',
-                         `_${plugin.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`)),
+                         `_${context.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`)),
         fullPage       : false,
         omitBackground : true,
       });
@@ -304,20 +317,8 @@ async function exportSlide(plugin, page, printer) {
   }
 }
 
-async function printSlide(plugin, page, printer) {
-  const buffer = await page.pdf({
-    width               : options.size.width + 'px',
-    height              : options.size.height + 'px',
-    printBackground     : true,
-    pageRanges          : '1',
-    displayHeaderFooter : false,
-  });
-  printSlideWithAnnotations(printer, new BufferReader(buffer));
-  plugin.exportedSlides++;
-}
-
 // https://github.com/galkahana/HummusJS/wiki/Embedding-pdf#low-levels
-function printSlideWithAnnotations(printer, buffer) {
+function printSlide(printer, buffer) {
   const objCxt = printer.getObjectsContext();
   const cpyCxt = printer.createPDFCopyingContext(buffer);
   const cpyCxtParser = cpyCxt.getSourceDocumentParser();
@@ -337,31 +338,31 @@ function printSlideWithAnnotations(printer, buffer) {
   cpyCxt.appendPDFPageFromPDF(0);
 }
 
-async function hasNextSlide(plugin) {
+async function hasNextSlide(plugin, context) {
   if (typeof plugin.hasNextSlide === 'function')
     return await plugin.hasNextSlide();
   else
-    return plugin.currentSlide < plugin.totalSlides;
+    return context.currentSlide < context.totalSlides;
 }
 
-async function nextSlide(plugin) {
-  plugin.currentSlide++;
+async function nextSlide(plugin, context) {
+  context.currentSlide++;
   return plugin.nextSlide();
 }
 
 // TODO: add progress bar, duration, ETA and file size
-async function progressBar(plugin, { skip } = { skip : false }) {
+async function progressBar(plugin, context, { skip } = { skip : false }) {
   const cols = [];
   const index = await plugin.currentSlideIndex();
   cols.push(`${skip ? 'Skipping' : 'Printing'} slide `);
   cols.push(`#${index}`.padEnd(8));
   cols.push(' (');
-  cols.push(`${plugin.currentSlide}`.padStart(plugin.totalSlides ? plugin.totalSlides.toString().length : 3));
+  cols.push(`${context.currentSlide}`.padStart(context.totalSlides ? context.totalSlides.toString().length : 3));
   cols.push('/');
-  cols.push(plugin.totalSlides || ' ?');
+  cols.push(context.totalSlides || ' ?');
   cols.push(') ...');
   // erase overflowing slide fragments
-  cols.push(' '.repeat(Math.max(plugin.progressBarOverflow - Math.max(index.length + 1 - 8, 0), 0)));
-  plugin.progressBarOverflow = Math.max(index.length + 1 - 8, 0);
+  cols.push(' '.repeat(Math.max(context.progressBarOverflow - Math.max(index.length + 1 - 8, 0), 0)));
+  context.progressBarOverflow = Math.max(index.length + 1 - 8, 0);
   return cols.join('');
 }

@@ -31,6 +31,7 @@ class Generic {
   constructor(page, options) {
     this.page = page;
     this.options = options;
+    this.currentSlide = 1;
     this.isNextSlideDetected = false;
     this.key = this.options.key || exports.options.key.default;
   }
@@ -73,6 +74,7 @@ class Generic {
   }
 
   nextSlide() {
+    this.currentSlide++;
     this.isNextSlideDetected = false;
   }
 
