@@ -4,6 +4,7 @@
 
 const BufferReader = require('./libs/buffer'),
       chalk        = require('chalk'),
+      crypto       = require('crypto'),
       fs           = require('fs'),
       hummus       = require('hummus'),
       os           = require('os'),
@@ -259,6 +260,7 @@ async function exportSlides(plugin, page, printer) {
     progressBarOverflow : 0,
     currentSlide        : 1,
     exportedSlides      : 0,
+    pdfXObjects         : {},
     totalSlides         : await plugin.slideCount(),
   };
   // TODO: support a more advanced "fragment to pause" mapping
@@ -296,7 +298,7 @@ async function exportSlide(plugin, page, printer, context) {
     pageRanges          : '1',
     displayHeaderFooter : false,
   });
-  printSlide(printer, new BufferReader(buffer));
+  printSlide(printer, new BufferReader(buffer), context);
   context.exportedSlides++;
 
   if (options.screenshots) {
@@ -318,14 +320,47 @@ async function exportSlide(plugin, page, printer, context) {
 }
 
 // https://github.com/galkahana/HummusJS/wiki/Embedding-pdf#low-levels
-function printSlide(printer, buffer) {
+function printSlide(printer, buffer, context) {
   const objCxt = printer.getObjectsContext();
   const cpyCxt = printer.createPDFCopyingContext(buffer);
   const cpyCxtParser = cpyCxt.getSourceDocumentParser();
-  const pageDictionary = cpyCxtParser.parsePageDictionary(0);
+  const pageDictionary = cpyCxtParser.parsePageDictionary(0).toJSObject();
+  const xObjects = {};
 
-  if (pageDictionary.exists('Annots')) {
-    const annotations = cpyCxtParser.queryDictionaryObject(pageDictionary, 'Annots').toJSArray()
+  function parseXObject(xObject) {
+    const pdfStreamInput = cpyCxtParser.parseNewObject(xObject.getObjectID());
+    const xObjectDictionary = pdfStreamInput.getDictionary().toJSObject();
+    if (xObjectDictionary.Subtype.value === 'Image') {
+      // Create a hash of the compressed stream instead of using
+      // startReadingFromStream(pdfStreamInput) to skip uneeded decoding
+      const stream = cpyCxtParser.getParserStream();
+      stream.setPosition(pdfStreamInput.getStreamContentStart());
+      const digest = crypto.createHash('SHA1')
+        .update(Buffer.from(stream.read(pdfStreamInput.getDictionary().toJSObject().Length.value)))
+        .digest('hex');
+      if (!context.pdfXObjects[digest]) {
+        xObjects[digest] = xObject.getObjectID();
+      } else {
+        const replacement = {};
+        replacement[xObject.getObjectID()] = context.pdfXObjects[digest];
+        cpyCxt.replaceSourceObjects(replacement);
+      }
+    } else {
+      parseResources(xObjectDictionary);
+    }
+  }
+
+  function parseResources(dictionary) {
+    const resources = dictionary.Resources.toJSObject();
+    if (resources.XObject) {
+      Object.values(resources.XObject.toJSObject()).forEach(parseXObject);
+    }
+  }
+  // Collect xObjects and eventually replace with shared references
+  parseResources(pageDictionary);
+  // Copy the links on page write
+  if (pageDictionary.Annots) {
+    const annotations = pageDictionary.Annots.toJSArray()
       .filter(annotation => annotation.toJSObject().Subtype.value === 'Link');
     printer.getEvents().once('OnPageWrite', event => {
       event.pageDictionaryContext.writeKey('Annots');
@@ -334,8 +369,12 @@ function printSlide(printer, buffer) {
       objCxt.endArray(hummus.eTokenSeparatorEndLine);
     });
   }
-
+  // Copy the page
   cpyCxt.appendPDFPageFromPDF(0);
+  // And finally update the context XObject ids mapping with the copy ids
+  const copiedObjects = cpyCxt.getCopiedObjects();
+  Object.entries(xObjects)
+    .forEach(([digest, id]) => context.pdfXObjects[digest] = copiedObjects[id]);
 }
 
 async function hasNextSlide(plugin, context) {
