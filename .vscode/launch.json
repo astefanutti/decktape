@@ -11,11 +11,8 @@
             "protocol": "inspector",
             "program": "${workspaceRoot}/decktape.js",
             "args": [
-                "http://astefanutti.github.io/further-cdi", "test.pdf"
-            ],
-            "env": {
-                "NODE_PATH": "./libs"
-            }
+                "http://remarkjs.com/", "test.pdf"
+            ]
         }
     ]
 }
