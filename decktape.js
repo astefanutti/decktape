@@ -5,6 +5,7 @@
 const BufferReader = require('./libs/buffer'),
       chalk        = require('chalk'),
       crypto       = require('crypto'),
+      Font         = require('@decktape/fonteditor-core').Font,
       fs           = require('fs'),
       hummus       = require('hummus'),
       os           = require('os'),
@@ -260,6 +261,7 @@ async function exportSlides(plugin, page, printer) {
     progressBarOverflow : 0,
     currentSlide        : 1,
     exportedSlides      : 0,
+    pdfFonts            : {},
     pdfXObjects         : {},
     totalSlides         : await plugin.slideCount(),
   };
@@ -285,6 +287,19 @@ async function exportSlides(plugin, page, printer) {
     }
     hasNext = await hasNextSlide(plugin, context);
   }
+  // Flush consolidated fonts
+  Object.entries(context.pdfFonts).forEach(([name, { id, font }]) => {
+    const objCxt = printer.getObjectsContext();
+    objCxt.startNewIndirectObject(id);
+    const dictionary = objCxt.startDictionary();
+    const stream = objCxt.startPDFStream(dictionary);
+    // work-around error on missing table
+    font.data['OS/2'] = {};
+    stream.getWriteStream().write([...font.write({ type: 'ttf', hinting: true })]);
+    objCxt.endPDFStream(stream);
+    // objCxt.endDictionary(dictionary);
+    objCxt.endIndirectObject();
+  });
   return context;
 }
 
@@ -327,8 +342,10 @@ function printSlide(printer, buffer, context) {
   const pageDictionary = cpyCxtParser.parsePageDictionary(0).toJSObject();
   const xObjects = {};
 
+  // Consolidate duplicate images
   function parseXObject(xObject) {
-    const pdfStreamInput = cpyCxtParser.parseNewObject(xObject.getObjectID());
+    const objectId = xObject.getObjectID();
+    const pdfStreamInput = cpyCxtParser.parseNewObject(objectId);
     const xObjectDictionary = pdfStreamInput.getDictionary().toJSObject();
     if (xObjectDictionary.Subtype.value === 'Image') {
       // Create a hash of the compressed stream instead of using
@@ -339,10 +356,10 @@ function printSlide(printer, buffer, context) {
         .update(Buffer.from(stream.read(pdfStreamInput.getDictionary().toJSObject().Length.value)))
         .digest('hex');
       if (!context.pdfXObjects[digest]) {
-        xObjects[digest] = xObject.getObjectID();
+        xObjects[digest] = objectId;
       } else {
         const replacement = {};
-        replacement[xObject.getObjectID()] = context.pdfXObjects[digest];
+        replacement[objectId] = context.pdfXObjects[digest];
         cpyCxt.replaceSourceObjects(replacement);
       }
     } else {
@@ -350,14 +367,74 @@ function printSlide(printer, buffer, context) {
     }
   }
 
+  // Consolidate duplicate fonts
+  function parseFont(fontObject) {
+    const pdfStreamInput = cpyCxtParser.parseNewObject(fontObject.getObjectID());
+    const fontDictionary = pdfStreamInput.toJSObject();
+    // See "Introduction to Font Data Structures" from PDF specification
+    if (fontDictionary.Subtype.value === 'Type0') {
+      // TODO: properly support composite fonts with multiple descendants
+      const descendant = cpyCxtParser
+        .parseNewObject(fontDictionary.DescendantFonts.toJSArray()[0].getObjectID())
+        .toJSObject();
+      if (descendant.Subtype.value == 'CIDFontType2') {
+        const descriptor = cpyCxtParser
+          .parseNewObject(descendant.FontDescriptor.getObjectID())
+          .toJSObject();
+        const name = descriptor.FontName.value;
+        const id = descriptor.FontFile2.getObjectID();
+        const buffer = readStream(cpyCxtParser.parseNewObject(id));
+        const font = Font.create(buffer, { type: 'ttf', hinting: true });
+        if (context.pdfFonts[name]) {
+          const f = context.pdfFonts[name].font;
+          font.data.glyf.forEach((g, i) => {
+            if (g.contours && g.contours.length > 0) {
+              if (f.data.glyf[i].contours.length === 0) {
+                f.data.glyf[i] = g;
+              }
+            } else if (g.compound) {
+              if (typeof f.data.glyf[i].compound === 'undefined'
+                  && f.data.glyf[i].contours.length === 0) {
+                f.data.glyf[i] = g;
+              }
+            }
+          });
+          const replacement = {};
+          replacement[id] = context.pdfFonts[name].id;
+          cpyCxt.replaceSourceObjects(replacement);
+        } else {
+          const xObjectId = printer.getObjectsContext().allocateNewObjectID();
+          context.pdfFonts[name] = { id: xObjectId, font: font };
+          const replacement = {};
+          replacement[id] = xObjectId;
+          cpyCxt.replaceSourceObjects(replacement);
+        }
+      }
+    }
+  }
+
+  function readStream(pdfStreamInput) {
+    const stream = cpyCxtParser.startReadingFromStream(pdfStreamInput);
+    let buffer = Buffer.from([]);
+    while (stream.notEnded()) {
+      buffer = Buffer.concat([buffer, Buffer.from(stream.read(10000))]);
+    }
+    return buffer;
+  }
+
   function parseResources(dictionary) {
     const resources = dictionary.Resources.toJSObject();
     if (resources.XObject) {
       Object.values(resources.XObject.toJSObject()).forEach(parseXObject);
     }
+    if (resources.Font) {
+      Object.values(resources.Font.toJSObject()).forEach(parseFont);
+    }
   }
-  // Collect xObjects and eventually replace with shared references
+
+  // Collect xObjects and fonts to eventually replace with consolidated references
   parseResources(pageDictionary);
+
   // Copy the links on page write
   if (pageDictionary.Annots) {
     const annotations = pageDictionary.Annots.toJSArray()
@@ -369,8 +446,10 @@ function printSlide(printer, buffer, context) {
       objCxt.endArray(hummus.eTokenSeparatorEndLine);
     });
   }
+
   // Copy the page
   cpyCxt.appendPDFPageFromPDF(0);
+
   // And finally update the context XObject ids mapping with the copy ids
   const copiedObjects = cpyCxt.getCopiedObjects();
   Object.entries(xObjects)

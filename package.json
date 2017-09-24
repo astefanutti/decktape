@@ -19,6 +19,7 @@
     "url": "https://github.com/astefanutti/decktape/issues"
   },
   "dependencies": {
+    "@decktape/fonteditor-core": "^0.0.37-beta.1",
     "chalk": "^2.1.0",
     "hummus": "^1.0.80",
     "puppeteer": "^0.10.2",
