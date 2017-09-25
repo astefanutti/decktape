@@ -245,7 +245,6 @@ async function configurePage(plugin, page) {
   if (!options.size) {
     options.size = typeof plugin.size === 'function'
       ? await plugin.size()
-      // TODO: per-plugin default size
       : { width: 1280, height: 720 };
   }
   await page.setViewport(options.size);

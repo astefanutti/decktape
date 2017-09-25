@@ -29,6 +29,10 @@ class Shower {
     });
   }
 
+  size() {
+    return { width: 1024, height: 640 };
+  }
+
   slideCount() {
     // FIXME: this does not take fragments into account which ideally should be deactivated
     return this.page.evaluate(_ => decktape.shower.getSlidesCount());
