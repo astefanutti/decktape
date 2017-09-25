@@ -191,6 +191,10 @@ The following slide deck examples have been exported using DeckTape:
 |reveal.js
 |https://astefanutti.github.io/decktape/examples/devoxx-es6-maintenant.pdf[devoxx-es6-maintenant.pdf] (2.3MB)
 
+|https://github.com/hakimel/reveal.js/blob/360bc940062711db9b8020ce4e848f6c37014481/test/examples/math.html[reveal.js MathJax example]
+|reveal.js
+|https://astefanutti.github.io/decktape/examples/reveal-js-mathjax.pdf[reveal-js-mathjax.pdf] (0.3MB)
+
 |http://artificer.jboss.org/slides/general/opensource-getting-involved.html[Getting Involved in Open Source]
 |reveal.js
 |https://astefanutti.github.io/decktape/examples/opensource-getting-involved.pdf[opensource-getting-involved.pdf] (0.6MB)
