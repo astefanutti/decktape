@@ -204,11 +204,11 @@ The following slide deck examples have been exported using DeckTape:
 |https://astefanutti.github.io/decktape/examples/going-further-with-cdi.pdf[going-further-with-cdi.pdf] (2.4MB)
 
 |http://imakewebthings.com/deck.js[Deck.js Modern HTML Presentations]
-|deck.js `1.1.0`
+|deck.js
 |https://astefanutti.github.io/decktape/examples/deck-js-presentation.pdf[deck-js-presentation.pdf] (0.5MB)
 
 |http://remarkjs.com[The Official Remark Slideshow]
-|remark `0.11.0`
+|remark
 |https://astefanutti.github.io/decktape/examples/remark-js-slideshow.pdf[remark-js-slideshow.pdf] (0.3MB)
 
 |http://www.w3.org/Talks/Tools/Slidy[HTML Slidy: Slide Shows in HTML and XHTML]
