@@ -13,8 +13,7 @@ class RISE {
   }
 
   isActive() {
-    return this.page.evaluate(_ =>
-      typeof $ !== 'undefined' && typeof $('#start_livereveal') === 'object');
+    return this.page.evaluate(_ => typeof $ !== 'undefined' && $('#start_livereveal').length)
   }
 
   async configure() {
