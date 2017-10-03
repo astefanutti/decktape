@@ -26,7 +26,7 @@ class Bespoke {
         deck.fire('overview');
       deck.slide(0);
       // Advance to last build on first slide (internal state in bespoke-bullets makes this tricky)
-      const builds = 0;
+      let builds = 0;
       const one = deck.slides.length === 1;
       if (one)
         deck.slides.push(document.createElement('section'));
@@ -63,7 +63,7 @@ class Bespoke {
       // Advance to last build on next slide (internal state in bespoke-bullets makes this tricky)
       const next = deck.slide() + 1;
       const beforeLast = next === deck.slides.length - 1;
-      const builds = 0;
+      let builds = 0;
       if (beforeLast)
         deck.slides.push(document.createElement('section'));
       do
