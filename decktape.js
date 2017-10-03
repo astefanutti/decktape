@@ -417,11 +417,8 @@ function printSlide(printer, buffer, context) {
 
   function readStream(pdfStreamInput) {
     const stream = cpyCxtParser.startReadingFromStream(pdfStreamInput);
-    let buffer = Buffer.from([]);
-    while (stream.notEnded()) {
-      buffer = Buffer.concat([buffer, Buffer.from(stream.read(10000))]);
-    }
-    return buffer;
+    const length = parseInt(pdfStreamInput.getDictionary().queryObject('Length1'));
+    return Buffer.from(stream.read(length));
   }
 
   function parseResources(dictionary) {
