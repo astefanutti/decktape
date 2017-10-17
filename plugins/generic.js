@@ -65,7 +65,7 @@ class Generic {
   async hasNextSlide() {
     if (this.options.maxSlides && this.currentSlide >= this.options.maxSlides)
       return false;
-    await this.page.press(this.key);
+    await this.page.keyboard.press(this.key);
     // TODO: use mutation event directly instead of relying on a timeout
     // TODO: detect cycle to avoid infinite navigation for frameworks
     // that support loopable presentations like impress.js and flowtime.js
