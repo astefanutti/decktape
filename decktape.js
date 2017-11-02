@@ -5,7 +5,7 @@
 const BufferReader = require('./libs/buffer'),
       chalk        = require('chalk'),
       crypto       = require('crypto'),
-      Font         = require('@decktape/fonteditor-core').Font,
+      Font         = require('fonteditor-core').Font,
       fs           = require('fs'),
       hummus       = require('hummus'),
       os           = require('os'),
