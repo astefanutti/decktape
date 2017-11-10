@@ -11,7 +11,8 @@ const BufferReader = require('./libs/buffer'),
       os           = require('os'),
       parser       = require('./libs/nomnom'),
       path         = require('path'),
-      puppeteer    = require('puppeteer');
+      puppeteer    = require('puppeteer'),
+      URI          = require('urijs');
 
 const { delay, pause } = require('./libs/util');
 
@@ -19,9 +20,10 @@ const plugins = loadAvailablePlugins(path.join(path.dirname(__filename), 'plugin
 
 parser.script('decktape').options({
   url : {
-    position : 1,
-    required : true,
-    help     : 'URL of the slides deck',
+    position  : 1,
+    required  : true,
+    transform : parseUrl,
+    help      : 'URL of the slides deck',
   },
   filename : {
     position : 2,
@@ -122,6 +124,14 @@ function parseRange(range) {
     }
   }
   return slides;
+}
+
+function parseUrl(url) {
+  const uri = URI(url);
+  if (!uri.protocol()) {
+    return uri.absoluteTo(`${process.cwd()}/`).protocol('file').toString();
+  }
+  return url;
 }
 
 parser.command('version')

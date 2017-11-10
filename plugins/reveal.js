@@ -1,3 +1,5 @@
+const URI = require('urijs');
+
 exports.create = page => new Reveal(page);
 
 class Reveal {
@@ -24,7 +26,6 @@ class Reveal {
   }
 
   configure() {
-    const URI = require('urijs');
     return this.page.evaluate(fragments => Reveal.configure({
         controls  : false,
         progress  : false,
