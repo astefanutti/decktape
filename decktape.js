@@ -196,7 +196,7 @@ process.on('unhandledRejection', error => {
 
   console.log('Loading page', options.url, '...');
   const load = page.waitForNavigation({ waitUntil: 'load', timeout: 20000 });
-  page.goto(options.url, { waitUntil: 'networkidle', timeout: 60000 })
+  page.goto(options.url, { waitUntil: 'networkidle0', timeout: 60000 })
     // wait until the load event is dispatched
     .then(response => load.catch(error => response.status !== 200 ? Promise.reject(error) : response))
     .then(response => console.log('Loading page finished with status:', response.status))
