@@ -28,6 +28,9 @@ ifndef::env-github[]
 :icon-edit: icon:pencil[fw]
 endif::[]
 // URIs
+:uri-badge-npm: https://img.shields.io/npm/v/decktape.svg
+:uri-badge-node: https://img.shields.io/node/v/decktape.svg
+:uri-decktape-npm: https://www.npmjs.com/package/decktape
 :uri-decktape-release: https://github.com/astefanutti/decktape/releases/latest
 
 :uri-puppeteer: https://github.com/GoogleChrome/puppeteer
@@ -51,6 +54,8 @@ endif::[]
 :uri-shower: http://shwr.me
 :uri-slidy: http://www.w3.org/Talks/Tools/Slidy/
 :uri-webslides: https://github.com/jlantunez/webslides
+
+image:{uri-badge-npm}[link="{uri-decktape-npm}"] image:{uri-badge-node}[]
 
 {description}
 
