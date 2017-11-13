@@ -61,9 +61,6 @@ image:{uri-badge-npm}[link="{uri-decktape-npm}"] image:{uri-badge-node}[]
 
 DeckTape is built on top of {uri-puppeteer}[Puppeteer] which relies on Google Chrome for laying out and rendering Web pages and provides a headless Chrome instance scriptable with a JavaScript API.
 
-NOTE: DeckTape 1.0 was built on top of http://phantomjs.org[PhantomJS] which relies on https://wiki.qt.io/Qt_WebKit[Qt WebKit].
-See the https://github.com/astefanutti/decktape/tree/1.x[1.x] branch for more information.
-
 DeckTape currently supports the following presentation frameworks out of the box:
 
 [subs="normal"]
