@@ -38,6 +38,10 @@ class Remark {
         .remark-slide-content {
           display: table-cell;
         }
+        .remark-slide-scaler {
+          /* Remove slides box shadows */
+          box-shadow: none;
+        }
       }`);
     });
   }
