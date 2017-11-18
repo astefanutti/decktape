@@ -211,7 +211,7 @@ The following slide deck examples have been exported using DeckTape:
 
 |http://remarkjs.com[The Official Remark Slideshow]
 |remark
-|https://astefanutti.github.io/decktape/examples/remark-js-slideshow.pdf[remark-js-slideshow.pdf] (0.3MB)
+|https://astefanutti.github.io/decktape/examples/remark-js-slideshow.pdf[remark-js-slideshow.pdf] (0.15MB)
 
 |http://www.w3.org/Talks/Tools/Slidy[HTML Slidy: Slide Shows in HTML and XHTML]
 |Slidy
