@@ -213,6 +213,10 @@ The following slide deck examples have been exported using DeckTape:
 |remark
 |https://astefanutti.github.io/decktape/examples/remark-js-slideshow.pdf[remark-js-slideshow.pdf] (0.15MB)
 
+|http://joshbode.github.io/remark/ansi.html[Coloured Terminal Listings in Remark]
+|remark
+|https://astefanutti.github.io/decktape/examples/remark-js-coloured-terminal.pdf[remark-js-coloured-terminal.pdf] (0.14MB)
+
 |http://www.w3.org/Talks/Tools/Slidy[HTML Slidy: Slide Shows in HTML and XHTML]
 |Slidy
 |https://astefanutti.github.io/decktape/examples/html-slidy-presentation.pdf[html-slidy-presentation.pdf] (0.5MB)
