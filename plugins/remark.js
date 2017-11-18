@@ -26,6 +26,19 @@ class Remark {
           }
         }
       }
+      // Add a style to adjust for PDF export
+      const style = document.createElement('style');
+      document.head.appendChild(style);
+      style.sheet.insertRule(`
+      @media screen {
+        .remark-slide {
+          /* Default 'table' diplay does not work with Chrome PDF export */
+          display: inline-table;
+        }
+        .remark-slide-content {
+          display: table-cell;
+        }
+      }`);
     });
   }
 
@@ -34,8 +47,8 @@ class Remark {
       const [referenceWidth, referenceHeight] = [908, 681];
       const [width, height] = slideshow.getRatio().split(':').map(d => parseInt(d, 10));
       return {
-        width  : Math.floor(referenceHeight * width / height) + 2,
-        height : referenceHeight + 1,
+        width  : Math.floor(referenceHeight * width / height),
+        height : referenceHeight,
       };
     });
   }
