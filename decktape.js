@@ -129,7 +129,11 @@ function parseRange(range) {
 function parseUrl(url) {
   const uri = URI(url);
   if (!uri.protocol()) {
-    return uri.absoluteTo(`${process.cwd()}/`).protocol('file').toString();
+    if (path.isAbsolute(url)) {
+      return 'file://' + path.normalize(url);
+    } else {
+      return 'file://' + path.normalize(path.join(process.cwd(), url));
+    }
   }
   return url;
 }
