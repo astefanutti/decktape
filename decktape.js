@@ -405,7 +405,7 @@ function printSlide(printer, buffer, context) {
           const f = context.pdfFonts[name].font;
           font.data.glyf.forEach((g, i) => {
             if (g.contours && g.contours.length > 0) {
-              if (f.data.glyf[i].contours.length === 0) {
+              if (!f.data.glyf[i].contours || f.data.glyf[i].contours.length === 0) {
                 f.data.glyf[i] = g;
               }
             } else if (g.compound) {
