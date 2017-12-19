@@ -397,10 +397,12 @@ function printSlide(printer, buffer, context) {
         const descriptor = cpyCxtParser
           .parseNewObject(descendant.FontDescriptor.getObjectID())
           .toJSObject();
-        const name = descriptor.FontName.value;
         const id = descriptor.FontFile2.getObjectID();
         const buffer = readStream(cpyCxtParser.parseNewObject(id));
         const font = Font.create(buffer, { type: 'ttf', hinting: true });
+        // PDF font name does not contain sub family on Windows 10 so a more robust key
+        // is computed from the font metadata
+        const name = descriptor.FontName.value + ' - ' + fontMetadataKey(font.data.name);
         if (context.pdfFonts[name]) {
           const f = context.pdfFonts[name].font;
           font.data.glyf.forEach((g, i) => {
@@ -427,6 +429,13 @@ function printSlide(printer, buffer, context) {
         }
       }
     }
+  }
+
+  function fontMetadataKey(font) {
+    const keys = ['fontFamily', 'fontSubFamily', 'fullName', 'preferredFamily', 'preferredSubFamily', 'uniqueSubFamily'];
+    return Object.entries(font)
+      .filter(([key, _]) => keys.includes(key))
+      .reduce((r, [k, v], i) => r + (i > 0 ? ',' : '') + k + '=' + v, '');
   }
 
   function readStream(pdfStreamInput) {
