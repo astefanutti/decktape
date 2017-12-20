@@ -36,7 +36,7 @@ parser.script('decktape').options({
     type      : 'string',
     callback  : parseSize,
     transform : parseSize,
-    help      : 'Size of the slides deck viewport: <width>x<height>  (ex. 1280x720)',
+    help      : 'Size of the slides deck viewport: <width>x<height>  (ex. \'1280x720\')',
   },
   pause : {
     abbr    : 'p',
@@ -99,13 +99,15 @@ parser.script('decktape').options({
 });
 
 function parseSize(size) {
-  // TODO: support device viewport sizes and graphics display standard resolutions
-  // see http://viewportsizes.com/ and https://en.wikipedia.org/wiki/Graphics_display_resolution
-  const [, width, height] = size.match(/^(\d+)x(\d+)$/);
-  if (!width || !height)
-    return '<size> must follow the <width>x<height> notation, e.g., 1280x720';
-  else
-    return { width: parseInt(width), height: parseInt(height) };
+  // we may want to support height and width labeled with units
+  // /^(\d+(?:px)?|\d+(?:\.\d+)?(?:in|cm|mm)?)\s?x\s?(\d+(?:px)?|\d+(?:\.\d+)?(?:in|cm|mm)?)$/
+  const match = size.match(/^(\d+)x(\d+)$/);
+  if (match) {
+    const [, width, height] = match;
+    return { width: parseInt(width, 10), height: parseInt(height, 10)};
+  } else {
+    return '<size> must follow the <width>x<height> notation, e.g., \'1280x720\'';
+  }
 }
 
 function parseRange(range) {
@@ -323,8 +325,8 @@ async function exportSlide(plugin, page, printer, context) {
   process.stdout.write('\r' + await progressBar(plugin, context));
 
   const buffer = await page.pdf({
-    width               : options.size.width + 'px',
-    height              : options.size.height + 'px',
+    width               : options.size.width,
+    height              : options.size.height,
     printBackground     : true,
     pageRanges          : '1',
     displayHeaderFooter : false,
