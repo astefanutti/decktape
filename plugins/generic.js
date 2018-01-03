@@ -79,7 +79,8 @@ class Generic {
   }
 
   async currentSlideIndex() {
-    const fragment = await this.page.evaluate(_ => window.location.hash.replace(/^#\/?/, ''));
-    return fragment.length ? fragment : this.currentSlide;
+    const hash = await this.page.evaluate(_ => window.location.hash);
+    const [, fragment] = hash.match(/^#\/?([^?]*)/) || [];
+    return fragment || this.currentSlide;
   }
 }
