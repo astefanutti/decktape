@@ -1,15 +1,14 @@
-FROM node:8.4.0-slim
+FROM node:9-alpine
 
 ENV NODE_ENV production
 ENV TERM xterm-color
 
-RUN apt-get update && \
-    apt-get install -yq --no-install-recommends \
-    libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 \
-    libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 \
-    libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 \
-    libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 \
-    libnss3
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+
+# https://git.alpinelinux.org/cgit/aports/log/community/chromium
+RUN apk add --no-cache ca-certificates ttf-freefont && \
+    apk add --no-cache chromium --repository http://dl-cdn.alpinelinux.org/alpine/edge/community && \
+    rm -rf /var/cache/apk/*
 
 WORKDIR /decktape
 
@@ -18,20 +17,26 @@ COPY libs libs/
 COPY plugins plugins/
 COPY decktape.js ./
 
-RUN chown -R node:node /decktape
+RUN apk add --no-cache --virtual .gyp python make g++ && \
+    npm install --production && \
+    apk del .gyp && \
+    rm -rf node_modules/hummus/src && \
+    rm -rf node_modules/hummus/build && \
+    rm -rf /root/.node-gyp && \
+    rm -rf /root/.npm && \
+    rm -rf /var/cache/apk/* && \
+    chown -R node:node /decktape
 
 # https://github.com/moby/moby/issues/20295
-RUN mkdir /slides
-RUN chown -R node:node /slides
+RUN mkdir /slides && \
+    chown -R node:node /slides
 
 USER node
-
-RUN npm install
 
 WORKDIR /slides
 
 # The --no-sandbox option is required for the moment
 # https://github.com/GoogleChrome/puppeteer/issues/290
-ENTRYPOINT ["node", "/decktape/decktape.js", "--no-sandbox"]
+ENTRYPOINT ["node", "/decktape/decktape.js", "--no-sandbox", "--executablePath", "chromium-browser"]
 
 CMD ["-h"]
