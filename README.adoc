@@ -215,7 +215,7 @@ The following slide deck examples have been exported using DeckTape:
 
 |http://joshbode.github.io/remark/ansi.html[Coloured Terminal Listings in Remark]
 |remark
-|https://astefanutti.github.io/decktape/examples/remark-js-coloured-terminal.pdf[remark-js-coloured-terminal.pdf] (0.14MB)
+|https://astefanutti.github.io/decktape/examples/remark-js-coloured-terminal.pdf[remark-js-coloured-terminal.pdf] (0.12MB)
 
 |http://www.w3.org/Talks/Tools/Slidy[HTML Slidy: Slide Shows in HTML and XHTML]
 |Slidy
