@@ -232,6 +232,10 @@ The following slide deck examples have been exported using DeckTape:
 |http://mikemaccana.github.io/rejectjs2013[Welcome our new ES5 Overloards]
 |Bespoke.js
 |https://astefanutti.github.io/decktape/examples/new-es5-overloards.pdf[new-es5-overloards.pdf] (0.2MB)
+
+|http://stack.formidable.com/spectacle[Spectacle: A ReactJS Presentation Library]
+|Spectacle
+|https://astefanutti.github.io/decktape/examples/spectacle-reactjs-presentation.pdf[spectacle-reactjs-presentation.pdf] (8.9MB)
 |===
 
 == Docker
