@@ -36,7 +36,7 @@ parser.script('decktape').options({
     type      : 'string',
     callback  : parseSize,
     transform : parseSize,
-    help      : 'Size of the slides deck viewport: <width>x<height>  (ex. \'1280x720\')',
+    help      : 'Size of the slides deck viewport: <width>x<height> (e.g. \'1280x720\')',
   },
   pause : {
     abbr    : 'p',

@@ -113,7 +113,7 @@ url          URL of the slides deck
 filename     Filename of the output PDF file
 
 Options:
-   -s <size>, --size <size>        Size of the slides deck viewport: <width>x<height>  (ex. 1280x720)
+   -s <size>, --size <size>        Size of the slides deck viewport: <width>x<height> (e.g. '1280x720')
    -p <ms>, --pause <ms>           Duration in milliseconds before each slide is exported  [1000]
    --load-pause <ms>               Duration in milliseconds between the page has loaded
                                    and starting to export slides  [0]
