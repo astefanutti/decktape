@@ -4,6 +4,7 @@
   "author": "Antonin Stefanutti",
   "version": "2.7.0",
   "homepage": "https://github.com/astefanutti/decktape",
+  "license": "MIT",
   "main": "decktape.js",
   "bin": {
     "decktape": "decktape.js"
