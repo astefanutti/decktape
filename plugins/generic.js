@@ -5,6 +5,11 @@
 const { pause } = require('../libs/util');
 
 exports.options = {
+  cssMedia: {
+    default : 'screen',
+    metavar : '<cssMedia>',
+    help    : "'print' or 'screen' to set CSS media type",
+  },
   key : {
     default : 'ArrowRight',
     metavar : '<key>',
@@ -34,6 +39,7 @@ class Generic {
     this.currentSlide = 1;
     this.isNextSlideDetected = false;
     this.key = this.options.key || exports.options.key.default;
+    this.cssMedia = this.options.cssMedia || exports.options.cssMedia.default;
   }
 
   getName() {
@@ -45,6 +51,7 @@ class Generic {
   }
 
   async configure() {
+    await this.page.emulateMedia(this.cssMedia);
     await this.page.exposeFunction('onMutation', _ => (this.isNextSlideDetected = true));
     await this.page.evaluate(_ =>
       new MutationObserver(_ => window.onMutation()).observe(document, {
