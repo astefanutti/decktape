@@ -5,12 +5,6 @@
 const { pause } = require('../libs/util');
 
 exports.options = {
-  media: {
-    default : 'screen',
-    choices : ['screen', 'print'],
-    metavar : '<media>',
-    help    : "'print' or 'screen' to set CSS media type",
-  },
   key : {
     default : 'ArrowRight',
     metavar : '<key>',
@@ -20,7 +14,13 @@ exports.options = {
     full    : 'max-slides',
     metavar : '<size>',
     help    : 'Maximum number of slides to export',
-  }
+  },
+  media: {
+    default : 'screen',
+    choices : ['screen', 'print'],
+    metavar : '<media>',
+    help    : 'CSS media type to emulate, one of [print, screen]',
+  },
 };
 
 exports.help =
