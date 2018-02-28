@@ -248,15 +248,15 @@ For example:
 
 * To convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
 [source,shell,subs=attributes+]
-$ docker run --rm -v `pwd`:/slides astefanutti/decktape {uri-revealjs} slides.pdf
+$ docker run --rm -t -v `pwd`:/slides astefanutti/decktape {uri-revealjs} slides.pdf
 
 * Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
 [source,shell]
-$ docker run --rm -v `pwd`:/slides -v ~:/home/user astefanutti/decktape /home/user/slides.html slides.pdf
+$ docker run --rm -t -v `pwd`:/slides -v ~:/home/user astefanutti/decktape /home/user/slides.html slides.pdf
 
 * Or, to convert an HTML presentation that's deployed on the local host:
 [source,shell]
-$ docker run --rm --net=host -v `pwd`:/slides astefanutti/decktape http://localhost:8000 slides.pdf
+$ docker run --rm -t --net=host -v `pwd`:/slides astefanutti/decktape http://localhost:8000 slides.pdf
 
 You may want to specify a tag corresponding to a released version of DeckTape for the Docker image, e.g. `astefanutti/decktape:{decktape-version}`.
 
