@@ -1,42 +1,53 @@
-FROM node:9-alpine
+FROM node:9-alpine as builder
 
 ENV NODE_ENV production
-ENV TERM xterm-color
-
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
+RUN apk add --no-cache --virtual .gyp python make g++
+
+WORKDIR /decktape
+
+COPY package.json package-lock.json ./
+COPY libs libs/
+COPY plugins plugins/
+COPY decktape.js ./
+
+RUN npm install && \
+    rm -rf node_modules/hummus/src && \
+    rm -rf node_modules/hummus/build
+
+FROM alpine:3.7
+
+ENV TERM xterm-color
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+
+# Chromium
 # https://git.alpinelinux.org/cgit/aports/log/community/chromium
 RUN apk add --no-cache ca-certificates ttf-freefont && \
     apk add --no-cache chromium --repository http://dl-cdn.alpinelinux.org/alpine/edge/community && \
     rm -rf /var/cache/apk/*
 
-WORKDIR /decktape
+# Node.js
+COPY --from=builder /usr/local/bin/node /usr/local/bin/
 
-COPY package.json ./
-COPY libs libs/
-COPY plugins plugins/
-COPY decktape.js ./
+# DeckTape
+COPY --from=builder /decktape /decktape
 
-RUN apk add --no-cache --virtual .gyp python make g++ && \
-    npm install --production && \
-    apk del .gyp && \
-    rm -rf node_modules/hummus/src && \
-    rm -rf node_modules/hummus/build && \
-    rm -rf /root/.node-gyp && \
-    rm -rf /root/.npm && \
-    rm -rf /var/cache/apk/* && \
-    chown -R node:node /decktape
-
-# https://github.com/moby/moby/issues/20295
-RUN mkdir /slides && \
-    chown -R node:node /slides
-
-USER node
+RUN addgroup -g 1000 node && \
+    adduser -u 1000 -G node -s /bin/sh -D node && \
+    mkdir /slides && \
+    chown node:node /slides
 
 WORKDIR /slides
 
-# The --no-sandbox option is required for the moment
+USER node
+
+# The --no-sandbox option is required, or --cap-add=SYS_ADMIN to docker run command
+# https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#running-puppeteer-in-docker
 # https://github.com/GoogleChrome/puppeteer/issues/290
+# https://github.com/jessfraz/dockerfiles/issues/65
+# https://github.com/jessfraz/dockerfiles/issues/156
+# https://github.com/jessfraz/dockerfiles/issues/341
 ENTRYPOINT ["node", "/decktape/decktape.js", "--no-sandbox", "--executablePath", "chromium-browser"]
 
 CMD ["-h"]
