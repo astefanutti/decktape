@@ -198,14 +198,14 @@ process.on('unhandledRejection', error => {
   page
     .on('console', (...args) => console.log(chalk`{gray ${args}}`))
     .on('pageerror', error => console.log(chalk`\n{red Page error: ${error.message}}`))
-    .on('requestfailed', request => console.log(chalk`\n{keyword('orange') Unable to load resource from URL: ${request.url}}`));
+    .on('requestfailed', request => console.log(chalk`\n{keyword('orange') Unable to load resource from URL: ${request.url()}}`));
 
   console.log('Loading page', options.url, '...');
   const load = page.waitForNavigation({ waitUntil: 'load', timeout: 20000 });
-  page.goto(options.url, { waitUntil: 'networkidle', timeout: 60000 })
+  page.goto(options.url, { waitUntil: 'networkidle0', timeout: 60000 })
     // wait until the load event is dispatched
-    .then(response => load.catch(error => response.status !== 200 ? Promise.reject(error) : response))
-    .then(response => console.log('Loading page finished with status:', response.status))
+    .then(response => load.catch(error => response.status() !== 200 ? Promise.reject(error) : response))
+    .then(response => console.log('Loading page finished with status:', response.status()))
     .then(delay(options.loadPause))
     .then(_ => createPlugin(page))
     .then(plugin => configurePlugin(plugin)
