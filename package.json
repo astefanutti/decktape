@@ -22,7 +22,7 @@
   "dependencies": {
     "chalk": "^2.1.0",
     "fonteditor-core": "^1.0.2",
-    "hummus": "^1.0.83",
+    "hummus": "^1.0.86",
     "puppeteer": "^1.1.1",
     "urijs": "^1.18.12"
   },
