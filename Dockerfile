@@ -12,7 +12,10 @@ COPY libs libs/
 COPY plugins plugins/
 COPY decktape.js ./
 
+# Force HummusJS build from source
+# See https://github.com/galkahana/HummusJS/issues/230
 RUN npm install && \
+    node_modules/hummus/node_modules/.bin/node-pre-gyp clean install --build-from-source -C node_modules/hummus/ && \
     rm -rf node_modules/hummus/src && \
     rm -rf node_modules/hummus/build
 
