@@ -7,7 +7,7 @@ RUN apk add --no-cache --virtual .gyp python make g++
 
 WORKDIR /decktape
 
-COPY package.json package-lock.json ./
+COPY package.json npm-shrinkwrap.json ./
 COPY libs libs/
 COPY plugins plugins/
 COPY decktape.js ./
