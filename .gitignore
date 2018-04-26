@@ -9,5 +9,5 @@
 !decktape.js
 !Dockerfile
 !package.json
-!package-lock.json
+!npm-shrinkwrap.json
 !README.adoc
