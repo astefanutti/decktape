@@ -28,6 +28,7 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 # https://git.alpinelinux.org/cgit/aports/log/community/chromium
 RUN apk add --no-cache ca-certificates ttf-freefont && \
     apk add --no-cache chromium --repository http://dl-cdn.alpinelinux.org/alpine/edge/community && \
+    apk add wqy-zenhei --update-cache --repository http://nl.alpinelinux.org/alpine/edge/testing --allow-untrusted && \
     rm -rf /var/cache/apk/*
 
 # Node.js
