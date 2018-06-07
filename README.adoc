@@ -281,17 +281,17 @@ $ docker rm `docker ps -lq`
 
 == FAQ
 
-==== Q: How to install prerequisites on Windows?
-
+* *_How to install prerequisites on Windows?_*
++
 Open a Powershell prompt in _Run as administrator_ to install Visual Studio Build Tools and Python 2.7:
-
++
 [source,console]
 ----
 $ npm i -g --production windows-build-tools
 ----
 
-==== Q: I'm using Arch Linux, is there an AUR package?
-
+* *_I'm using Arch Linux, is there an AUR package?_*
++
 Yes, it is available at https://aur.archlinux.org/packages/nodejs-decktape/.
 
 == Plugin API
