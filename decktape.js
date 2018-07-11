@@ -179,6 +179,8 @@ process.on('unhandledRejection', error => {
 
   const browser = await puppeteer.launch({
     headless : true,
+    // TODO: add a verbose option
+    // dumpio   : true,
     executablePath: options.executablePath,
     args     : Object.keys(options).reduce((args, option) => {
       switch (option) {
