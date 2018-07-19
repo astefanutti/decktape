@@ -214,8 +214,12 @@ process.on('unhandledRejection', error => {
         console.log(chalk`{gray ${msg.args()}}`);
       }
     })
-    .on('pageerror', error => console.log(chalk`\n{red Page error: ${error.message}}`))
-    .on('requestfailed', request => console.log(chalk`\n{keyword('orange') Unable to load resource from URL: ${request.url()}}`));
+    .on('requestfailed', request => {
+      // do not output warning for cancelled requests
+      if (request.failure() && request.failure().errorText === 'net::ERR_ABORTED') return;
+      console.log(chalk`\n{keyword('orange') Unable to load resource from URL: ${request.url()}}`);
+    })
+    .on('pageerror', error => console.log(chalk`\n{red Page error: ${error.message}}`));
 
   console.log('Loading page', options.url, '...');
   const load = page.waitForNavigation({ waitUntil: 'load', timeout: 20000 });
