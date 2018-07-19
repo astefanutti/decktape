@@ -198,7 +198,22 @@ process.on('unhandledRejection', error => {
   metadata.creator = 'Decktape';
 
   page
-    .on('console', (...args) => console.log(chalk`{gray ${args}}`))
+    .on('console', msg => {
+      if (msg.text()) {
+        switch (msg.type()) {
+          case 'error':
+            console.log(chalk`{red ${msg.text()}}`);
+            break;
+          case 'warning':
+            console.log(chalk`{keyword('orange') ${msg.text()}}`);
+            break;
+          default:
+            console.log(chalk`{gray ${msg.text()}}`);
+        }
+      } else {
+        console.log(chalk`{gray ${msg.args()}}`);
+      }
+    })
     .on('pageerror', error => console.log(chalk`\n{red Page error: ${error.message}}`))
     .on('requestfailed', request => console.log(chalk`\n{keyword('orange') Unable to load resource from URL: ${request.url()}}`));
 
