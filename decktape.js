@@ -485,6 +485,10 @@ function printSlide(printer, buffer, context) {
   // Copy the links on page write
   if (pageDictionary.Annots) {
     const annotations = pageDictionary.Annots.toJSArray()
+      // Since Puppeteer 1.6, annotations are references
+      .map(annotation => annotation.getType() === hummus.ePDFObjectIndirectObjectReference
+        ? cpyCxtParser.parseNewObject(annotation.getObjectID())
+        : annotation)
       .filter(annotation => annotation.toJSObject().Subtype.value === 'Link');
     printer.getEvents().once('OnPageWrite', event => {
       event.pageDictionaryContext.writeKey('Annots');
