@@ -7,7 +7,7 @@ class BufferReader {
 
   read(inAmount) {
     const arr = [];
-    const amount = this.rposition + inAmount;
+    let amount = this.rposition + inAmount;
     if (amount > this.buffer.length) {
       amount = this.buffer.length - this.rposition;
     }
