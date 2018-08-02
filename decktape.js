@@ -189,7 +189,13 @@ process.on('unhandledRejection', error => {
           break;
       }
       return args;
-    }, ['--disable-dev-shm-usage'])
+    },
+    [
+      '--disable-dev-shm-usage',
+      // Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem violates a CORS policy.
+      // Some Decktape plugins tweak the CSS rules for better PDF printing.
+      '--allow-file-access-from-files',
+    ])
   });
   const page = await browser.newPage();
   await page.emulateMedia('screen');
