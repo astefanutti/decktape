@@ -189,7 +189,7 @@ process.on('unhandledRejection', error => {
           break;
       }
       return args;
-    }, [])
+    }, ['--disable-dev-shm-usage'])
   });
   const page = await browser.newPage();
   await page.emulateMedia('screen');
