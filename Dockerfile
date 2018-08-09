@@ -29,6 +29,8 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 RUN apk add --no-cache ca-certificates ttf-freefont && \
     apk add --no-cache chromium --repository http://dl-cdn.alpinelinux.org/alpine/edge/community && \
     apk add --no-cache wqy-zenhei --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing && \
+    # /etc/fonts/conf.d/44-wqy-zenhei.conf overrides 'monospace' matching FreeMono.ttf in /etc/fonts/conf.d/69-unifont.conf
+    mv /etc/fonts/conf.d/44-wqy-zenhei.conf /etc/fonts/conf.d/74-wqy-zenhei.conf && \
     rm -rf /var/cache/apk/*
 
 # Node.js
