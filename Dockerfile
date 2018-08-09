@@ -1,4 +1,4 @@
-FROM node:9-alpine as builder
+FROM node:10-alpine as builder
 
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
@@ -19,7 +19,7 @@ RUN npm install && \
     rm -rf node_modules/hummus/src && \
     rm -rf node_modules/hummus/build
 
-FROM alpine:3.7
+FROM alpine:3.8
 
 ENV TERM xterm-color
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
