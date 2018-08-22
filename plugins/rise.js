@@ -30,7 +30,8 @@ class RISE {
       progress       : false,
       // FIXME: 0 is still displayed when slideNumber is set to false!
       // slideNumber : false,
-      fragments      : false,
+      // TODO: provide an option to turn fragments off
+      fragments      : true,
     }));
   }
 
@@ -44,7 +45,7 @@ class RISE {
   }
 
   hasNextSlide() {
-    return this.page.evaluate(_ => !Reveal.isLastSlide());
+    return this.page.evaluate(_ => !Reveal.isLastSlide() || Reveal.availableFragments().next);
   }
 
   nextSlide() {
