@@ -26,12 +26,11 @@ class RISE {
     await this.page.waitForFunction('typeof Reveal !== \'undefined\'', { timeout: 30000 });
     // Finally override Reveal.js configuration
     await this.page.evaluate(_ => Reveal.configure({
-      controls       : false,
-      progress       : false,
-      // FIXME: 0 is still displayed when slideNumber is set to false!
-      // slideNumber : false,
+      controls    : false,
+      progress    : false,
+      slideNumber : false,
       // TODO: provide an option to turn fragments off
-      fragments      : true,
+      fragments   : true,
     }));
   }
 
