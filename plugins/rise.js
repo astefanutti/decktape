@@ -1,5 +1,3 @@
-const { pause } = require('../libs/util');
-
 exports.create = page => new RISE(page);
 
 class RISE {
@@ -13,15 +11,15 @@ class RISE {
   }
 
   isActive() {
-    return this.page.evaluate(_ => typeof $ !== 'undefined' && $('#start_livereveal').length)
+    return this.page.evaluate(_ => typeof $ !== 'undefined' && $('#RISE').length);
   }
 
   async configure() {
     // Wait until the RISE extension has loaded
-    await this.page.waitForSelector('#start_livereveal', { timeout: 30000 });
+    await this.page.waitForSelector('#RISE', { timeout: 30000 });
     // Click on the 'Enter/Exit Live Reveal Slideshow' button in the notebook toolbar
     await this.page.evaluate(_ => {
-      $('#start_livereveal').click();
+      $('#RISE').click();
       $('#help_b, #exit_b').fadeToggle();
     });
     // Then wait until Reveal.js gets configured by the RISE extension
