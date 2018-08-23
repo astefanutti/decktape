@@ -15,7 +15,11 @@ class Reveal {
   isActive() {
     return this.page.evaluate(_ => {
       if (typeof Reveal === 'undefined') {
-          return false;
+        return false;
+      }
+      if (typeof Jupyter !== 'undefined') {
+        // Let's delegate to the RISE plugin
+        return false;
       }
       if (!(typeof Reveal.isLastSlide === 'function')) {
         console.log('Reveal JS plugin isn\'t compatible with reveal.js version < 2.3.0');
