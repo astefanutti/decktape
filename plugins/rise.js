@@ -11,20 +11,25 @@ class RISE {
   }
 
   isActive() {
-    return this.page.evaluate(_ => typeof $ !== 'undefined' && $('#RISE').length);
+    return this.page.evaluate(_ => typeof Jupyter !== 'undefined' && typeof Jupyter.notebook !== 'undefined');
   }
 
   async configure() {
-    // Wait until the RISE extension has loaded
+    // wait until the RISE extension has loaded
     await this.page.waitForSelector('#RISE', { timeout: 30000 });
-    // Click on the 'Enter/Exit Live Reveal Slideshow' button in the notebook toolbar
+    // then start the slideshow if not already
     await this.page.evaluate(_ => {
-      $('#RISE').click();
+      // check if slideshow has already started with autolaunch option
+      if (!$('#maintoolbar').hasClass('reveal_tagging')) {
+        // click on the 'Enter/Exit RISE Slideshow' button in the notebook toolbar
+        $('#RISE').click();
+      }
+      // remove help an exit buttons
       $('#help_b, #exit_b').fadeToggle();
     });
-    // Then wait until Reveal.js gets configured by the RISE extension
-    await this.page.waitForFunction('typeof Reveal !== \'undefined\'', { timeout: 30000 });
-    // Finally override Reveal.js configuration
+    // then wait until Reveal.js gets configured by the RISE extension
+    await this.page.waitForFunction('typeof Reveal !== \'undefined\' && Reveal.isReady()', { timeout: 30000 });
+    // finally override Reveal.js configuration
     await this.page.evaluate(_ => Reveal.configure({
       controls    : false,
       progress    : false,
