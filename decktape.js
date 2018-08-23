@@ -12,7 +12,8 @@ const BufferReader = require('./libs/buffer'),
       parser       = require('./libs/nomnom'),
       path         = require('path'),
       puppeteer    = require('puppeteer'),
-      URI          = require('urijs');
+      URI          = require('urijs'),
+      util         = require('util');
 
 const { delay, pause } = require('./libs/util');
 
@@ -170,6 +171,14 @@ if (os.name === 'windows') parser.nocolors();
 
 const options = parser.parse(process.argv.slice(2));
 
+const color = type => {
+  switch (type) {
+    case 'error': return chalk.red;
+    case 'warning': return chalk.keyword('orange');
+    default: return chalk.gray;
+  }
+};
+
 process.on('unhandledRejection', error => {
   console.log(error.stack);
   process.exit(1);
@@ -204,21 +213,11 @@ process.on('unhandledRejection', error => {
   metadata.creator = 'Decktape';
 
   page
-    .on('console', msg => {
-      if (msg.text()) {
-        switch (msg.type()) {
-          case 'error':
-            console.log(chalk`{red ${msg.text()}}`);
-            break;
-          case 'warning':
-            console.log(chalk`{keyword('orange') ${msg.text()}}`);
-            break;
-          default:
-            console.log(chalk`{gray ${msg.text()}}`);
-        }
-      } else {
-        console.log(chalk`{gray ${msg.args()}}`);
-      }
+    .on('console', async msg => {
+        const args = msg.args().length
+          ? await Promise.all(msg.args().map(arg => arg.executionContext().evaluate(obj => obj, arg)))
+          : [msg.text()];
+        console.log(...args.map(arg => color(msg.type())(util.format(arg))));
     })
     .on('requestfailed', request => {
       // do not output warning for cancelled requests
