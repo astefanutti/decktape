@@ -228,11 +228,12 @@ process.on('unhandledRejection', error => {
 
   console.log('Loading page', options.url, '...');
   const load = page.waitForNavigation({ waitUntil: 'load', timeout: 20000 });
-  page.goto(options.url, { waitUntil: 'networkidle2', timeout: 60000 })
+  page.goto(options.url, { waitUntil: 'networkidle0', timeout: 60000 })
     // wait until the load event is dispatched
     .then(response => load
       .catch(error => response.status() !== 200 ? Promise.reject(error) : response)
       .then(_ => response))
+    // TODO: improve message when reading file locally
     .then(response => console.log('Loading page finished with status:', response.status()))
     .then(delay(options.loadPause))
     .then(_ => createPlugin(page))
