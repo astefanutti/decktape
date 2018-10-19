@@ -23,7 +23,7 @@
     "chalk": "^2.1.0",
     "fonteditor-core": "^1.0.2",
     "hummus": "^1.0.87",
-    "puppeteer": "^1.8.0",
+    "puppeteer": "^1.9.0",
     "urijs": "^1.18.12"
   },
   "engines": {
