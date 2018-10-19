@@ -125,6 +125,9 @@ Options:
    --screenshots-format <format>   Screenshots image format, one of [jpg, png]  [png]
    --slides <range>                Range of slides to be exported, a combination of slide indexes
                                    and ranges (e.g. '1-3,5,8')
+   --chrome-path <path>            Path to the Chromium or Chrome executable to run instead of the
+                                   bundled Chromium
+   --chrome-arg <arg>              Additional argument to pass to the Chrome instance, can be repeated
 
 Defaults to the automatic command.
 Iterates over the available plugins, picks the compatible one for presentation at the
@@ -281,6 +284,8 @@ $ docker rm `docker ps -lq`
 
 == FAQ
 
+==== Install
+
 * *_How to install prerequisites on Windows?_*
 +
 Open a Powershell prompt in _Run as administrator_ to install Visual Studio Build Tools and Python 2.7:
@@ -294,9 +299,36 @@ $ npm i -g --production windows-build-tools
 +
 Yes, it is available at https://aur.archlinux.org/packages/nodejs-decktape/.
 
-* *_I'm getting an error: No usable sandbox!_*
+==== Usage
+
+* *_Is it possible to pass arguments to Chrome?_*
++
+Yes, you can use the `--chrome-arg` option, e.g.:
++
+[source,shell]
+----
+$ decktape ... \
+  --chrome-arg=--proxy-server="proxy:8080" \
+  --chrome-arg=--allow-file-access-from-files 
+----
++
+The list of Chromium flags can be found https://peter.sh/experiments/chromium-command-line-switches/[here].
+
+==== Errors
+
+* *_No usable sandbox!_*
 +
 Arch Linux, among other Linux distributions may have the user namespace in the kernel disabled by default. You can verify this by accessing _chrome://sandbox_ in your chrom[e|ium] browser. You can find more about sandboxing, https://chromium.googlesource.com/chromium/src/+/master/docs/linux_sandboxing.md#User-namespaces-sandbox[here]. As a _temporary_ work-around, you can pass `--no-sandbox` as a CLI option.
+
+* *_Failed to read the 'rules' property from 'CSSStyleSheet': Cannot access rules_*
++
+Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem violates a CORS policy.
+As some Decktape plugins tweak the CSS rules for better PDF printing, you need to allow access to local files by setting the `--allow-file-access-from-files` flag option, e.g.:
++ 
+[source,shell]
+----
+$ decktape ... --chrome-arg=--allow-file-access-from-files
+----
 
 == Plugin API
 

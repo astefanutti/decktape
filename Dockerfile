@@ -54,6 +54,6 @@ USER node
 # https://github.com/jessfraz/dockerfiles/issues/65
 # https://github.com/jessfraz/dockerfiles/issues/156
 # https://github.com/jessfraz/dockerfiles/issues/341
-ENTRYPOINT ["node", "/decktape/decktape.js", "--no-sandbox", "--executablePath", "chromium-browser"]
+ENTRYPOINT ["node", "/decktape/decktape.js", "--chrome-path", "chromium-browser", "--chrome-arg=--no-sandbox"]
 
 CMD ["-h"]

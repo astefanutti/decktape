@@ -62,7 +62,7 @@ parser.script('decktape').options({
     default : 'screenshots',
     help    : 'Screenshots output directory',
   },
-  screenshotSize : {
+  screenshotSizes : {
     full      : 'screenshots-size',
     metavar   : '<size>',
     type      : 'string',
@@ -86,16 +86,18 @@ parser.script('decktape').options({
     help      : 'Range of slides to be exported, a combination of slide indexes and ranges (e.g. \'1-3,5,8\')',
   },
   // Chrome options
-  executablePath : {
-    full    : '--executablePath',
+  chromePath : {
+    full    : 'chrome-path',
     metavar : '<path>',
-    hidden  : true,
     type    : 'string',
+    help    : 'Path to the Chromium or Chrome executable to run instead of the bundled Chromium',
   },
-  noSandbox : {
-    full   : '--no-sandbox',
-    hidden : true,
-    flag   : true,
+  chromeArgs : {
+    full    : 'chrome-arg',
+    metavar : '<arg>',
+    type    : 'string',
+    list    : true,
+    help    : 'Additional argument to pass to the Chrome instance, can be repeated',
   },
 });
 
@@ -187,24 +189,11 @@ process.on('unhandledRejection', error => {
 (async () => {
 
   const browser = await puppeteer.launch({
-    headless : true,
+    headless       : true,
     // TODO: add a verbose option
-    // dumpio   : true,
-    executablePath: options.executablePath,
-    args     : Object.keys(options).reduce((args, option) => {
-      switch (option) {
-        case 'sandbox':
-          if (options.sandbox === false) args.push('--no-sandbox');
-          break;
-      }
-      return args;
-    },
-    [
-      '--disable-dev-shm-usage',
-      // Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem violates a CORS policy.
-      // Some Decktape plugins tweak the CSS rules for better PDF printing.
-      '--allow-file-access-from-files',
-    ])
+    // dumpio      : true,
+    executablePath : options.chromePath,
+    args           : options.chromeArgs,
   });
   const page = await browser.newPage();
   await page.emulateMedia('screen');
@@ -364,7 +353,7 @@ async function exportSlide(plugin, page, printer, context) {
   context.exportedSlides++;
 
   if (options.screenshots) {
-    for (let resolution of options.screenshotSize || [options.size]) {
+    for (let resolution of options.screenshotSizes || [options.size]) {
       await page.setViewport(resolution);
       // Delay page rendering to wait for the resize event to complete,
       // e.g. for impress.js (may be needed to be configurable)
