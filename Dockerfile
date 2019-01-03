@@ -24,11 +24,18 @@ FROM alpine:3.8
 ENV TERM xterm-color
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
-# Chromium
+# Chromium, CA certificates, fonts
 # https://git.alpinelinux.org/cgit/aports/log/community/chromium
-RUN apk add --no-cache ca-certificates ttf-freefont && \
-    apk add --no-cache chromium --repository http://dl-cdn.alpinelinux.org/alpine/edge/community && \
-    apk add --no-cache wqy-zenhei --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing && \
+RUN apk update && apk upgrade && \
+    echo @edge http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
+    echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories && \
+    echo @edge http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
+    apk add --no-cache \
+    ca-certificates \
+    ttf-freefont \
+    chromium@edge \
+    harfbuzz@edge \
+    wqy-zenhei@edge && \
     # /etc/fonts/conf.d/44-wqy-zenhei.conf overrides 'monospace' matching FreeMono.ttf in /etc/fonts/conf.d/69-unifont.conf
     mv /etc/fonts/conf.d/44-wqy-zenhei.conf /etc/fonts/conf.d/74-wqy-zenhei.conf && \
     rm -rf /var/cache/apk/*
