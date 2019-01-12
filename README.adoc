@@ -318,7 +318,7 @@ The list of Chromium flags can be found https://peter.sh/experiments/chromium-co
 
 * *_No usable sandbox!_*
 +
-Arch Linux, among other Linux distributions may have the user namespace in the kernel disabled by default. You can verify this by accessing _chrome://sandbox_ in your chrom[e|ium] browser. You can find more about sandboxing, https://chromium.googlesource.com/chromium/src/+/master/docs/linux_sandboxing.md#User-namespaces-sandbox[here]. As a _temporary_ work-around, you can pass `--no-sandbox` as a CLI option.
+Arch Linux, among other Linux distributions may have the user namespace in the kernel disabled by default. You can verify this by accessing _chrome://sandbox_ in your chrom[e|ium] browser. You can find more about sandboxing, https://chromium.googlesource.com/chromium/src/+/master/docs/linux_sandboxing.md#User-namespaces-sandbox[here]. As a _temporary_ work-around, you can pass `--chrome-arg=--no-sandbox` as a CLI option.
 
 * *_Failed to read the 'rules' property from 'CSSStyleSheet': Cannot access rules_*
 +
