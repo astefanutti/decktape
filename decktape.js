@@ -51,6 +51,13 @@ parser.script('decktape').options({
     default : 0,
     help    : 'Duration in milliseconds between the page has loaded and starting to export slides',
   },
+  enableSubsteps: {
+    abbr: 'substeps',
+    metavar: '<true|false>',
+    type: 'boolean',
+    help: 'If substeps should be used as separate slides',
+    default: true
+  },
   screenshots : {
     default : false,
     flag    : true,
@@ -299,8 +306,18 @@ async function exportSlides(plugin, page, printer) {
     exportedSlides      : 0,
     pdfFonts            : {},
     pdfXObjects         : {},
-    totalSlides         : await plugin.slideCount(),
+    totalSlides         : await plugin.slideCount(options.enableSubsteps),
   };
+
+  if(options.enableSubsteps===false){
+    page.$$eval('.substep', substeps => {
+      substeps.forEach(substep=>{
+        substep.classList.remove('substep');
+        substep.classList.add('substep-visible');
+      });
+    })
+  }
+
   // TODO: support a more advanced "fragment to pause" mapping
   // for special use cases like GIF animations
   // TODO: support plugin optional promise to wait until a particular mutation
