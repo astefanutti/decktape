@@ -365,6 +365,7 @@ async function exportSlide(plugin, page, printer, context) {
     printBackground     : true,
     pageRanges          : '1',
     displayHeaderFooter : false,
+    scale: 1.5
   });
   printSlide(printer, new BufferReader(buffer), context);
   context.exportedSlides++;
