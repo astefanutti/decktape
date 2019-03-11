@@ -34,6 +34,7 @@ RUN apk update && apk upgrade && \
     ttf-freefont \
     chromium@edge \
     harfbuzz@edge \
+    font-noto-emoji@edge \
     wqy-zenhei@edge && \
     # /etc/fonts/conf.d/44-wqy-zenhei.conf overrides 'monospace' matching FreeMono.ttf in /etc/fonts/conf.d/69-unifont.conf
     mv /etc/fonts/conf.d/44-wqy-zenhei.conf /etc/fonts/conf.d/74-wqy-zenhei.conf && \
