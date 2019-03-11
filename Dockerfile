@@ -3,7 +3,7 @@ FROM node:11-alpine as builder
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
-RUN apk add --no-cache --virtual .gyp python make g++
+RUN apk add --no-cache python make g++
 
 WORKDIR /decktape
 
@@ -18,7 +18,7 @@ RUN npm install --build-from-source=hummus && \
     rm -rf node_modules/hummus/src && \
     rm -rf node_modules/hummus/build
 
-FROM alpine:3.8
+FROM alpine:3.9
 
 ENV TERM xterm-color
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
