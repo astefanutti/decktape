@@ -31,10 +31,12 @@ RUN apk update && apk upgrade && \
     echo @edge http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
     apk add --no-cache \
     ca-certificates \
-    ttf-freefont \
     chromium@edge \
-    harfbuzz@edge \
     font-noto-emoji@edge \
+    freetype@edge \
+    harfbuzz@edge \
+    nss@edge \
+    ttf-freefont@edge \
     wqy-zenhei@edge && \
     # /etc/fonts/conf.d/44-wqy-zenhei.conf overrides 'monospace' matching FreeMono.ttf in /etc/fonts/conf.d/69-unifont.conf
     mv /etc/fonts/conf.d/44-wqy-zenhei.conf /etc/fonts/conf.d/74-wqy-zenhei.conf && \
