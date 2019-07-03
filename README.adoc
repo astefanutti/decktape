@@ -47,6 +47,7 @@ endif::[]
 :uri-dzslides: http://paulrouget.com/dzslides
 :uri-flowtimejs: http://flowtime-js.marcolago.com
 :uri-impressjs: http://impress.github.io/impress.js
+:uri-nuedeck: https://github.com/twitwi/nuedeck
 :uri-pageres: https://github.com/sindresorhus/pageres
 :uri-remark: http://remarkjs.com
 :uri-revealjs: http://lab.hakim.se/reveal-js
@@ -65,9 +66,10 @@ DeckTape currently supports the following presentation frameworks out of the box
 
 [subs="normal"]
 ....
-{bullet}{uri-bespokejs}[Bespoke.js]      {bullet}{uri-dzslides}[DZSlides]        {bullet}{uri-remark}[remark]          {bullet}{uri-shower}[Shower]
-{bullet}{uri-csss}[CSSS]            {bullet}{uri-flowtimejs}[Flowtime.js]     {bullet}{uri-revealjs}[reveal.js]       {bullet}{uri-slidy}[Slidy]
-{bullet}{uri-deckjs}[deck.js]         {bullet}{uri-impressjs}[impress.js]      {bullet}{uri-rise}[RISE]            {bullet}{uri-webslides}[WebSlides]
+{bullet}{uri-bespokejs}[Bespoke.js]      {bullet}{uri-flowtimejs}[Flowtime.js]     {bullet}{uri-revealjs}[reveal.js]       {bullet}{uri-webslides}[WebSlides]
+{bullet}{uri-csss}[CSSS]            {bullet}{uri-impressjs}[impress.js]      {bullet}{uri-rise}[RISE]             .
+{bullet}{uri-deckjs}[deck.js]         {bullet}{uri-nuedeck}[NueDeck]         {bullet}{uri-shower}[Shower]           .
+{bullet}{uri-dzslides}[DZSlides]        {bullet}{uri-remark}[remark]          {bullet}{uri-slidy}[Slidy]            .
 ....
 
 DeckTape also provides a <<generic,generic command>> that works by emulating the end-user interaction, allowing it to be used to convert presentations from virtually any kind of framework.
