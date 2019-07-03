@@ -112,7 +112,7 @@ Usage: decktape [options] [command] <url> <filename>
        decktape version
 
 command      one of: automatic, bespoke, csss, deck, dzslides, flowtime, generic, impress,
-             remark, reveal, shower, slidy, webslides
+             nuedeck, remark, reveal, shower, slidy, webslides
 url          URL of the slides deck
 filename     Filename of the output PDF file
 
