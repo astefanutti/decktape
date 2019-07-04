@@ -64,13 +64,19 @@ DeckTape is built on top of {uri-puppeteer}[Puppeteer] which relies on Google Ch
 
 DeckTape currently supports the following presentation frameworks out of the box:
 
-[subs="normal"]
-....
-{bullet}{uri-bespokejs}[Bespoke.js]      {bullet}{uri-flowtimejs}[Flowtime.js]     {bullet}{uri-revealjs}[reveal.js]       {bullet}{uri-webslides}[WebSlides]
-{bullet}{uri-csss}[CSSS]            {bullet}{uri-impressjs}[impress.js]      {bullet}{uri-rise}[RISE]             .
-{bullet}{uri-deckjs}[deck.js]         {bullet}{uri-nuedeck}[NueDeck]         {bullet}{uri-shower}[Shower]           .
-{bullet}{uri-dzslides}[DZSlides]        {bullet}{uri-remark}[remark]          {bullet}{uri-slidy}[Slidy]            .
-....
+{uri-bespokejs}[Bespoke.js]{bullet}
+{uri-csss}[CSSS]{bullet}
+{uri-deckjs}[deck.js]{bullet}
+{uri-dzslides}[DZSlides]{bullet}
+{uri-flowtimejs}[Flowtime.js]{bullet}
+{uri-impressjs}[impress.js]{bullet}
+{uri-nuedeck}[NueDeck]{bullet}
+{uri-remark}[remark]{bullet}
+{uri-revealjs}[reveal.js]{bullet}
+{uri-rise}[RISE]{bullet}
+{uri-shower}[Shower]{bullet}
+{uri-slidy}[Slidy]{bullet}
+{uri-webslides}[WebSlides]
 
 DeckTape also provides a <<generic,generic command>> that works by emulating the end-user interaction, allowing it to be used to convert presentations from virtually any kind of framework.
 The generic mode is particularly useful for supporting HTML presentation frameworks that don't expose an API or accessible state.
