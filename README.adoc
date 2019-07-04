@@ -42,7 +42,7 @@ endif::[]
 :uri-docker-ref: http://docs.docker.com/engine/reference
 
 :uri-bespokejs: http://markdalgleish.com/projects/bespoke.js
-:uri-csss: http://leaverou.github.io/csss
+:uri-csss: https://github.com/LeaVerou/inspire.js/tree/v1.0.0#csss
 :uri-deckjs: http://imakewebthings.com/deck.js
 :uri-dzslides: http://paulrouget.com/dzslides
 :uri-flowtimejs: http://flowtime-js.marcolago.com
