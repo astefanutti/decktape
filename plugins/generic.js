@@ -77,7 +77,6 @@ class Generic {
     // TODO: use mutation event directly instead of relying on a timeout
     // TODO: detect cycle to avoid infinite navigation for frameworks
     // that support loopable presentations like impress.js and flowtime.js
-    await pause(1000);
     return this.isNextSlideDetected;
   }
 
