@@ -20,11 +20,11 @@
     "url": "https://github.com/astefanutti/decktape/issues"
   },
   "dependencies": {
-    "chalk": "^2.1.0",
+    "chalk": "^2.4.2",
     "fonteditor-core": "^1.0.5",
-    "hummus": "^1.0.104",
-    "puppeteer": "^1.12.2",
-    "urijs": "^1.18.12"
+    "hummus": "^1.0.105",
+    "puppeteer": "^1.19.0",
+    "urijs": "^1.19.1"
   },
   "engines": {
     "node": ">=7.10.0"
