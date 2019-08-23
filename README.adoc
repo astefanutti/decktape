@@ -322,7 +322,7 @@ $ decktape ... \
 +
 The list of Chromium flags can be found https://peter.sh/experiments/chromium-command-line-switches/[here].
 
-==== Errors
+==== Troubleshooting
 
 * *_No usable sandbox!_*
 +
@@ -337,6 +337,14 @@ As some Decktape plugins tweak the CSS rules for better PDF printing, you need t
 ----
 $ decktape ... --chrome-arg=--allow-file-access-from-files
 ----
+
+* *_Layout inconsistencies_*
++
+Decktape relies on Pupeteer to convert each slide in PDF format. Slight layout inconsistencies can result as part of this transformation. One workaround is to set a specific slide size using the `-s` option. The value of `-s 1024x768` has generally worked well in such situations.
++
+* *_Reveal.js slide generation never finishes_*
++
+Decktape does not use the built-in PDF support of reveal.js, and instead captures each slide individually. Therefore you must not append `?print-pdf` or load the print stylesheets in any other way when using Decktape.
 
 == Plugin API
 
