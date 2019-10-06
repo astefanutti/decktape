@@ -65,11 +65,11 @@ DeckTape is built on top of {uri-puppeteer}[Puppeteer] which relies on Google Ch
 DeckTape currently supports the following presentation frameworks out of the box:
 
 {uri-bespokejs}[Bespoke.js]{bullet}
-{uri-inspire}[Inspire.js]{bullet}
 {uri-deckjs}[deck.js]{bullet}
 {uri-dzslides}[DZSlides]{bullet}
 {uri-flowtimejs}[Flowtime.js]{bullet}
 {uri-impressjs}[impress.js]{bullet}
+{uri-inspire}[Inspire.js]{bullet}
 {uri-nuedeck}[NueDeck]{bullet}
 {uri-remark}[remark]{bullet}
 {uri-revealjs}[reveal.js]{bullet}
