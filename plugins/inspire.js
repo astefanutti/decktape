@@ -1,19 +1,18 @@
-exports.create = page => new CSSS(page);
+exports.create = page => new Inspire(page);
 
-class CSSS {
+class Inspire {
 
   constructor(page) {
     this.page = page;
   }
 
   getName() {
-    return 'CSSS';
+    return 'Inspire';
   }
 
   isActive() {
-    // Avoid global variable name collision with remark.js
     return this.page.evaluate(_ =>
-      typeof remark === 'undefined' && typeof slideshow === 'object');
+      typeof Inspire === 'object');
   }
 
   configure() {
@@ -26,14 +25,14 @@ class CSSS {
   }
 
   hasNextSlide() {
-    return this.page.evaluate(_ => slideshow.index + 1 in slideshow.slides);
+    return this.page.evaluate(_ => Inspire.index + 1 in Inspire.slides);
   }
 
   nextSlide() {
-    return this.page.evaluate(_ => slideshow.next(false));
+    return this.page.evaluate(_ => Inspire.next(false));
   }
 
   currentSlideIndex() {
-    return this.page.evaluate(_ => slideshow.slides[slideshow.slide].id);
+    return this.page.evaluate(_ => Inspire.slides[Inspire.slide].id);
   }
 }

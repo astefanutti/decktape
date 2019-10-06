@@ -42,7 +42,7 @@ endif::[]
 :uri-docker-ref: http://docs.docker.com/engine/reference
 
 :uri-bespokejs: http://markdalgleish.com/projects/bespoke.js
-:uri-csss: https://github.com/LeaVerou/inspire.js/tree/v1.0.0#csss
+:uri-inspire: https://inspirejs.org
 :uri-deckjs: http://imakewebthings.com/deck.js
 :uri-dzslides: http://paulrouget.com/dzslides
 :uri-flowtimejs: http://flowtime-js.marcolago.com
@@ -65,7 +65,7 @@ DeckTape is built on top of {uri-puppeteer}[Puppeteer] which relies on Google Ch
 DeckTape currently supports the following presentation frameworks out of the box:
 
 {uri-bespokejs}[Bespoke.js]{bullet}
-{uri-csss}[CSSS]{bullet}
+{uri-inspire}[Inspire.js]{bullet}
 {uri-deckjs}[deck.js]{bullet}
 {uri-dzslides}[DZSlides]{bullet}
 {uri-flowtimejs}[Flowtime.js]{bullet}
@@ -117,7 +117,7 @@ $ decktape -h
 Usage: decktape [options] [command] <url> <filename>
        decktape version
 
-command      one of: automatic, bespoke, csss, deck, dzslides, flowtime, generic, impress,
+command      one of: automatic, bespoke, deck, dzslides, flowtime, generic, impress, inspire,
              nuedeck, remark, reveal, shower, slidy, webslides
 url          URL of the slides deck
 filename     Filename of the output PDF file
@@ -234,9 +234,9 @@ The following slide deck examples have been exported using DeckTape:
 |Slidy
 |https://astefanutti.github.io/decktape/examples/html-slidy-presentation.pdf[html-slidy-presentation.pdf] (0.5MB)
 
-|http://leaverou.github.io/csss[CSSS: CSS-based SlideShow System]
-|CSSS
-|https://astefanutti.github.io/decktape/examples/csss-sample-slideshow.pdf[csss-sample-slideshow.pdf] (3MB)
+|http://inspirejs.org[Inspire.js: CSS-based SlideShow System]
+|Inspire.js
+|https://astefanutti.github.io/decktape/examples/inspirejs-sample-slideshow.pdf[inspirejs-sample-slideshow.pdf] (3MB)
 
 |http://shwr.me/?full[Shower Presentation Engine]
 |Shower
@@ -317,7 +317,7 @@ Yes, you can use the `--chrome-arg` option, e.g.:
 ----
 $ decktape ... \
   --chrome-arg=--proxy-server="proxy:8080" \
-  --chrome-arg=--allow-file-access-from-files 
+  --chrome-arg=--allow-file-access-from-files
 ----
 +
 The list of Chromium flags can be found https://peter.sh/experiments/chromium-command-line-switches/[here].
@@ -332,7 +332,7 @@ Arch Linux, among other Linux distributions may have the user namespace in the k
 +
 Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem violates a CORS policy.
 As some Decktape plugins tweak the CSS rules for better PDF printing, you need to allow access to local files by setting the `--allow-file-access-from-files` flag option, e.g.:
-+ 
++
 [source,shell]
 ----
 $ decktape ... --chrome-arg=--allow-file-access-from-files
