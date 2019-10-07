@@ -42,18 +42,18 @@ endif::[]
 :uri-docker-ref: http://docs.docker.com/engine/reference
 
 :uri-bespokejs: http://markdalgleish.com/projects/bespoke.js
-:uri-inspire: https://inspirejs.org
 :uri-deckjs: http://imakewebthings.com/deck.js
 :uri-dzslides: http://paulrouget.com/dzslides
-:uri-flowtimejs: http://flowtime-js.marcolago.com
-:uri-impressjs: http://impress.github.io/impress.js
+:uri-flowtimejs: https://marcolago.github.io/flowtime.js/
+:uri-impressjs: https://impress.js.org
+:uri-inspire: https://inspirejs.org
 :uri-nuedeck: https://github.com/twitwi/nuedeck
 :uri-pageres: https://github.com/sindresorhus/pageres
-:uri-remark: http://remarkjs.com
-:uri-revealjs: http://lab.hakim.se/reveal-js
+:uri-remark: https://remarkjs.com
+:uri-revealjs: https://revealjs.com
 :uri-rise: https://github.com/damianavila/RISE
-:uri-shower: http://shwr.me
-:uri-slidy: http://www.w3.org/Talks/Tools/Slidy/
+:uri-shower: https://shwr.me
+:uri-slidy: https://www.w3.org/Talks/Tools/Slidy/
 :uri-webslides: https://github.com/jlantunez/webslides
 
 image:{uri-badge-npm}[link="{uri-decktape-npm}"] image:{uri-badge-node}[]
@@ -202,7 +202,7 @@ The following slide deck examples have been exported using DeckTape:
 |===
 |HTML5 Presentation |Framework |Exported PDF
 
-|http://tdd.github.io/devoxx-es6-maintenant/[ES6+ maintenant !]
+|https://tdd.github.io/devoxx-es6-maintenant/[ES6+ maintenant !]
 |reveal.js
 |https://astefanutti.github.io/decktape/examples/devoxx-es6-maintenant.pdf[devoxx-es6-maintenant.pdf] (2.3MB)
 
@@ -210,7 +210,7 @@ The following slide deck examples have been exported using DeckTape:
 |reveal.js
 |https://astefanutti.github.io/decktape/examples/reveal-js-mathjax.pdf[reveal-js-mathjax.pdf] (0.3MB)
 
-|http://artificer.jboss.org/slides/general/opensource-getting-involved.html[Getting Involved in Open Source]
+|https://artificer.jboss.org/slides/general/opensource-getting-involved.html[Getting Involved in Open Source]
 |reveal.js
 |https://astefanutti.github.io/decktape/examples/opensource-getting-involved.pdf[opensource-getting-involved.pdf] (0.6MB)
 
@@ -222,23 +222,23 @@ The following slide deck examples have been exported using DeckTape:
 |deck.js
 |https://astefanutti.github.io/decktape/examples/deck-js-presentation.pdf[deck-js-presentation.pdf] (0.5MB)
 
-|http://remarkjs.com[The Official Remark Slideshow]
+|https://remarkjs.com[The Official Remark Slideshow]
 |remark
 |https://astefanutti.github.io/decktape/examples/remark-js-slideshow.pdf[remark-js-slideshow.pdf] (0.15MB)
 
-|http://joshbode.github.io/remark/ansi.html[Coloured Terminal Listings in Remark]
+|https://joshbode.github.io/remark/ansi.html[Coloured Terminal Listings in Remark]
 |remark
 |https://astefanutti.github.io/decktape/examples/remark-js-coloured-terminal.pdf[remark-js-coloured-terminal.pdf] (0.12MB)
 
-|http://www.w3.org/Talks/Tools/Slidy[HTML Slidy: Slide Shows in HTML and XHTML]
+|https://www.w3.org/Talks/Tools/Slidy[HTML Slidy: Slide Shows in HTML and XHTML]
 |Slidy
 |https://astefanutti.github.io/decktape/examples/html-slidy-presentation.pdf[html-slidy-presentation.pdf] (0.5MB)
 
-|http://inspirejs.org[Inspire.js: CSS-based SlideShow System]
+|https://inspirejs.org[Inspire.js: CSS-based SlideShow System]
 |Inspire.js
 |https://astefanutti.github.io/decktape/examples/inspirejs-sample-slideshow.pdf[inspirejs-sample-slideshow.pdf] (3MB)
 
-|http://shwr.me/?full[Shower Presentation Engine]
+|https://shwr.me[Shower Presentation Engine]
 |Shower
 |https://astefanutti.github.io/decktape/examples/shower-presentation-engine.pdf[shower-presentation-engine.pdf] (0.6MB)
 
@@ -246,7 +246,7 @@ The following slide deck examples have been exported using DeckTape:
 |Bespoke.js
 |https://astefanutti.github.io/decktape/examples/new-es5-overloards.pdf[new-es5-overloards.pdf] (0.2MB)
 
-|http://stack.formidable.com/spectacle[Spectacle: A ReactJS Presentation Library]
+|https://stack.formidable.com/spectacle[Spectacle: A ReactJS Presentation Library]
 |Spectacle
 |https://astefanutti.github.io/decktape/examples/spectacle-reactjs-presentation.pdf[spectacle-reactjs-presentation.pdf] (8.9MB)
 |===
