@@ -234,9 +234,9 @@ The following slide deck examples have been exported using DeckTape:
 |Slidy
 |https://astefanutti.github.io/decktape/examples/html-slidy-presentation.pdf[html-slidy-presentation.pdf] (0.5MB)
 
-|https://inspirejs.org[Inspire.js: CSS-based SlideShow System]
+|https://inspirejs.org[Inspire.js: Lean, hackable, extensible slide deck framework]
 |Inspire.js
-|https://astefanutti.github.io/decktape/examples/inspirejs-sample-slideshow.pdf[inspirejs-sample-slideshow.pdf] (3MB)
+|https://astefanutti.github.io/decktape/examples/inspirejs-sample-slideshow.pdf[inspirejs-sample-slideshow.pdf] (1.9MB)
 
 |https://shwr.me[Shower Presentation Engine]
 |Shower
