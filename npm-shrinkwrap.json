@@ -149,9 +149,9 @@
       }
     },
     "fonteditor-core": {
-      "version": "1.0.5",
-      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-1.0.5.tgz",
-      "integrity": "sha512-/WLXbTOJKFA12DWIOZcXDWY45MoQoyymPn/zIgqqLcaBhfzYTAg/e7m2svhEzgYUVa5MiRfqmsWSlrjiNBHezg==",
+      "version": "2.0.5",
+      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-2.0.5.tgz",
+      "integrity": "sha512-O5iyde9JfQiuqChxPk9SzYCYlDpq9Xq+OcdvGXA1iuadNSY+n3keBiLl3qdi5Km8xHN/O1JHbaifYfeLCKp3QA==",
       "requires": {
         "xmldom": "~0.1.19"
       }
