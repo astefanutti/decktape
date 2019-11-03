@@ -1,4 +1,4 @@
-FROM node:11-alpine as builder
+FROM node:12.13.0-alpine as builder
 
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
