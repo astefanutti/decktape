@@ -18,7 +18,7 @@ RUN npm install --build-from-source=hummus && \
     rm -rf node_modules/hummus/src && \
     rm -rf node_modules/hummus/build
 
-FROM alpine:3.9
+FROM alpine:3.10.3
 
 ENV TERM xterm-color
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
@@ -31,7 +31,8 @@ RUN apk update && apk upgrade && \
     echo @edge http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
     apk add --no-cache \
     ca-certificates \
-    chromium@edge \
+    libstdc++@edge \
+    chromium@edge=77.0.3865.120-r0 \
     font-noto-emoji@edge \
     freetype@edge \
     harfbuzz@edge \
