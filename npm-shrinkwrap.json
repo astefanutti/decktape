@@ -199,9 +199,9 @@
       }
     },
     "hummus": {
-      "version": "1.0.104",
-      "resolved": "https://registry.npmjs.org/hummus/-/hummus-1.0.104.tgz",
-      "integrity": "sha512-dOKbHZeH1egC6cLEggr/93eRE6OdXVfpjqDrhErMIFvIkEwhnihe/oSHVBJiVlabc5WoIexe7TkAL7jeFJP4fg==",
+      "version": "1.0.107",
+      "resolved": "https://registry.npmjs.org/hummus/-/hummus-1.0.107.tgz",
+      "integrity": "sha512-L6l5QooIDoad8564TerzEru/Y1pstLknrju1RPNulsiqLHLo2YKxs2MVpvAX1y9DdM0U542sw49tEHRMEIHP/w==",
       "requires": {
         "node-pre-gyp": "^0.10.0"
       },
