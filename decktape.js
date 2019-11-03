@@ -2,18 +2,17 @@
 
 'use strict';
 
-const BufferReader = require('./libs/buffer'),
-      chalk        = require('chalk'),
-      crypto       = require('crypto'),
-      Font         = require('fonteditor-core').Font,
-      fs           = require('fs'),
-      hummus       = require('hummus'),
-      os           = require('os'),
-      parser       = require('./libs/nomnom'),
-      path         = require('path'),
-      puppeteer    = require('puppeteer'),
-      URI          = require('urijs'),
-      util         = require('util');
+const chalk     = require('chalk'),
+      crypto    = require('crypto'),
+      Font      = require('fonteditor-core').Font,
+      fs        = require('fs'),
+      hummus    = require('hummus'),
+      os        = require('os'),
+      parser    = require('./libs/nomnom'),
+      path      = require('path'),
+      puppeteer = require('puppeteer'),
+      URI       = require('urijs'),
+      util      = require('util');
 
 const { delay, pause } = require('./libs/util');
 
@@ -349,7 +348,7 @@ async function exportSlide(plugin, page, printer, context) {
     pageRanges          : '1',
     displayHeaderFooter : false,
   });
-  printSlide(printer, new BufferReader(buffer), context);
+  printSlide(printer, new hummus.PDFRStreamForBuffer(buffer), context);
   context.exportedSlides++;
 
   if (options.screenshots) {
