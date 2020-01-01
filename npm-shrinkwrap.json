@@ -203,9 +203,9 @@
       }
     },
     "fonteditor-core": {
-      "version": "2.0.5",
-      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-2.0.5.tgz",
-      "integrity": "sha512-O5iyde9JfQiuqChxPk9SzYCYlDpq9Xq+OcdvGXA1iuadNSY+n3keBiLl3qdi5Km8xHN/O1JHbaifYfeLCKp3QA==",
+      "version": "2.0.7",
+      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-2.0.7.tgz",
+      "integrity": "sha512-Xni6mOAtkk77Wvuqbrz3r4oi7S+o/6eW/rsLNrsoNiSupmJHKR8vMhsfMqwC7WbBs9H9zpuisHSEvNtCJajjjw==",
       "requires": {
         "xmldom": "~0.1.19"
       }
@@ -715,9 +715,9 @@
       }
     },
     "xmldom": {
-      "version": "0.1.27",
-      "resolved": "https://registry.npmjs.org/xmldom/-/xmldom-0.1.27.tgz",
-      "integrity": "sha1-1QH5ezvbQDr4757MIFcxh6rawOk="
+      "version": "0.1.31",
+      "resolved": "https://registry.npmjs.org/xmldom/-/xmldom-0.1.31.tgz",
+      "integrity": "sha512-yS2uJflVQs6n+CyjHoaBmVSqIDevTAWrzMmjG1Gc7h1qQ7uVozNhEPJAwZXWyGQ/Gafo3fCwrcaokezLPupVyQ=="
     },
     "yallist": {
       "version": "3.1.1",

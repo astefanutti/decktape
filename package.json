@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "chalk": "^2.1.0",
-    "fonteditor-core": "^2.0.5",
+    "fonteditor-core": "2.0.7",
     "hummus": "1.0.108",
     "puppeteer": "1.19.0",
     "puppeteer-core": "1.19.0",
