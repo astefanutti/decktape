@@ -18,7 +18,7 @@ RUN npm install --build-from-source=hummus && \
     rm -rf node_modules/hummus/src && \
     rm -rf node_modules/hummus/build
 
-FROM alpine:3.10.3
+FROM alpine:3.11.2
 
 ENV TERM xterm-color
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
