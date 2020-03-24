@@ -42,18 +42,18 @@ endif::[]
 :uri-docker-ref: http://docs.docker.com/engine/reference
 
 :uri-bespokejs: http://markdalgleish.com/projects/bespoke.js
-:uri-csss: https://github.com/LeaVerou/inspire.js/tree/v1.0.0#csss
 :uri-deckjs: http://imakewebthings.com/deck.js
 :uri-dzslides: http://paulrouget.com/dzslides
-:uri-flowtimejs: http://flowtime-js.marcolago.com
-:uri-impressjs: http://impress.github.io/impress.js
+:uri-flowtimejs: https://marcolago.github.io/flowtime.js/
+:uri-impressjs: https://impress.js.org
+:uri-inspire: https://inspirejs.org
 :uri-nuedeck: https://github.com/twitwi/nuedeck
 :uri-pageres: https://github.com/sindresorhus/pageres
-:uri-remark: http://remarkjs.com
-:uri-revealjs: http://lab.hakim.se/reveal-js
+:uri-remark: https://remarkjs.com
+:uri-revealjs: https://revealjs.com
 :uri-rise: https://github.com/damianavila/RISE
-:uri-shower: http://shwr.me
-:uri-slidy: http://www.w3.org/Talks/Tools/Slidy/
+:uri-shower: https://shwr.me
+:uri-slidy: https://www.w3.org/Talks/Tools/Slidy/
 :uri-webslides: https://github.com/jlantunez/webslides
 
 image:{uri-badge-npm}[link="{uri-decktape-npm}"] image:{uri-badge-node}[]
@@ -65,11 +65,11 @@ DeckTape is built on top of {uri-puppeteer}[Puppeteer] which relies on Google Ch
 DeckTape currently supports the following presentation frameworks out of the box:
 
 {uri-bespokejs}[Bespoke.js]{bullet}
-{uri-csss}[CSSS]{bullet}
 {uri-deckjs}[deck.js]{bullet}
 {uri-dzslides}[DZSlides]{bullet}
 {uri-flowtimejs}[Flowtime.js]{bullet}
 {uri-impressjs}[impress.js]{bullet}
+{uri-inspire}[Inspire.js]{bullet}
 {uri-nuedeck}[NueDeck]{bullet}
 {uri-remark}[remark]{bullet}
 {uri-revealjs}[reveal.js]{bullet}
@@ -117,7 +117,7 @@ $ decktape -h
 Usage: decktape [options] [command] <url> <filename>
        decktape version
 
-command      one of: automatic, bespoke, csss, deck, dzslides, flowtime, generic, impress,
+command      one of: automatic, bespoke, deck, dzslides, flowtime, generic, impress, inspire,
              nuedeck, remark, reveal, shower, slidy, webslides
 url          URL of the slides deck
 filename     Filename of the output PDF file
@@ -202,7 +202,7 @@ The following slide deck examples have been exported using DeckTape:
 |===
 |HTML5 Presentation |Framework |Exported PDF
 
-|http://tdd.github.io/devoxx-es6-maintenant/[ES6+ maintenant !]
+|https://tdd.github.io/devoxx-es6-maintenant/[ES6+ maintenant !]
 |reveal.js
 |https://astefanutti.github.io/decktape/examples/devoxx-es6-maintenant.pdf[devoxx-es6-maintenant.pdf] (2.3MB)
 
@@ -210,7 +210,7 @@ The following slide deck examples have been exported using DeckTape:
 |reveal.js
 |https://astefanutti.github.io/decktape/examples/reveal-js-mathjax.pdf[reveal-js-mathjax.pdf] (0.3MB)
 
-|http://artificer.jboss.org/slides/general/opensource-getting-involved.html[Getting Involved in Open Source]
+|https://artificer.jboss.org/slides/general/opensource-getting-involved.html[Getting Involved in Open Source]
 |reveal.js
 |https://astefanutti.github.io/decktape/examples/opensource-getting-involved.pdf[opensource-getting-involved.pdf] (0.6MB)
 
@@ -222,23 +222,23 @@ The following slide deck examples have been exported using DeckTape:
 |deck.js
 |https://astefanutti.github.io/decktape/examples/deck-js-presentation.pdf[deck-js-presentation.pdf] (0.5MB)
 
-|http://remarkjs.com[The Official Remark Slideshow]
+|https://remarkjs.com[The Official Remark Slideshow]
 |remark
 |https://astefanutti.github.io/decktape/examples/remark-js-slideshow.pdf[remark-js-slideshow.pdf] (0.15MB)
 
-|http://joshbode.github.io/remark/ansi.html[Coloured Terminal Listings in Remark]
+|https://joshbode.github.io/remark/ansi.html[Coloured Terminal Listings in Remark]
 |remark
 |https://astefanutti.github.io/decktape/examples/remark-js-coloured-terminal.pdf[remark-js-coloured-terminal.pdf] (0.12MB)
 
-|http://www.w3.org/Talks/Tools/Slidy[HTML Slidy: Slide Shows in HTML and XHTML]
+|https://www.w3.org/Talks/Tools/Slidy[HTML Slidy: Slide Shows in HTML and XHTML]
 |Slidy
 |https://astefanutti.github.io/decktape/examples/html-slidy-presentation.pdf[html-slidy-presentation.pdf] (0.5MB)
 
-|http://leaverou.github.io/csss[CSSS: CSS-based SlideShow System]
-|CSSS
-|https://astefanutti.github.io/decktape/examples/csss-sample-slideshow.pdf[csss-sample-slideshow.pdf] (3MB)
+|https://inspirejs.org[Inspire.js: Lean, hackable, extensible slide deck framework]
+|Inspire.js
+|https://astefanutti.github.io/decktape/examples/inspirejs-sample-slideshow.pdf[inspirejs-sample-slideshow.pdf] (1.9MB)
 
-|http://shwr.me/?full[Shower Presentation Engine]
+|https://shwr.me[Shower Presentation Engine]
 |Shower
 |https://astefanutti.github.io/decktape/examples/shower-presentation-engine.pdf[shower-presentation-engine.pdf] (0.6MB)
 
@@ -246,7 +246,7 @@ The following slide deck examples have been exported using DeckTape:
 |Bespoke.js
 |https://astefanutti.github.io/decktape/examples/new-es5-overloards.pdf[new-es5-overloards.pdf] (0.2MB)
 
-|http://stack.formidable.com/spectacle[Spectacle: A ReactJS Presentation Library]
+|https://formidable.com/open-source/spectacle/[Spectacle: A ReactJS Presentation Library]
 |Spectacle
 |https://astefanutti.github.io/decktape/examples/spectacle-reactjs-presentation.pdf[spectacle-reactjs-presentation.pdf] (8.9MB)
 |===
@@ -317,12 +317,12 @@ Yes, you can use the `--chrome-arg` option, e.g.:
 ----
 $ decktape ... \
   --chrome-arg=--proxy-server="proxy:8080" \
-  --chrome-arg=--allow-file-access-from-files 
+  --chrome-arg=--allow-file-access-from-files
 ----
 +
 The list of Chromium flags can be found https://peter.sh/experiments/chromium-command-line-switches/[here].
 
-==== Errors
+==== Troubleshooting
 
 * *_No usable sandbox!_*
 +
@@ -332,11 +332,19 @@ Arch Linux, among other Linux distributions may have the user namespace in the k
 +
 Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem violates a CORS policy.
 As some Decktape plugins tweak the CSS rules for better PDF printing, you need to allow access to local files by setting the `--allow-file-access-from-files` flag option, e.g.:
-+ 
++
 [source,shell]
 ----
 $ decktape ... --chrome-arg=--allow-file-access-from-files
 ----
+
+* *_Layout inconsistencies_*
++
+Decktape relies on Pupeteer to convert each slide in PDF format. Slight layout inconsistencies can result as part of this transformation. One workaround is to set a specific slide size using the `-s` option. The value of `-s 1024x768` has generally worked well in such situations.
++
+* *_Reveal.js slide generation never finishes_*
++
+Decktape does not use the built-in PDF support of reveal.js, and instead captures each slide individually. Therefore you must not append `?print-pdf` or load the print stylesheets in any other way when using Decktape.
 
 == Plugin API
 

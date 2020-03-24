@@ -2,7 +2,7 @@
   "name": "decktape",
   "description": "High-quality PDF exporter for HTML presentation frameworks",
   "author": "Antonin Stefanutti",
-  "version": "2.9.3",
+  "version": "2.11.0",
   "homepage": "https://github.com/astefanutti/decktape",
   "license": "MIT",
   "main": "decktape.js",
@@ -20,13 +20,14 @@
     "url": "https://github.com/astefanutti/decktape/issues"
   },
   "dependencies": {
-    "chalk": "^2.4.2",
-    "fonteditor-core": "^1.0.5",
-    "hummus": "^1.0.105",
-    "puppeteer": "^1.20.0",
-    "urijs": "^1.19.1"
+    "chalk": "^2.1.0",
+    "fonteditor-core": "2.1.0",
+    "hummus": "1.0.108",
+    "puppeteer": "2.0.0",
+    "puppeteer-core": "2.0.0",
+    "urijs": "^1.18.12"
   },
   "engines": {
-    "node": ">=7.10.0"
+    "node": ">=8.0.0"
   }
 }

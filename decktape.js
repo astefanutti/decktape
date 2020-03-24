@@ -2,18 +2,17 @@
 
 'use strict';
 
-const BufferReader = require('./libs/buffer'),
-      chalk        = require('chalk'),
-      crypto       = require('crypto'),
-      Font         = require('fonteditor-core').Font,
-      fs           = require('fs'),
-      hummus       = require('hummus'),
-      os           = require('os'),
-      parser       = require('./libs/nomnom'),
-      path         = require('path'),
-      puppeteer    = require('puppeteer'),
-      URI          = require('urijs'),
-      util         = require('util');
+const chalk     = require('chalk'),
+      crypto    = require('crypto'),
+      Font      = require('fonteditor-core').Font,
+      fs        = require('fs'),
+      hummus    = require('hummus'),
+      os        = require('os'),
+      parser    = require('./libs/nomnom'),
+      path      = require('path'),
+      puppeteer = require('puppeteer'),
+      URI       = require('urijs'),
+      util      = require('util');
 
 const { delay, pause } = require('./libs/util');
 
@@ -196,7 +195,7 @@ process.on('unhandledRejection', error => {
     args           : options.chromeArgs,
   });
   const page = await browser.newPage();
-  await page.emulateMedia('screen');
+  await page.emulateMediaType('screen');
   const printer = hummus.createWriter(options.filename);
   const metadata = printer.getDocumentContext().getInfoDictionary();
   metadata.creator = 'Decktape';
@@ -349,7 +348,7 @@ async function exportSlide(plugin, page, printer, context) {
     pageRanges          : '1',
     displayHeaderFooter : false,
   });
-  printSlide(printer, new BufferReader(buffer), context);
+  printSlide(printer, new hummus.PDFRStreamForBuffer(buffer), context);
   context.exportedSlides++;
 
   if (options.screenshots) {
@@ -427,13 +426,12 @@ function printSlide(printer, buffer, context) {
           const f = context.pdfFonts[name].font;
           font.data.glyf.forEach((g, i) => {
             if (g.contours && g.contours.length > 0) {
-              if (!f.data.glyf[i].contours || f.data.glyf[i].contours.length === 0) {
-                f.data.glyf[i] = g;
+              if (!f.data.glyf[i] || !f.data.glyf[i].contours || f.data.glyf[i].contours.length === 0) {
+                mergeGlyph(f, i, g);
               }
             } else if (g.compound) {
-              if (typeof f.data.glyf[i].compound === 'undefined'
-                  && f.data.glyf[i].contours.length === 0) {
-                f.data.glyf[i] = g;
+              if (!f.data.glyf[i] || typeof f.data.glyf[i].compound === 'undefined') {
+                mergeGlyph(f, i, g);
               }
             }
           });
@@ -448,6 +446,17 @@ function printSlide(printer, buffer, context) {
           cpyCxt.replaceSourceObjects(replacement);
         }
       }
+    }
+  }
+
+  function mergeGlyph(font, index, glyf) {
+    if (font.data.glyf.length <= index) {
+      for (let i = font.data.glyf.length; i < index; i++) {
+        font.data.glyf.push({ contours: Array(0), advanceWidth: 0, leftSideBearing: 0 });
+      }
+      font.data.glyf.push(glyf);
+    } else {
+      font.data.glyf[index] = glyf;
     }
   }
 
