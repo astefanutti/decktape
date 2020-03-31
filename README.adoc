@@ -330,8 +330,8 @@ Arch Linux, among other Linux distributions may have the user namespace in the k
 
 * *_Failed to read the 'rules' property from 'CSSStyleSheet': Cannot access rules_*
 +
-Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem violates a CORS policy.
-As some Decktape plugins tweak the CSS rules for better PDF printing, you need to allow access to local files by setting the `--disable-web-security` flag option, e.g.:
+Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem or an external location violates CORS policies.
+As some Decktape plugins tweak the CSS rules for better PDF printing, you need to allow access to local files or external stylesheets by setting the `--disable-web-security` flag option, e.g.:
 +
 [source,shell]
 ----
