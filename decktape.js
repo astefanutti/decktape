@@ -6,13 +6,14 @@ const chalk     = require('chalk'),
       crypto    = require('crypto'),
       Font      = require('fonteditor-core').Font,
       fs        = require('fs'),
-      hummus    = require('hummus'),
       os        = require('os'),
       parser    = require('./libs/nomnom'),
       path      = require('path'),
       puppeteer = require('puppeteer'),
       URI       = require('urijs'),
       util      = require('util');
+
+const { PDFDocument, PDFName, ParseSpeeds, decodePDFRawStream } = require('pdf-lib');
 
 const { delay, pause } = require('./libs/util');
 
@@ -162,10 +163,12 @@ specified <url> and uses it to export and write the PDF into the specified <file
 );
 Object.entries(plugins).forEach(([id, plugin]) => {
   const command = parser.command(id);
-  if (typeof plugin.options === 'object')
+  if (typeof plugin.options === 'object') {
     command.options(plugin.options);
-  if (typeof plugin.help === 'string')
+  }
+  if (typeof plugin.help === 'string') {
     command.help(plugin.help);
+  }
 });
 // TODO: should be deactivated as well when it does not execute in a TTY context
 if (os.name === 'windows') parser.nocolors();
@@ -196,9 +199,8 @@ process.on('unhandledRejection', error => {
   });
   const page = await browser.newPage();
   await page.emulateMediaType('screen');
-  const printer = hummus.createWriter(options.filename);
-  const metadata = printer.getDocumentContext().getInfoDictionary();
-  metadata.creator = 'Decktape';
+  const pdf = await PDFDocument.create();
+  pdf.setCreator('Decktape');
 
   page
     .on('console', async msg => {
@@ -227,9 +229,9 @@ process.on('unhandledRejection', error => {
     .then(_ => createPlugin(page))
     .then(plugin => configurePlugin(plugin)
       .then(_ => configurePage(plugin, page))
-      .then(_ => exportSlides(plugin, page, printer))
-      .then(context => {
-        printer.end();
+      .then(_ => exportSlides(plugin, page, pdf))
+      .then(async context => {
+        fs.writeFileSync(options.filename, await pdf.save({ addDefaultPage: false }));
         console.log(chalk`{green \nPrinted {bold ${context.exportedSlides}} slides}`);
         browser.close();
         process.exit();
@@ -245,8 +247,9 @@ process.on('unhandledRejection', error => {
 function loadAvailablePlugins(pluginsPath) {
   return fs.readdirSync(pluginsPath).reduce((plugins, pluginPath) => {
     const [, plugin] = pluginPath.match(/^(.*)\.js$/);
-    if (plugin && fs.statSync(path.join(pluginsPath, pluginPath)).isFile())
+    if (plugin && fs.statSync(path.join(pluginsPath, pluginPath)).isFile()) {
       plugins[plugin] = require('./plugins/' + plugin);
+    }
     return plugins;
   }, {});
 }
@@ -279,19 +282,18 @@ async function createActivePlugin(page) {
 
 async function configurePage(plugin, page) {
   if (!options.size) {
-    options.size = typeof plugin.size === 'function'
-      ? await plugin.size()
-      : { width: 1280, height: 720 };
+    options.size = typeof plugin.size === 'function' ? await plugin.size() : { width: 1280, height: 720 };
   }
   await page.setViewport(options.size);
 }
 
 async function configurePlugin(plugin) {
-  if (typeof plugin.configure === 'function')
+  if (typeof plugin.configure === 'function') {
     await plugin.configure();
+  }
 }
 
-async function exportSlides(plugin, page, printer) {
+async function exportSlides(plugin, page, pdf) {
   const context = {
     progressBarOverflow : 0,
     currentSlide        : 1,
@@ -308,7 +310,7 @@ async function exportSlides(plugin, page, printer) {
     process.stdout.write('\r' + await progressBar(plugin, context, { skip: true }));
   } else {
     await pause(options.pause);
-    await exportSlide(plugin, page, printer, context);
+    await exportSlide(plugin, page, pdf, context);
   }
   const maxSlide = options.slides ? Math.max(...Object.keys(options.slides)) : Infinity;
   let hasNext = await hasNextSlide(plugin, context);
@@ -318,27 +320,18 @@ async function exportSlides(plugin, page, printer) {
     if (options.slides && !options.slides[context.currentSlide]) {
       process.stdout.write('\r' + await progressBar(plugin, context, { skip: true }));
     } else {
-      await exportSlide(plugin, page, printer, context);
+      await exportSlide(plugin, page, pdf, context);
     }
     hasNext = await hasNextSlide(plugin, context);
   }
   // Flush consolidated fonts
-  Object.entries(context.pdfFonts).forEach(([name, { id, font }]) => {
-    const objCxt = printer.getObjectsContext();
-    objCxt.startNewIndirectObject(id);
-    const dictionary = objCxt.startDictionary();
-    const stream = objCxt.startPDFStream(dictionary);
-    // work-around error on missing table
-    font.data['OS/2'] = {};
-    stream.getWriteStream().write([...font.write({ type: 'ttf', hinting: true })]);
-    objCxt.endPDFStream(stream);
-    // objCxt.endDictionary(dictionary);
-    objCxt.endIndirectObject();
+  Object.values(context.pdfFonts).forEach(({ ref, font }) => {
+    pdf.context.assign(ref, pdf.context.flateStream(font.write({ type: 'ttf', hinting: true })));
   });
   return context;
 }
 
-async function exportSlide(plugin, page, printer, context) {
+async function exportSlide(plugin, page, pdf, context) {
   process.stdout.write('\r' + await progressBar(plugin, context));
 
   const buffer = await page.pdf({
@@ -348,7 +341,7 @@ async function exportSlide(plugin, page, printer, context) {
     pageRanges          : '1',
     displayHeaderFooter : false,
   });
-  printSlide(printer, new hummus.PDFRStreamForBuffer(buffer), context);
+  printSlide(pdf, await PDFDocument.load(buffer, { parseSpeed: ParseSpeeds.Fastest }), context);
   context.exportedSlides++;
 
   if (options.screenshots) {
@@ -358,10 +351,10 @@ async function exportSlide(plugin, page, printer, context) {
       // e.g. for impress.js (may be needed to be configurable)
       await pause(1000);
       await page.screenshot({
-        path           : path.join(options.screenshotDirectory, options.filename.replace('.pdf',
-                         `_${context.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`)),
-        fullPage       : false,
-        omitBackground : true,
+        path: path.join(options.screenshotDirectory, options.filename
+          .replace('.pdf', `_${context.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`)),
+        fullPage: false,
+        omitBackground: true,
       });
       await page.setViewport(options.size);
       await pause(1000);
@@ -369,61 +362,60 @@ async function exportSlide(plugin, page, printer, context) {
   }
 }
 
-// https://github.com/galkahana/HummusJS/wiki/Embedding-pdf#low-levels
-function printSlide(printer, buffer, context) {
-  const objCxt = printer.getObjectsContext();
-  const cpyCxt = printer.createPDFCopyingContext(buffer);
-  const cpyCxtParser = cpyCxt.getSourceDocumentParser();
-  const pageDictionary = cpyCxtParser.parsePageDictionary(0).toJSObject();
-  const xObjects = {};
+async function printSlide(pdf, slide, context) {
+  const [page] = await pdf.copyPages(slide, [0]);
+  pdf.addPage(page);
+  parseResources(page.node);
 
-  // Consolidate duplicate images
-  function parseXObject(xObject) {
-    const objectId = xObject.getObjectID();
-    const pdfStreamInput = cpyCxtParser.parseNewObject(objectId);
-    const xObjectDictionary = pdfStreamInput.getDictionary().toJSObject();
-    if (xObjectDictionary.Subtype.value === 'Image') {
-      // Create a hash of the compressed stream instead of using
-      // startReadingFromStream(pdfStreamInput) to skip uneeded decoding
-      const stream = cpyCxtParser.getParserStream();
-      stream.setPosition(pdfStreamInput.getStreamContentStart());
-      const digest = crypto.createHash('SHA1')
-        .update(Buffer.from(stream.read(pdfStreamInput.getDictionary().toJSObject().Length.value)))
-        .digest('hex');
-      if (!context.pdfXObjects[digest]) {
-        xObjects[digest] = objectId;
-      } else {
-        const replacement = {};
-        replacement[objectId] = context.pdfXObjects[digest];
-        cpyCxt.replaceSourceObjects(replacement);
-      }
-    } else {
-      parseResources(xObjectDictionary);
+  function parseResources(dictionary) {
+    const resources = dictionary.get(PDFName.of('Resources'));
+    if (resources.has(PDFName.XObject)) {
+      const xObject = resources.get(PDFName.XObject);
+      xObject.entries().forEach(entry => parseXObject(entry, xObject));
+    }
+    if (resources.has(PDFName.Font)) {
+      resources.get(PDFName.Font).entries().forEach(parseFont);
     }
   }
 
-  // Consolidate duplicate fonts
-  function parseFont(fontObject) {
-    const pdfStreamInput = cpyCxtParser.parseNewObject(fontObject.getObjectID());
-    const fontDictionary = pdfStreamInput.toJSObject();
+  function parseXObject([name, entry], xObject) {
+    const object = page.node.context.lookup(entry);
+    const subtype = object.dict.get(PDFName.of('Subtype'));
+    if (subtype === PDFName.of('Image')) {
+      const digest = crypto.createHash('SHA1').update(object.contents).digest('hex');
+      if (!context.pdfXObjects[digest]) {
+        context.pdfXObjects[digest] = entry;
+      } else {
+        xObject.set(name, context.pdfXObjects[digest]);
+        pdf.context.delete(entry);
+      }
+    } else {
+      parseResources(object.dict);
+    }
+  };
+
+  function parseFont([_, entry]) {
+    const object = page.node.context.lookup(entry);
+    const subtype = object.get(PDFName.of('Subtype'));
     // See "Introduction to Font Data Structures" from PDF specification
-    if (fontDictionary.Subtype.value === 'Type0') {
+    if (subtype === PDFName.of('Type0')) {
       // TODO: properly support composite fonts with multiple descendants
-      const descendant = cpyCxtParser
-        .parseNewObject(fontDictionary.DescendantFonts.toJSArray()[0].getObjectID())
-        .toJSObject();
-      if (descendant.Subtype.value == 'CIDFontType2') {
-        const descriptor = cpyCxtParser
-          .parseNewObject(descendant.FontDescriptor.getObjectID())
-          .toJSObject();
-        const id = descriptor.FontFile2.getObjectID();
-        const buffer = readStream(cpyCxtParser.parseNewObject(id));
-        const font = Font.create(buffer, { type: 'ttf', hinting: true });
+      const descendant = page.node.context.lookup(object.get(PDFName.of('DescendantFonts')).get(0));
+      if (descendant.get(PDFName.of('Subtype')) === PDFName.of('CIDFontType2')) {
+        const descriptor = page.node.context.lookup(descendant.get(PDFName.of('FontDescriptor')));
+        const ref = descriptor.get(PDFName.of('FontFile2'));
+        const file = page.node.context.lookup(ref);
+        if (!file) {
+          // The font has already been processed and removed
+          return;
+        }
+        const bytes = decodePDFRawStream(file).decode();
+        const font = Font.create(Buffer.from(bytes), { type: 'ttf', hinting: true });
         // PDF font name does not contain sub family on Windows 10 so a more robust key
         // is computed from the font metadata
-        const name = descriptor.FontName.value + ' - ' + fontMetadataKey(font.data.name);
-        if (context.pdfFonts[name]) {
-          const f = context.pdfFonts[name].font;
+        const id = descriptor.get(PDFName.of('FontName')).value() + ' - ' + fontMetadataKey(font.data.name);
+        if (context.pdfFonts[id]) {
+          const f = context.pdfFonts[id].font;
           font.data.glyf.forEach((g, i) => {
             if (g.contours && g.contours.length > 0) {
               if (!f.data.glyf[i] || !f.data.glyf[i].contours || f.data.glyf[i].contours.length === 0) {
@@ -435,19 +427,14 @@ function printSlide(printer, buffer, context) {
               }
             }
           });
-          const replacement = {};
-          replacement[id] = context.pdfFonts[name].id;
-          cpyCxt.replaceSourceObjects(replacement);
+          descriptor.set(PDFName.of('FontFile2'), context.pdfFonts[id].ref);
+          pdf.context.delete(ref);
         } else {
-          const xObjectId = printer.getObjectsContext().allocateNewObjectID();
-          context.pdfFonts[name] = { id: xObjectId, font: font };
-          const replacement = {};
-          replacement[id] = xObjectId;
-          cpyCxt.replaceSourceObjects(replacement);
+          context.pdfFonts[id] = { ref: ref, font: font };
         }
       }
     }
-  }
+  };
 
   function mergeGlyph(font, index, glyf) {
     if (font.data.glyf.length <= index) {
@@ -466,56 +453,14 @@ function printSlide(printer, buffer, context) {
       .filter(([key, _]) => keys.includes(key))
       .reduce((r, [k, v], i) => r + (i > 0 ? ',' : '') + k + '=' + v, '');
   }
-
-  function readStream(pdfStreamInput) {
-    const stream = cpyCxtParser.startReadingFromStream(pdfStreamInput);
-    const length = parseInt(pdfStreamInput.getDictionary().queryObject('Length1'));
-    return Buffer.from(stream.read(length));
-  }
-
-  function parseResources(dictionary) {
-    const resources = dictionary.Resources.toJSObject();
-    if (resources.XObject) {
-      Object.values(resources.XObject.toJSObject()).forEach(parseXObject);
-    }
-    if (resources.Font) {
-      Object.values(resources.Font.toJSObject()).forEach(parseFont);
-    }
-  }
-
-  // Collect xObjects and fonts to eventually replace with consolidated references
-  parseResources(pageDictionary);
-
-  // Copy the links on page write
-  if (pageDictionary.Annots) {
-    const annotations = pageDictionary.Annots.toJSArray()
-      // Since Puppeteer 1.6, annotations are references
-      .map(annotation => annotation.getType() === hummus.ePDFObjectIndirectObjectReference
-        ? cpyCxtParser.parseNewObject(annotation.getObjectID())
-        : annotation)
-      .filter(annotation => annotation.toJSObject().Subtype.value === 'Link');
-    printer.getEvents().once('OnPageWrite', event => {
-      event.pageDictionaryContext.writeKey('Annots');
-      objCxt.startArray();
-      annotations.forEach(annotation => cpyCxt.copyDirectObjectAsIs(annotation));
-      objCxt.endArray(hummus.eTokenSeparatorEndLine);
-    });
-  }
-
-  // Copy the page
-  cpyCxt.appendPDFPageFromPDF(0);
-
-  // And finally update the context XObject ids mapping with the copy ids
-  const copiedObjects = cpyCxt.getCopiedObjects();
-  Object.entries(xObjects)
-    .forEach(([digest, id]) => context.pdfXObjects[digest] = copiedObjects[id]);
 }
 
 async function hasNextSlide(plugin, context) {
-  if (typeof plugin.hasNextSlide === 'function')
+  if (typeof plugin.hasNextSlide === 'function') {
     return await plugin.hasNextSlide();
-  else
+  } else {
     return context.currentSlide < context.totalSlides;
+  }
 }
 
 async function nextSlide(plugin, context) {

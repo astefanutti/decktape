@@ -3,8 +3,6 @@ FROM node:12.13.0-alpine as builder
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
-RUN apk add --no-cache python make g++
-
 WORKDIR /decktape
 
 COPY package.json npm-shrinkwrap.json ./
@@ -12,16 +10,11 @@ COPY libs libs/
 COPY plugins plugins/
 COPY decktape.js ./
 
-# Force HummusJS build from source
-# See https://github.com/galkahana/HummusJS/issues/230
-RUN npm install --build-from-source=hummus && \
-    rm -rf node_modules/hummus/src && \
-    rm -rf node_modules/hummus/build
+RUN npm install
 
 FROM alpine:3.11.2
 
 ENV TERM xterm-color
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 # Chromium, CA certificates, fonts
 # https://git.alpinelinux.org/cgit/aports/log/community/chromium

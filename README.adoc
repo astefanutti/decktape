@@ -3,7 +3,6 @@ Antonin Stefanutti <https://github.com/astefanutti[@astefanutti]>
 // Meta
 :description: DeckTape is a high-quality PDF exporter for HTML presentation frameworks.
 :decktape-version: 2.0.0
-:decktape-tag: v{decktape-version}
 // Settings
 :idprefix:
 :idseparator: -
@@ -293,15 +292,6 @@ $ docker rm `docker ps -lq`
 == FAQ
 
 ==== Install
-
-* *_How to install prerequisites on Windows?_*
-+
-Open a Powershell prompt in _Run as administrator_ to install Visual Studio Build Tools and Python 2.7:
-+
-[source,console]
-----
-$ npm i -g --production windows-build-tools
-----
 
 * *_I'm using Arch Linux, is there an AUR package?_*
 +
