@@ -289,6 +289,12 @@ $ docker cp `docker ps -lq`:slides/slides.pdf .
 $ docker rm `docker ps -lq`
 ----
 
+If your presentation relies on fonts installed on the host system and not available in the base Docker container, mount your fonts
+directory as a volume by adding something like this example for macOS to your `docker` invocation:
+
+[source]
+-v "${HOME}/Library/Fonts:/home/node/.local/share/fonts"
+
 == FAQ
 
 ==== Install
