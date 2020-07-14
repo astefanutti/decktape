@@ -289,21 +289,21 @@ $ docker cp `docker ps -lq`:slides/slides.pdf .
 $ docker rm `docker ps -lq`
 ----
 
-If your presentation relies on fonts installed on the host system and not available in the base Docker container, mount your fonts
-directory as a volume by adding something like this example for macOS to your `docker` invocation:
+If your presentation relies on fonts installed on the host system, but not in the base Docker container, you can mount your fonts
+directory as a volume, e.g. for macOS:
 
 [source]
--v "${HOME}/Library/Fonts:/home/node/.local/share/fonts"
+$ docker run -v "${HOME}/Library/Fonts:/home/node/.local/share/fonts" ...
 
 == FAQ
 
-==== Install
+=== Install
 
 * *_I'm using Arch Linux, is there an AUR package?_*
 +
 Yes, it is available at https://aur.archlinux.org/packages/nodejs-decktape/.
 
-==== Usage
+=== Usage
 
 * *_Is it possible to pass arguments to Chrome?_*
 +
@@ -318,7 +318,7 @@ $ decktape ... \
 +
 The list of Chromium flags can be found https://peter.sh/experiments/chromium-command-line-switches/[here].
 
-==== Troubleshooting
+=== Troubleshooting
 
 * *_No usable sandbox!_*
 +
