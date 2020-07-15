@@ -270,6 +270,8 @@ $ docker run --rm -t -v `pwd`:/slides -v ~:/home/user astefanutti/decktape /home
 [source,shell]
 $ docker run --rm -t --net=host -v `pwd`:/slides astefanutti/decktape http://localhost:8000 slides.pdf
 
+Use `host.docker.internal` instead of `localhost` on macOS and Windows.
+
 You may want to specify a tag corresponding to a released version of DeckTape for the Docker image, e.g. `astefanutti/decktape:{decktape-version}`.
 
 Besides, it is recommended to use the following options from the {uri-docker-ref}/run[`docker run`] command:
