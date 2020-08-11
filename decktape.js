@@ -231,7 +231,7 @@ process.on('unhandledRejection', error => {
       .then(_ => configurePage(plugin, page))
       .then(_ => exportSlides(plugin, page, pdf))
       .then(async context => {
-        fs.writeFileSync(options.filename, await pdf.save({ addDefaultPage: false }));
+        await writePdf(options.filename, pdf);
         console.log(chalk`{green \nPrinted {bold ${context.exportedSlides}} slides}`);
         browser.close();
         process.exit();
@@ -243,6 +243,16 @@ process.on('unhandledRejection', error => {
     });
 
 })();
+
+async function writePdf(filename, pdf) {
+  const pdfDir = path.dirname(filename);
+  try {
+    fs.accessSync(pdfDir, fs.constants.F_OK);
+  } catch {
+    fs.mkdirSync(pdfDir);
+  }
+  fs.writeFileSync(filename, await pdf.save({ addDefaultPage: false }));
+}
 
 function loadAvailablePlugins(pluginsPath) {
   return fs.readdirSync(pluginsPath).reduce((plugins, pluginPath) => {
