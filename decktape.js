@@ -249,7 +249,7 @@ async function writePdf(filename, pdf) {
   try {
     fs.accessSync(pdfDir, fs.constants.F_OK);
   } catch {
-    fs.mkdirSync(pdfDir);
+    fs.mkdirSync(pdfDir, { recursive: true });
   }
   fs.writeFileSync(filename, await pdf.save({ addDefaultPage: false }));
 }
