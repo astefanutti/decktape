@@ -52,7 +52,7 @@ class Generic {
   }
 
   async configure() {
-    await this.page.emulateMedia(this.media);
+    await this.page.emulateMediaType(this.media);
     await this.page.exposeFunction('onMutation', _ => (this.isNextSlideDetected = true));
     await this.page.evaluate(_ =>
       new MutationObserver(_ => window.onMutation()).observe(document, {
@@ -71,8 +71,9 @@ class Generic {
   // actually emulate end-user interaction by pressing the configured key and check whether
   // the DOM has changed a posteriori.
   async hasNextSlide() {
-    if (this.options.maxSlides && this.currentSlide >= this.options.maxSlides)
+    if (this.options.maxSlides && this.currentSlide >= this.options.maxSlides) {
       return false;
+    }
     await this.page.keyboard.press(this.key);
     // TODO: use mutation event directly instead of relying on a timeout
     // TODO: detect cycle to avoid infinite navigation for frameworks
