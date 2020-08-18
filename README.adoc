@@ -260,7 +260,7 @@ For example:
 
 * To convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
 [source,shell,subs=attributes+]
-$ docker run --rm -t -v `pwd`:/slides astefanutti/decktape {uri-revealjs} slides.pdf
+$ docker run --rm -t -v `pwd`:/slides astefanutti/decktape https://revealjs.com/demos/3.9.2 slides.pdf
 
 * Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
 [source,shell]
