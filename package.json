@@ -23,11 +23,11 @@
     "chalk": "^2.1.0",
     "fonteditor-core": "2.1.0",
     "pdf-lib": "1.9.0",
-    "puppeteer": "5.1.0",
-    "puppeteer-core": "5.1.0",
+    "puppeteer": "5.2.1",
+    "puppeteer-core": "5.2.1",
     "urijs": "^1.18.12"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=10.18.1"
   }
 }
