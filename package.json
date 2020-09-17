@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "chalk": "^2.1.0",
-    "fonteditor-core": "2.1.0",
+    "fonteditor-core": "2.1.2",
     "pdf-lib": "1.9.0",
     "puppeteer": "5.2.1",
     "puppeteer-core": "5.2.1",
