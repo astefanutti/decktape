@@ -1,6 +1,6 @@
-#!/usr/bin/env node
-
 'use strict';
+
+module.exports = decktape;
 
 const chalk     = require('chalk'),
       crypto    = require('crypto'),
@@ -17,7 +17,7 @@ const { PDFDocument, PDFName, ParseSpeeds, decodePDFRawStream } = require('pdf-l
 
 const { delay, pause } = require('./libs/util');
 
-const plugins = loadAvailablePlugins(path.join(path.dirname(__filename), 'plugins'));
+const plugins = loadAvailablePlugins(path.join(__dirname, 'plugins'));
 
 parser.script('decktape').options({
   url : {
@@ -188,13 +188,12 @@ process.on('unhandledRejection', error => {
   process.exit(1);
 });
 
-(async () => {
-
+async function decktape(executablePath) {
   const browser = await puppeteer.launch({
     headless       : true,
     // TODO: add a verbose option
     // dumpio      : true,
-    executablePath : options.chromePath,
+    executablePath : options.chromePath || executablePath,
     args           : options.chromeArgs,
   });
   const page = await browser.newPage();
@@ -241,8 +240,7 @@ process.on('unhandledRejection', error => {
       browser.close();
       process.exit(1);
     });
-
-})();
+}
 
 async function writePdf(filename, pdf) {
   const pdfDir = path.dirname(filename);

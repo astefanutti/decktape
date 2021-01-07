@@ -11,3 +11,5 @@
 !package.json
 !npm-shrinkwrap.json
 !README.adoc
+!standalone.js
+!webpack.config.js
