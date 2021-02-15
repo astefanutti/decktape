@@ -2,8 +2,7 @@
 Antonin Stefanutti <https://github.com/astefanutti[@astefanutti]>
 // Meta
 :description: DeckTape is a high-quality PDF exporter for HTML presentation frameworks.
-:decktape-version: 2.0.0
-:decktape-tag: v{decktape-version}
+:decktape-version: 3.0.0
 // Settings
 :idprefix:
 :idseparator: -
@@ -261,7 +260,7 @@ For example:
 
 * To convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
 [source,shell,subs=attributes+]
-$ docker run --rm -t -v `pwd`:/slides astefanutti/decktape {uri-revealjs} slides.pdf
+$ docker run --rm -t -v `pwd`:/slides astefanutti/decktape https://revealjs.com/demos/3.9.2 slides.pdf
 
 * Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
 [source,shell]
@@ -270,6 +269,8 @@ $ docker run --rm -t -v `pwd`:/slides -v ~:/home/user astefanutti/decktape /home
 * Or, to convert an HTML presentation that's deployed on the local host:
 [source,shell]
 $ docker run --rm -t --net=host -v `pwd`:/slides astefanutti/decktape http://localhost:8000 slides.pdf
++
+You may have to use `host.docker.internal` instead of `localhost` on macOS and Windows.
 
 You may want to specify a tag corresponding to a released version of DeckTape for the Docker image, e.g. `astefanutti/decktape:{decktape-version}`.
 
@@ -290,24 +291,21 @@ $ docker cp `docker ps -lq`:slides/slides.pdf .
 $ docker rm `docker ps -lq`
 ----
 
+If your presentation relies on fonts installed on the host system, but not in the base Docker container, you can mount your fonts
+directory as a volume, e.g. for macOS:
+
+[source]
+$ docker run -v "${HOME}/Library/Fonts:/home/node/.local/share/fonts" ...
+
 == FAQ
 
-==== Install
-
-* *_How to install prerequisites on Windows?_*
-+
-Open a Powershell prompt in _Run as administrator_ to install Visual Studio Build Tools and Python 2.7:
-+
-[source,console]
-----
-$ npm i -g --production windows-build-tools
-----
+=== Install
 
 * *_I'm using Arch Linux, is there an AUR package?_*
 +
 Yes, it is available at https://aur.archlinux.org/packages/nodejs-decktape/.
 
-==== Usage
+=== Usage
 
 * *_Is it possible to pass arguments to Chrome?_*
 +
@@ -322,7 +320,7 @@ $ decktape ... \
 +
 The list of Chromium flags can be found https://peter.sh/experiments/chromium-command-line-switches/[here].
 
-==== Troubleshooting
+=== Troubleshooting
 
 * *_No usable sandbox!_*
 +
@@ -330,12 +328,12 @@ Arch Linux, among other Linux distributions may have the user namespace in the k
 
 * *_Failed to read the 'rules' property from 'CSSStyleSheet': Cannot access rules_*
 +
-Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem violates a CORS policy.
-As some Decktape plugins tweak the CSS rules for better PDF printing, you need to allow access to local files by setting the `--allow-file-access-from-files` flag option, e.g.:
+Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem or an external location violates CORS policies.
+As some Decktape plugins tweak the CSS rules for better PDF printing, you need to allow access to local files or external stylesheets by setting the `--disable-web-security` flag option, e.g.:
 +
 [source,shell]
 ----
-$ decktape ... --chrome-arg=--allow-file-access-from-files
+$ decktape ... --chrome-arg=--disable-web-security
 ----
 
 * *_Layout inconsistencies_*

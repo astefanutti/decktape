@@ -52,7 +52,7 @@ class Generic {
   }
 
   async configure() {
-    await this.page.emulateMedia(this.media);
+    await this.page.emulateMediaType(this.media);
     await this.page.exposeFunction('onMutation', _ => (this.isNextSlideDetected = true));
     await this.page.evaluate(_ =>
       new MutationObserver(_ => window.onMutation()).observe(document, {
@@ -73,10 +73,12 @@ class Generic {
   async hasNextSlide() {
     if (this.options.maxSlides && this.currentSlide >= this.options.maxSlides)
       return false;
+    }
     await this.page.keyboard.press(this.key);
     // TODO: use mutation event directly instead of relying on a timeout
     // TODO: detect cycle to avoid infinite navigation for frameworks
     // that support loopable presentations like impress.js and flowtime.js
+    await pause(1000);
     return this.isNextSlideDetected;
   }
 
