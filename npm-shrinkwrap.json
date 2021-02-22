@@ -5,11 +5,10 @@
   "requires": true,
   "dependencies": {
     "@pdf-lib/standard-fonts": {
-      "version": "0.0.4",
-      "resolved": "https://registry.npmjs.org/@pdf-lib/standard-fonts/-/standard-fonts-0.0.4.tgz",
-      "integrity": "sha512-2pg8hXnChVAF6aSFraXtwB0cx/AgE15FvuLJbdPJSq9LYp1xMp0lapH4+t1HsdD9cA05rnWYLqlEBwS4YK1jLg==",
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/@pdf-lib/standard-fonts/-/standard-fonts-1.0.0.tgz",
+      "integrity": "sha512-hU30BK9IUN/su0Mn9VdlVKsWBS6GyhVfqjwl1FjZN4TxP6cCw0jP2w7V3Hf5uX7M0AZJ16vey9yE0ny7Sa59ZA==",
       "requires": {
-        "base64-arraybuffer": "^0.1.5",
         "pako": "^1.0.6"
       }
     },
@@ -53,11 +52,6 @@
       "version": "1.0.0",
       "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.0.tgz",
       "integrity": "sha1-ibTRmasr7kneFk6gK4nORi1xt2c="
-    },
-    "base64-arraybuffer": {
-      "version": "0.1.5",
-      "resolved": "https://registry.npmjs.org/base64-arraybuffer/-/base64-arraybuffer-0.1.5.tgz",
-      "integrity": "sha1-c5JncZI7Whl0etZmqlzUv5xunOg="
     },
     "base64-js": {
       "version": "1.5.1",
@@ -332,11 +326,11 @@
       "integrity": "sha1-F0uSaHNVNP+8es5r9TpanhtcX18="
     },
     "pdf-lib": {
-      "version": "1.9.0",
-      "resolved": "https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.9.0.tgz",
-      "integrity": "sha512-CO0vkvnkqLGY9vC4cosHcoOR7PMsFC4Dkf29sQm5J894sphy9ZxO/vbccZfQcBqTROAp+aY7TD9bh1T1EY/52Q==",
+      "version": "1.16.0",
+      "resolved": "https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.16.0.tgz",
+      "integrity": "sha512-P/1SSmElOBKrPlbc+Sn7UxikRQbzVA64+4Dh6/uczPscvq/NatP9eryoOguyBTpTnzICNiG8EnMH4Ziqp2TnFA==",
       "requires": {
-        "@pdf-lib/standard-fonts": "^0.0.4",
+        "@pdf-lib/standard-fonts": "^1.0.0",
         "@pdf-lib/upng": "^1.0.1",
         "pako": "^1.0.11",
         "tslib": "^1.11.1"
@@ -480,9 +474,9 @@
       "integrity": "sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU="
     },
     "tslib": {
-      "version": "1.13.0",
-      "resolved": "https://registry.npmjs.org/tslib/-/tslib-1.13.0.tgz",
-      "integrity": "sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q=="
+      "version": "1.14.1",
+      "resolved": "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz",
+      "integrity": "sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg=="
     },
     "unbzip2-stream": {
       "version": "1.4.3",
