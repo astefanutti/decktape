@@ -21,9 +21,9 @@
       }
     },
     "@types/node": {
-      "version": "14.14.31",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-14.14.31.tgz",
-      "integrity": "sha512-vFHy/ezP5qI0rFgJ7aQnjDXwAMrG0KqqIH7tQG5PPv3BWBayOPIQNBjVc/P6hhdZfMx51REc6tfDNXHUio893g==",
+      "version": "14.14.34",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-14.14.34.tgz",
+      "integrity": "sha512-dBPaxocOK6UVyvhbnpFIj2W+S+1cBTkHQbFQfeeJhoKFbzYcVUGHvddeWPSucKATb3F0+pgDq0i6ghEaZjsugA==",
       "optional": true
     },
     "@types/yauzl": {
@@ -36,9 +36,12 @@
       }
     },
     "agent-base": {
-      "version": "5.1.1",
-      "resolved": "https://registry.npmjs.org/agent-base/-/agent-base-5.1.1.tgz",
-      "integrity": "sha512-TMeqbNl2fMW0nMjTEPOwe3J/PRFP4vqeoNuQMG0HlMrtm5QxKqdvAkZ1pRBQ/ulIyDD5Yq0nJ7YbdD8ey0TO3g=="
+      "version": "6.0.2",
+      "resolved": "https://registry.npmjs.org/agent-base/-/agent-base-6.0.2.tgz",
+      "integrity": "sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==",
+      "requires": {
+        "debug": "4"
+      }
     },
     "ansi-styles": {
       "version": "3.2.0",
@@ -133,9 +136,9 @@
       }
     },
     "devtools-protocol": {
-      "version": "0.0.818844",
-      "resolved": "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.818844.tgz",
-      "integrity": "sha512-AD1hi7iVJ8OD0aMLQU5VK0XH9LDlA1+BcPIgrAxPfaibx2DbWucuyOhc4oyQCbnvDDO68nN6/LcKfqTP343Jjg=="
+      "version": "0.0.842839",
+      "resolved": "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.842839.tgz",
+      "integrity": "sha512-iI3v9uuGUW02vPUXTvxl4ijnCPL/RGRVR9I+U8s7+9OG9An/bvExjQ0KrXE9V0QBLra7wANhZctB00FKBSn1gw=="
     },
     "end-of-stream": {
       "version": "1.4.4",
@@ -223,11 +226,11 @@
       "integrity": "sha1-6CB68cx7MNRGzHC3NLXovhj4jVE="
     },
     "https-proxy-agent": {
-      "version": "4.0.0",
-      "resolved": "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-4.0.0.tgz",
-      "integrity": "sha512-zoDhWrkR3of1l9QAL8/scJZyLu8j/gBkcwcaQOZh7Gyh/+uJQzGVETdgT30akuwkpL8HTRfssqI3BZuV18teDg==",
+      "version": "5.0.0",
+      "resolved": "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-5.0.0.tgz",
+      "integrity": "sha512-EkYm5BcKUGiduxzSt3Eppko+PiNWNEpa4ySk9vTC6wDsQJW9rHSa+UhGNJoRYp7bz6Ht1eaRIa6QaJqO5rCFbA==",
       "requires": {
-        "agent-base": "5",
+        "agent-base": "6",
         "debug": "4"
       }
     },
@@ -369,14 +372,14 @@
       }
     },
     "puppeteer": {
-      "version": "5.5.0",
-      "resolved": "https://registry.npmjs.org/puppeteer/-/puppeteer-5.5.0.tgz",
-      "integrity": "sha512-OM8ZvTXAhfgFA7wBIIGlPQzvyEETzDjeRa4mZRCRHxYL+GNH5WAuYUQdja3rpWZvkX/JKqmuVgbsxDNsDFjMEg==",
+      "version": "6.0.0",
+      "resolved": "https://registry.npmjs.org/puppeteer/-/puppeteer-6.0.0.tgz",
+      "integrity": "sha512-LqDbNC7rp0JNH7BRTPjE3lCzGYD2tFqWBvRNukW4PjRP2YotWZWeLfFMTGrDHDFY5xjOceKBEbf8h45Xn6DFdw==",
       "requires": {
         "debug": "^4.1.0",
-        "devtools-protocol": "0.0.818844",
+        "devtools-protocol": "0.0.842839",
         "extract-zip": "^2.0.0",
-        "https-proxy-agent": "^4.0.0",
+        "https-proxy-agent": "^5.0.0",
         "node-fetch": "^2.6.1",
         "pkg-dir": "^4.2.0",
         "progress": "^2.0.1",
@@ -388,14 +391,14 @@
       }
     },
     "puppeteer-core": {
-      "version": "5.5.0",
-      "resolved": "https://registry.npmjs.org/puppeteer-core/-/puppeteer-core-5.5.0.tgz",
-      "integrity": "sha512-tlA+1n+ziW/Db03hVV+bAecDKse8ihFRXYiEypBe9IlLRvOCzYFG6qrCMBYK34HO/Q/Ecjc+tvkHRAfLVH+NgQ==",
+      "version": "6.0.0",
+      "resolved": "https://registry.npmjs.org/puppeteer-core/-/puppeteer-core-6.0.0.tgz",
+      "integrity": "sha512-Mm4lVSM8CJUrHSLt2zHjlW9B2D5B3JRbkbmxzGaGTauaB9gTrM+r7gk88xfRWuaBy81pRG+nTtCBdMPzO7pjqg==",
       "requires": {
         "debug": "^4.1.0",
-        "devtools-protocol": "0.0.818844",
+        "devtools-protocol": "0.0.842839",
         "extract-zip": "^2.0.0",
-        "https-proxy-agent": "^4.0.0",
+        "https-proxy-agent": "^5.0.0",
         "node-fetch": "^2.6.1",
         "pkg-dir": "^4.2.0",
         "progress": "^2.0.1",
@@ -503,9 +506,9 @@
       "integrity": "sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8="
     },
     "ws": {
-      "version": "7.4.3",
-      "resolved": "https://registry.npmjs.org/ws/-/ws-7.4.3.tgz",
-      "integrity": "sha512-hr6vCR76GsossIRsr8OLR9acVVm1jyfEWvhbNjtgPOrfvAlKzvyeg/P6r8RuDjRyrcQoPQT7K0DGEPc7Ae6jzA=="
+      "version": "7.4.4",
+      "resolved": "https://registry.npmjs.org/ws/-/ws-7.4.4.tgz",
+      "integrity": "sha512-Qm8k8ojNQIMx7S+Zp8u/uHOx7Qazv3Yv4q68MiWWWOJhiwG5W3x7iqmRtJo8xxrciZUY4vRxUTJCKuRnF28ZZw=="
     },
     "xmldom": {
       "version": "0.1.31",
