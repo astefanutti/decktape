@@ -30,11 +30,24 @@ class Reveal {
   }
 
   configure() {
-    return this.page.evaluate(fragments => Reveal.configure({
-        controls  : false,
-        progress  : false,
-        fragments : fragments,
-      }),
+    return this.page.evaluate(fragments => {
+        Reveal.configure({
+          controls  : false,
+          progress  : false,
+          fragments : fragments,
+        });
+        // Add a style to adjust for PDF export
+        const style = document.createElement('style');
+        document.head.appendChild(style);
+        style.sheet.insertRule(`
+        @media screen {
+          .reveal .slides section,
+          .reveal .slides section section {
+            /* Remove slides box shadows */
+            box-shadow: none;
+          }
+        }`);
+      },
       // It seems passing 'fragments=true' in the URL query string does not take precedence
       // over globally configured 'fragments' and prevents from being able to toggle fragments
       // with ...?fragments=<true|false> so we work around that by parsing the page query string
