@@ -25,7 +25,7 @@ RUN apk update && apk upgrade && \
     apk add --no-cache \
     ca-certificates \
     libstdc++@edge \
-    chromium@edge=89.0.4389.72-r0 \
+    chromium@edge=90.0.4430.93-r0 \
     font-noto-emoji@edge \
     freetype@edge \
     harfbuzz@edge \
