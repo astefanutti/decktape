@@ -99,6 +99,25 @@ parser.script('decktape').options({
     list    : true,
     help    : 'Additional argument to pass to the Chrome instance, can be repeated',
   },
+  // PDF meta data
+  metaAuthor : {
+    full    : 'pdf-author',
+    metavar : '<arg>',
+    type    : 'string',
+    help    : 'String to set as the author of the resulting pdf document',
+  },
+  metaTitle : {
+    full    : 'pdf-title',
+    metavar : '<arg>',
+    type    : 'string',
+    help    : 'String to set as the title of the resulting pdf document',
+  },
+  metaSubject : {
+    full    : 'pdf-subject',
+    metavar : '<arg>',
+    type    : 'string',
+    help    : 'String to set as the subject of the resulting pdf document',
+  },
 });
 
 function parseSize(size) {
@@ -201,6 +220,12 @@ process.on('unhandledRejection', error => {
   await page.emulateMediaType('screen');
   const pdf = await PDFDocument.create();
   pdf.setCreator('Decktape');
+  if (options.metaAuthor)
+    pdf.setAuthor(options.metaAuthor);
+  if (options.metaSubject)
+    pdf.setSubject(options.metaSubject);
+  if (options.metaTitle) 
+    pdf.setTitle(options.metaTitle);
 
   page
     .on('console', async msg => {
