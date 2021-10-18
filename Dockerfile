@@ -12,7 +12,7 @@ COPY decktape.js ./
 
 RUN npm install
 
-FROM alpine:3.11.2
+FROM alpine:3.14.2
 
 ENV TERM xterm-color
 
