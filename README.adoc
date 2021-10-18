@@ -201,6 +201,10 @@ The following slide deck examples have been exported using DeckTape:
 |===
 |HTML5 Presentation |Framework |Exported PDF
 
+|https://revealjs.com/demo/[Reveal.js Demo]
+|reveal.js
+|https://astefanutti.github.io/decktape/examples/reveal-js-demo.pdf[reveal-js-demo.pdf] (2.0MB)
+
 |https://tdd.github.io/devoxx-es6-maintenant/[ES6+ maintenant !]
 |reveal.js
 |https://astefanutti.github.io/decktape/examples/devoxx-es6-maintenant.pdf[devoxx-es6-maintenant.pdf] (2.3MB)
@@ -260,7 +264,7 @@ For example:
 
 * To convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
 [source,shell,subs=attributes+]
-$ docker run --rm -t -v `pwd`:/slides astefanutti/decktape https://revealjs.com/demos/3.9.2 slides.pdf
+$ docker run --rm -t -v `pwd`:/slides astefanutti/decktape https://revealjs.com/demo/ slides.pdf
 
 * Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
 [source,shell]
