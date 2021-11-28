@@ -251,7 +251,7 @@ The following slide deck examples have been exported using DeckTape:
 
 |https://formidable.com/open-source/spectacle/[Spectacle: A ReactJS Presentation Library]
 |Spectacle
-|https://astefanutti.github.io/decktape/examples/spectacle-reactjs-presentation.pdf[spectacle-reactjs-presentation.pdf] (8.9MB)
+|https://astefanutti.github.io/decktape/examples/spectacle-reactjs-presentation.pdf[spectacle-reactjs-presentation.pdf] (1.2MB)
 |===
 
 == Docker
