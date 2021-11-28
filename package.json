@@ -2,7 +2,7 @@
   "name": "decktape",
   "description": "High-quality PDF exporter for HTML presentation frameworks",
   "author": "Antonin Stefanutti",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "homepage": "https://github.com/astefanutti/decktape",
   "license": "MIT",
   "main": "decktape.js",
