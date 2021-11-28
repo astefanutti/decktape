@@ -11,7 +11,7 @@
       "dependencies": {
         "chalk": "^2.1.0",
         "fonteditor-core": "2.1.8",
-        "pdf-lib": "1.17.0",
+        "pdf-lib": "1.17.1",
         "puppeteer": "10.4.0",
         "puppeteer-core": "10.4.0",
         "urijs": "1.19.7"
@@ -480,9 +480,9 @@
       }
     },
     "node_modules/pdf-lib": {
-      "version": "1.17.0",
-      "resolved": "https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.17.0.tgz",
-      "integrity": "sha512-INe7i0CatJR+YwizvldDeJgXF2jlBnhqpUbUeWGLr95SldYTO1j9mLg7IZwKHJ4FHi3E2VmM+jEVL+d2bExO0A==",
+      "version": "1.17.1",
+      "resolved": "https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.17.1.tgz",
+      "integrity": "sha512-V/mpyJAoTsN4cnP31vc0wfNA1+p20evqqnap0KLoRUN0Yk/p3wN52DOEsL4oBFcLdb76hlpKPtzJIgo67j/XLw==",
       "dependencies": {
         "@pdf-lib/standard-fonts": "^1.0.0",
         "@pdf-lib/upng": "^1.0.1",
@@ -1070,9 +1070,9 @@
       "integrity": "sha1-F0uSaHNVNP+8es5r9TpanhtcX18="
     },
     "pdf-lib": {
-      "version": "1.17.0",
-      "resolved": "https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.17.0.tgz",
-      "integrity": "sha512-INe7i0CatJR+YwizvldDeJgXF2jlBnhqpUbUeWGLr95SldYTO1j9mLg7IZwKHJ4FHi3E2VmM+jEVL+d2bExO0A==",
+      "version": "1.17.1",
+      "resolved": "https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.17.1.tgz",
+      "integrity": "sha512-V/mpyJAoTsN4cnP31vc0wfNA1+p20evqqnap0KLoRUN0Yk/p3wN52DOEsL4oBFcLdb76hlpKPtzJIgo67j/XLw==",
       "requires": {
         "@pdf-lib/standard-fonts": "^1.0.0",
         "@pdf-lib/upng": "^1.0.1",
