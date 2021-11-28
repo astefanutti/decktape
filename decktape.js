@@ -376,7 +376,7 @@ async function exportSlide(plugin, page, pdf, context) {
     pageRanges          : '1',
     displayHeaderFooter : false,
   });
-  printSlide(pdf, await PDFDocument.load(buffer, { parseSpeed: ParseSpeeds.Fastest }), context);
+  await printSlide(pdf, await PDFDocument.load(buffer, { parseSpeed: ParseSpeeds.Fastest }), context);
   context.exportedSlides++;
 
   if (options.screenshots) {
