@@ -446,8 +446,12 @@ async function printSlide(pdf, slide, context) {
         }
         const bytes = decodePDFRawStream(file).decode();
         const font = Font.create(Buffer.from(bytes), { type: 'ttf', hinting: true });
-        // PDF font name does not contain sub family on Windows 10 so a more robust key
-        // is computed from the font metadata
+        // Some fonts happen to have no metadata, which is required by fonteditor
+        if (!font.data.name) {
+          font.data.name = {};
+        }
+        // PDF font name does not contain sub family on Windows 10,
+        // so a more robust key is computed from the font metadata
         const id = descriptor.get(PDFName.of('FontName')).value() + ' - ' + fontMetadataKey(font.data.name);
         if (context.pdfFonts[id]) {
           const f = context.pdfFonts[id].font;
