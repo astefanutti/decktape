@@ -14,6 +14,8 @@ RUN npm install
 
 FROM alpine:3.15.0
 
+LABEL org.opencontainers.image.source="https://github.com/astefanutti/decktape"
+
 ENV TERM xterm-color
 
 # Chromium, CA certificates, fonts
