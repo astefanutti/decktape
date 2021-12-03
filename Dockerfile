@@ -1,4 +1,4 @@
-FROM node:12.13.0-alpine as builder
+FROM node:17.2.0-alpine as builder
 
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
@@ -12,7 +12,7 @@ COPY decktape.js ./
 
 RUN npm install
 
-FROM alpine:3.14.2
+FROM alpine:3.15.0
 
 ENV TERM xterm-color
 
@@ -25,7 +25,7 @@ RUN apk update && apk upgrade && \
     apk add --no-cache \
     ca-certificates \
     libstdc++@edge \
-    chromium@edge=93.0.4577.82-r1 \
+    chromium@edge=93.0.4577.82-r2 \
     font-noto-emoji@edge \
     freetype@edge \
     harfbuzz@edge \
