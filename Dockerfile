@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.3.0-labs
+
 FROM node:17.2.0-alpine as builder
 
 ENV NODE_ENV production
@@ -18,22 +20,25 @@ LABEL org.opencontainers.image.source="https://github.com/astefanutti/decktape"
 
 ENV TERM xterm-color
 
+RUN <<EOF cat > /etc/apk/repositories
+http://dl-cdn.alpinelinux.org/alpine/edge/main
+http://dl-cdn.alpinelinux.org/alpine/edge/community
+http://dl-cdn.alpinelinux.org/alpine/edge/testing
+EOF
+
 # Chromium, CA certificates, fonts
 # https://git.alpinelinux.org/cgit/aports/log/community/chromium
 RUN apk update && apk upgrade && \
-    echo @edge http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
-    echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories && \
-    echo @edge http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
     apk add --no-cache \
     ca-certificates \
-    libstdc++@edge \
-    chromium@edge=99.0.4844.51-r0 \
-    font-noto-emoji@edge \
-    freetype@edge \
-    harfbuzz@edge \
-    nss@edge \
-    ttf-freefont@edge \
-    wqy-zenhei@edge && \
+    libstdc++ \
+    chromium=99.0.4844.51-r0 \
+    font-noto-emoji \
+    freetype \
+    harfbuzz \
+    nss \
+    ttf-freefont \
+    wqy-zenhei && \
     # /etc/fonts/conf.d/44-wqy-zenhei.conf overrides 'monospace' matching FreeMono.ttf in /etc/fonts/conf.d/69-unifont.conf
     mv /etc/fonts/conf.d/44-wqy-zenhei.conf /etc/fonts/conf.d/74-wqy-zenhei.conf && \
     rm -rf /var/cache/apk/*
