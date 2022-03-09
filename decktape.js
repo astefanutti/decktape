@@ -398,12 +398,16 @@ async function exportSlide(plugin, page, pdf, context) {
 }
 
 async function printSlide(pdf, slide, context) {
+  const duplicatedEntries = [];
   const [page] = await pdf.copyPages(slide, [0]);
   pdf.addPage(page);
+  // Traverse the page to consolidate duplicates
   parseResources(page.node);
+  // And delete all the collected duplicates
+  duplicatedEntries.forEach(ref => pdf.context.delete(ref));
 
   function parseResources(dictionary) {
-    const resources = dictionary.get(PDFName.of('Resources'));
+    const resources = dictionary.get(PDFName.Resources);
     if (resources.has(PDFName.XObject)) {
       const xObject = resources.get(PDFName.XObject);
       xObject.entries().forEach(entry => parseXObject(entry, xObject));
@@ -422,7 +426,7 @@ async function printSlide(pdf, slide, context) {
         context.pdfXObjects[digest] = entry;
       } else {
         xObject.set(name, context.pdfXObjects[digest]);
-        pdf.context.delete(entry);
+        duplicatedEntries.push(entry);
       }
     } else {
       parseResources(object.dict);
@@ -467,7 +471,7 @@ async function printSlide(pdf, slide, context) {
             }
           });
           descriptor.set(PDFName.of('FontFile2'), context.pdfFonts[id].ref);
-          pdf.context.delete(ref);
+          duplicatedEntries.push(ref);
         } else {
           context.pdfFonts[id] = { ref: ref, font: font };
         }
