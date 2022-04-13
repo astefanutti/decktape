@@ -14,7 +14,7 @@
         "pdf-lib": "1.17.1",
         "puppeteer": "13.2.0",
         "puppeteer-core": "13.2.0",
-        "urijs": "1.19.10"
+        "urijs": "1.19.11"
       },
       "bin": {
         "decktape": "decktape.js"
@@ -689,9 +689,9 @@
       }
     },
     "node_modules/urijs": {
-      "version": "1.19.10",
-      "resolved": "https://registry.npmjs.org/urijs/-/urijs-1.19.10.tgz",
-      "integrity": "sha512-EzauQlgKuJgsXOqoMrCiePBf4At5jVqRhXykF3Wfb8ZsOBMxPcfiVBcsHXug4Aepb/ICm2PIgqAUGMelgdrWEg=="
+      "version": "1.19.11",
+      "resolved": "https://registry.npmjs.org/urijs/-/urijs-1.19.11.tgz",
+      "integrity": "sha512-HXgFDgDommxn5/bIv0cnQZsPhHDA90NPHD6+c/v21U5+Sx5hoP8+dP9IZXBU1gIfvdRfhG8cel9QNPeionfcCQ=="
     },
     "node_modules/util-deprecate": {
       "version": "1.0.2",
@@ -1245,9 +1245,9 @@
       }
     },
     "urijs": {
-      "version": "1.19.10",
-      "resolved": "https://registry.npmjs.org/urijs/-/urijs-1.19.10.tgz",
-      "integrity": "sha512-EzauQlgKuJgsXOqoMrCiePBf4At5jVqRhXykF3Wfb8ZsOBMxPcfiVBcsHXug4Aepb/ICm2PIgqAUGMelgdrWEg=="
+      "version": "1.19.11",
+      "resolved": "https://registry.npmjs.org/urijs/-/urijs-1.19.11.tgz",
+      "integrity": "sha512-HXgFDgDommxn5/bIv0cnQZsPhHDA90NPHD6+c/v21U5+Sx5hoP8+dP9IZXBU1gIfvdRfhG8cel9QNPeionfcCQ=="
     },
     "util-deprecate": {
       "version": "1.0.2",
