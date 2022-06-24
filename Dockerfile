@@ -18,6 +18,7 @@ FROM alpine:3.15.0
 
 LABEL org.opencontainers.image.source="https://github.com/astefanutti/decktape"
 
+ARG CHROMIUM_VERSION=103.0.5060.53-r0
 ENV TERM xterm-color
 
 RUN <<EOF cat > /etc/apk/repositories
@@ -32,7 +33,7 @@ RUN apk update && apk upgrade && \
     apk add --no-cache \
     ca-certificates \
     libstdc++ \
-    chromium=99.0.4844.51-r0 \
+    chromium=${CHROMIUM_VERSION} \
     font-noto-emoji \
     freetype \
     harfbuzz \
