@@ -22,9 +22,15 @@ class Impress {
     });
   }
 
-  slideCount() {
+  slideCount(enableSubsteps) {
+    if(enableSubsteps){
+      return this.page.evaluate(_ =>
+          document.querySelectorAll('#impress .step, #impress .substep').length);
+    }
     return this.page.evaluate(_ =>
-      document.querySelectorAll('#impress .step, #impress .substep').length);
+        document.querySelectorAll('#impress .step').length);
+
+
   }
 
   nextSlide() {
