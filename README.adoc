@@ -126,6 +126,10 @@ Options:
    -p <ms>, --pause <ms>           Duration in milliseconds before each slide is exported  [1000]
    --load-pause <ms>               Duration in milliseconds between the page has loaded
                                    and starting to export slides  [0]
+   --url-load-timeout <ms>         Timeout in milliseconds to use when waiting for the initial 
+                                   URL to load  [60000]
+   --page-load-timeout <ms>        Timeout in milliseconds to use when waiting for the slide deck 
+                                   page to load  [20000]
    --screenshots                   Capture each slide as an image  [false]
    --screenshots-directory <dir>   Screenshots output directory  [screenshots]
    --screenshots-size <size>       Screenshots resolution, can be repeated  [--size]
