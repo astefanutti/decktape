@@ -63,6 +63,12 @@ parser.script('decktape').options({
     default: 20000,
     help: 'Timeout in milliseconds to use when waiting for the slide deck page to load',
   },
+  bufferTimeout: {
+    full: 'buffer-timeout',
+    metavar: '<ms>',
+    default: 30000,
+    help: 'Timeout in milliseconds to use when waiting for a slide to finish buffering (set to 0 to disable)',
+  },
   screenshots : {
     default : false,
     flag    : true,
@@ -387,6 +393,7 @@ async function exportSlide(plugin, page, pdf, context) {
     printBackground     : true,
     pageRanges          : '1',
     displayHeaderFooter : false,
+    timeout             : options.bufferTimeout,
   });
   await printSlide(pdf, await PDFDocument.load(buffer, { parseSpeed: ParseSpeeds.Fastest }), context);
   context.exportedSlides++;
