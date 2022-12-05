@@ -2,9 +2,9 @@
 // and detects changes to the DOM. The deck is considered over when no change
 // is detected afterward.
 
-const { pause } = require('../libs/util');
+import { pause } from '../libs/util.js';
 
-exports.options = {
+export const options = {
   key : {
     default : 'ArrowRight',
     metavar : '<key>',
@@ -23,15 +23,15 @@ exports.options = {
   },
 };
 
-exports.help =
+export const help =
 `Emulates the end-user interaction by pressing the key with the specified --key option
 and iterates over the presentation as long as:
 - Any change to the DOM is detected by observing mutation events targeting the body element
   and its subtree,
 - Nor the number of slides exported has reached the specified --max-slides option.
-  The --key option must be one of the 'KeyboardEvent' keys and defaults to [${exports.options.key.default}].`;
+  The --key option must be one of the 'KeyboardEvent' keys and defaults to [${options.key.default}].`;
 
-exports.create = (page, options) => new Generic(page, options);
+export const create = (page, options) => new Generic(page, options);
 
 class Generic {
   constructor(page, options) {
@@ -39,8 +39,8 @@ class Generic {
     this.options = options;
     this.currentSlide = 1;
     this.isNextSlideDetected = false;
-    this.key = this.options.key || exports.options.key.default;
-    this.media = this.options.media || exports.options.media.default;
+    this.key = this.options.key || options.key.default;
+    this.media = this.options.media || options.media.default;
   }
 
   getName() {

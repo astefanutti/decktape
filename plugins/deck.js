@@ -1,4 +1,4 @@
-exports.create = page => new Deck(page);
+export const create = page => new Deck(page);
 
 class Deck {
 

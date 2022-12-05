@@ -1,4 +1,4 @@
-exports.create = page => new NueDeck(page);
+export const create = page => new NueDeck(page);
 
 class NueDeck {
 

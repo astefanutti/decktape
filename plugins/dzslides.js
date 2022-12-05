@@ -1,4 +1,4 @@
-exports.create = page => new DZSlides(page);
+export const create = page => new DZSlides(page);
 
 class DZSlides {
 

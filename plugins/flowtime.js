@@ -1,4 +1,4 @@
-exports.create = page => new Flowtime(page);
+export const create = page => new Flowtime(page);
 
 class Flowtime {
 

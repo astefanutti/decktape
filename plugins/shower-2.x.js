@@ -1,4 +1,4 @@
-exports.create = page => new Shower(page);
+export const create = page => new Shower(page);
 
 class Shower {
 
