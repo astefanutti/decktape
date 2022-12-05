@@ -9,7 +9,8 @@
       "version": "3.5.0",
       "license": "MIT",
       "dependencies": {
-        "chalk": "^4.1.2",
+        "chalk": "~5.1.2",
+        "chalk-template": "^0.4.0",
         "fonteditor-core": "2.1.10",
         "pdf-lib": "1.17.1",
         "puppeteer": "18.2.1",
@@ -162,6 +163,31 @@
       }
     },
     "node_modules/chalk": {
+      "version": "5.1.2",
+      "resolved": "https://registry.npmjs.org/chalk/-/chalk-5.1.2.tgz",
+      "integrity": "sha512-E5CkT4jWURs1Vy5qGJye+XwCkNj7Od3Af7CP6SujMetSMkLs8Do2RWJK5yx1wamHV/op8Rz+9rltjaTQWDnEFQ==",
+      "engines": {
+        "node": "^12.17.0 || ^14.13 || >=16.0.0"
+      },
+      "funding": {
+        "url": "https://github.com/chalk/chalk?sponsor=1"
+      }
+    },
+    "node_modules/chalk-template": {
+      "version": "0.4.0",
+      "resolved": "https://registry.npmjs.org/chalk-template/-/chalk-template-0.4.0.tgz",
+      "integrity": "sha512-/ghrgmhfY8RaSdeo43hNXxpoHAtxdbskUHjPpfqUWGttFgycUhYPGx3YZBCnUCvOa7Doivn1IZec3DEGFoMgLg==",
+      "dependencies": {
+        "chalk": "^4.1.2"
+      },
+      "engines": {
+        "node": ">=12"
+      },
+      "funding": {
+        "url": "https://github.com/chalk/chalk-template?sponsor=1"
+      }
+    },
+    "node_modules/chalk-template/node_modules/chalk": {
       "version": "4.1.2",
       "resolved": "https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz",
       "integrity": "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==",
@@ -775,12 +801,27 @@
       "integrity": "sha512-VO9Ht/+p3SN7SKWqcrgEzjGbRSJYTx+Q1pTQC0wrWqHx0vpJraQ6GtHx8tvcg1rlK1byhU5gccxgOgj7B0TDkQ=="
     },
     "chalk": {
-      "version": "4.1.2",
-      "resolved": "https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz",
-      "integrity": "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==",
+      "version": "5.1.2",
+      "resolved": "https://registry.npmjs.org/chalk/-/chalk-5.1.2.tgz",
+      "integrity": "sha512-E5CkT4jWURs1Vy5qGJye+XwCkNj7Od3Af7CP6SujMetSMkLs8Do2RWJK5yx1wamHV/op8Rz+9rltjaTQWDnEFQ=="
+    },
+    "chalk-template": {
+      "version": "0.4.0",
+      "resolved": "https://registry.npmjs.org/chalk-template/-/chalk-template-0.4.0.tgz",
+      "integrity": "sha512-/ghrgmhfY8RaSdeo43hNXxpoHAtxdbskUHjPpfqUWGttFgycUhYPGx3YZBCnUCvOa7Doivn1IZec3DEGFoMgLg==",
       "requires": {
-        "ansi-styles": "^4.1.0",
-        "supports-color": "^7.1.0"
+        "chalk": "^4.1.2"
+      },
+      "dependencies": {
+        "chalk": {
+          "version": "4.1.2",
+          "resolved": "https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz",
+          "integrity": "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==",
+          "requires": {
+            "ansi-styles": "^4.1.0",
+            "supports-color": "^7.1.0"
+          }
+        }
       }
     },
     "chownr": {

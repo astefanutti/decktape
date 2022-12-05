@@ -1,4 +1,4 @@
-exports.create = page => new RISE(page);
+export const create = page => new RISE(page);
 
 class RISE {
 

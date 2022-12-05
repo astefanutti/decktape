@@ -1,4 +1,4 @@
-exports.create = page => new Remark(page);
+export const create = page => new Remark(page);
 
 class Remark {
 

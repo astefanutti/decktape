@@ -1,4 +1,4 @@
-exports.create = page => new WebSlides(page);
+export const create = page => new WebSlides(page);
 
 class WebSlides {
 

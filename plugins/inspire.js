@@ -1,4 +1,4 @@
-exports.create = page => new Inspire(page);
+export const create = page => new Inspire(page);
 
 class Inspire {
 

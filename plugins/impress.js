@@ -1,4 +1,4 @@
-exports.create = page => new Impress(page);
+export const create = page => new Impress(page);
 
 class Impress {
 

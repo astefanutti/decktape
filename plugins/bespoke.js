@@ -1,9 +1,9 @@
-exports.help =
+export const help =
 `Requires the bespoke-extern module to expose the Bespoke.js API to a global variable named
 'bespoke' and provides access to the collection of deck instances via 'bespoke.decks
 and the most recent deck via 'bespoke.deck'.`;
 
-exports.create = page => new Bespoke(page);
+export const create = page => new Bespoke(page);
 
 class Bespoke {
 

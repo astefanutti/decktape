@@ -1,4 +1,4 @@
-exports.create = page => new Slidy(page);
+export const create = page => new Slidy(page);
 
 class Slidy {
 

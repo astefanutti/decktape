@@ -1,6 +1,6 @@
-const URI = require('urijs');
+import URI from 'urijs';
 
-exports.create = page => new Reveal(page);
+export const create = page => new Reveal(page);
 
 class Reveal {
 
