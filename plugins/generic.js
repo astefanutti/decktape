@@ -31,12 +31,12 @@ and iterates over the presentation as long as:
 - Nor the number of slides exported has reached the specified --max-slides option.
   The --key option must be one of the 'KeyboardEvent' keys and defaults to [${options.key.default}].`;
 
-export const create = (page, options) => new Generic(page, options);
+export const create = (page, opts) => new Generic(page, opts);
 
 class Generic {
-  constructor(page, options) {
+  constructor(page, opts) {
     this.page = page;
-    this.options = options;
+    this.options = opts;
     this.currentSlide = 1;
     this.isNextSlideDetected = false;
     this.key = this.options.key || options.key.default;
