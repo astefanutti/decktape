@@ -50,23 +50,23 @@ parser.script('decktape').options({
     default : 0,
     help    : 'Duration in milliseconds between the page has loaded and starting to export slides',
   },
-  urlLoadTimeout: {
-    full: 'url-load-timeout',
-    metavar: '<ms>',
-    default: 60000,
-    help: 'Timeout in milliseconds to use when waiting for the initial URL to load',
+  urlLoadTimeout : {
+    full    : 'url-load-timeout',
+    metavar : '<ms>',
+    default : 60000,
+    help    : 'Timeout in milliseconds to use when waiting for the initial URL to load',
   },
-  pageLoadTimeout: {
-    full: 'page-load-timeout',
-    metavar: '<ms>',
-    default: 20000,
-    help: 'Timeout in milliseconds to use when waiting for the slide deck page to load',
+  pageLoadTimeout : {
+    full    : 'page-load-timeout',
+    metavar : '<ms>',
+    default : 20000,
+    help    : 'Timeout in milliseconds to use when waiting for the slide deck page to load',
   },
-  bufferTimeout: {
-    full: 'buffer-timeout',
-    metavar: '<ms>',
-    default: 30000,
-    help: 'Timeout in milliseconds to use when waiting for a slide to finish buffering (set to 0 to disable)',
+  bufferTimeout : {
+    full    : 'buffer-timeout',
+    metavar : '<ms>',
+    default : 30000,
+    help    : 'Timeout in milliseconds to use when waiting for a slide to finish buffering (set to 0 to disable)',
   },
   screenshots : {
     default : false,
@@ -244,15 +244,15 @@ process.on('unhandledRejection', error => {
     pdf.setAuthor(options.metaAuthor);
   if (options.metaSubject)
     pdf.setSubject(options.metaSubject);
-  if (options.metaTitle) 
+  if (options.metaTitle)
     pdf.setTitle(options.metaTitle);
 
   page
     .on('console', async msg => {
-        const args = msg.args().length
-          ? await Promise.all(msg.args().map(arg => arg.executionContext().evaluate(obj => obj, arg)))
-          : [msg.text()];
-        console.log(...args.map(arg => color(msg.type())(util.format(arg))));
+      const args = msg.args().length
+        ? await Promise.all(msg.args().map(arg => arg.executionContext().evaluate(obj => obj, arg)))
+        : [msg.text()];
+      console.log(...args.map(arg => color(msg.type())(util.format(arg))));
     })
     .on('requestfailed', request => {
       // do not output warning for cancelled requests
@@ -271,10 +271,10 @@ process.on('unhandledRejection', error => {
     // TODO: improve message when reading file locally
     .then(response => console.log('Loading page finished with status: %s', response.status()))
     .then(delay(options.loadPause))
-    .then(_ => createPlugin(page))
+    .then(_ => createPlugin(page, plugins, options))
     .then(plugin => configurePlugin(plugin)
-      .then(_ => configurePage(plugin, page))
-      .then(_ => exportSlides(plugin, page, pdf))
+      .then(_ => configurePage(page, plugin, options))
+      .then(_ => exportSlides(page, plugin, pdf, options))
       .then(async context => {
         await writePdf(options.filename, pdf);
         console.log(chalk.green(`\nPrinted ${chalk.bold('%s')} slides`), context.exportedSlides);
@@ -286,265 +286,265 @@ process.on('unhandledRejection', error => {
       browser.close();
       process.exit(1);
     });
+})();
 
-  async function writePdf(filename, pdf) {
-    const pdfDir = path.dirname(filename);
-    try {
-      fs.accessSync(pdfDir, fs.constants.F_OK);
-    } catch {
-      fs.mkdirSync(pdfDir, { recursive: true });
+async function loadAvailablePlugins(pluginsPath) {
+  const plugins = await fs.promises.readdir(pluginsPath);
+  const entries = await Promise.all(plugins.map(async pluginPath => {
+    const [, plugin] = pluginPath.match(/^(.*)\.js$/);
+    if (plugin && (await fs.promises.stat(path.join(pluginsPath, pluginPath))).isFile()) {
+      return [plugin, await import(`./plugins/${pluginPath}`)];
     }
-    fs.writeFileSync(filename, await pdf.save({ addDefaultPage: false }));
-  }
+  }));
+  return Object.fromEntries(entries.filter(Boolean));
+}
 
-  async function loadAvailablePlugins(pluginsPath) {
-    const plugins = await fs.promises.readdir(pluginsPath);
-    const entries = await Promise.all(plugins.map(async pluginPath => {
-      const [, plugin] = pluginPath.match(/^(.*)\.js$/);
-      if (plugin && (await fs.promises.stat(path.join(pluginsPath, pluginPath))).isFile()) {
-        return [plugin, await import (`./plugins/${pluginPath}`)];
-      }
-    }));
-    return Object.fromEntries(entries.filter(Boolean));
-  }
-
-  async function createPlugin(page) {
-    let plugin;
-    if (!options.command || options.command === 'automatic') {
-      plugin = await createActivePlugin(page);
-      if (!plugin) {
-        console.log('No supported DeckTape plugin detected, falling back to generic plugin');
-        plugin = plugins['generic'].create(page, options);
-      }
-    } else {
-      plugin = plugins[options.command].create(page, options);
-      if (!await plugin.isActive()) {
-        throw Error(`Unable to activate the ${plugin.getName()} DeckTape plugin for the address: ${options.url}`);
-      }
+async function createPlugin(page, plugins, options) {
+  let plugin;
+  if (!options.command || options.command === 'automatic') {
+    plugin = await createActivePlugin(page, plugins, options);
+    if (!plugin) {
+      console.log('No supported DeckTape plugin detected, falling back to generic plugin');
+      plugin = plugins['generic'].create(page, options);
     }
-    console.log(chalk.cyan(`${chalk.bold('%s')} plugin activated`), plugin.getName());
-    return plugin;
-  }
-
-  async function createActivePlugin(page) {
-    for (let id in plugins) {
-      if (id === 'generic') continue;
-      const plugin = plugins[id].create(page, options);
-      if (await plugin.isActive()) return plugin;
+  } else {
+    plugin = plugins[options.command].create(page, options);
+    if (!await plugin.isActive()) {
+      throw Error(`Unable to activate the ${plugin.getName()} DeckTape plugin for the address: ${options.url}`);
     }
   }
+  console.log(chalk.cyan(`${chalk.bold('%s')} plugin activated`), plugin.getName());
+  return plugin;
+}
 
-  async function configurePage(plugin, page) {
-    if (!options.size) {
-      options.size = typeof plugin.size === 'function' ? await plugin.size() : { width: 1280, height: 720 };
-    }
-    await page.setViewport(options.size);
+async function createActivePlugin(page, plugins, options) {
+  for (let id in plugins) {
+    if (id === 'generic') continue;
+    const plugin = plugins[id].create(page, options);
+    if (await plugin.isActive()) return plugin;
   }
+}
 
-  async function configurePlugin(plugin) {
-    if (typeof plugin.configure === 'function') {
-      await plugin.configure();
-    }
+async function configurePage(page, plugin, options) {
+  if (!options.size) {
+    options.size = typeof plugin.size === 'function' ? await plugin.size() : { width: 1280, height: 720 };
   }
+  await page.setViewport(options.size);
+}
 
-  async function exportSlides(plugin, page, pdf) {
-    const context = {
-      progressBarOverflow : 0,
-      currentSlide        : 1,
-      exportedSlides      : 0,
-      pdfFonts            : {},
-      pdfXObjects         : {},
-      totalSlides         : await plugin.slideCount(),
-    };
-    // TODO: support a more advanced "fragment to pause" mapping
-    // for special use cases like GIF animations
-    // TODO: support plugin optional promise to wait until a particular mutation
-    // instead of a pause
+async function configurePlugin(plugin) {
+  if (typeof plugin.configure === 'function') {
+    await plugin.configure();
+  }
+}
+
+async function exportSlides(page, plugin, pdf, options) {
+  const context = {
+    progressBarOverflow : 0,
+    currentSlide        : 1,
+    exportedSlides      : 0,
+    pdfFonts            : {},
+    pdfXObjects         : {},
+    totalSlides         : await plugin.slideCount(),
+  };
+  // TODO: support a more advanced "fragment to pause" mapping
+  // for special use cases like GIF animations
+  // TODO: support plugin optional promise to wait until a particular mutation
+  // instead of a pause
+  if (options.slides && !options.slides[context.currentSlide]) {
+    process.stdout.write('\r' + await progressBar(plugin, context, { skip: true }));
+  } else {
+    await pause(options.pause);
+    await exportSlide(page, plugin, pdf, context, options);
+  }
+  const maxSlide = options.slides ? Math.max(...Object.keys(options.slides)) : Infinity;
+  let hasNext = await hasNextSlide(plugin, context);
+  while (hasNext && context.currentSlide < maxSlide) {
+    await nextSlide(plugin, context);
+    await pause(options.pause);
     if (options.slides && !options.slides[context.currentSlide]) {
       process.stdout.write('\r' + await progressBar(plugin, context, { skip: true }));
     } else {
-      await pause(options.pause);
-      await exportSlide(plugin, page, pdf, context);
+      await exportSlide(page, plugin, pdf, context, options);
     }
-    const maxSlide = options.slides ? Math.max(...Object.keys(options.slides)) : Infinity;
-    let hasNext = await hasNextSlide(plugin, context);
-    while (hasNext && context.currentSlide < maxSlide) {
-      await nextSlide(plugin, context);
-      await pause(options.pause);
-      if (options.slides && !options.slides[context.currentSlide]) {
-        process.stdout.write('\r' + await progressBar(plugin, context, { skip: true }));
-      } else {
-        await exportSlide(plugin, page, pdf, context);
-      }
-      hasNext = await hasNextSlide(plugin, context);
-    }
-    // Flush consolidated fonts
-    Object.values(context.pdfFonts).forEach(({ ref, font }) => {
-      pdf.context.assign(ref, pdf.context.flateStream(font.write({ type: 'ttf', hinting: true })));
-    });
-    return context;
+    hasNext = await hasNextSlide(plugin, context);
   }
+  // Flush consolidated fonts
+  Object.values(context.pdfFonts).forEach(({ ref, font }) => {
+    pdf.context.assign(ref, pdf.context.flateStream(font.write({ type: 'ttf', hinting: true })));
+  });
+  return context;
+}
 
-  async function exportSlide(plugin, page, pdf, context) {
-    process.stdout.write('\r' + await progressBar(plugin, context));
+async function exportSlide(page, plugin, pdf, context, options) {
+  process.stdout.write('\r' + await progressBar(plugin, context));
 
-    const buffer = await page.pdf({
-      width               : options.size.width,
-      height              : options.size.height,
-      printBackground     : true,
-      pageRanges          : '1',
-      displayHeaderFooter : false,
-      timeout             : options.bufferTimeout,
-    });
-    await printSlide(pdf, await PDFDocument.load(buffer, { parseSpeed: ParseSpeeds.Fastest }), context);
-    context.exportedSlides++;
+  const buffer = await page.pdf({
+    width               : options.size.width,
+    height              : options.size.height,
+    printBackground     : true,
+    pageRanges          : '1',
+    displayHeaderFooter : false,
+    timeout             : options.bufferTimeout,
+  });
+  await printSlide(pdf, await PDFDocument.load(buffer, { parseSpeed: ParseSpeeds.Fastest }), context);
+  context.exportedSlides++;
 
-    if (options.screenshots) {
-      for (let resolution of options.screenshotSizes || [options.size]) {
-        await page.setViewport(resolution);
-        // Delay page rendering to wait for the resize event to complete,
-        // e.g. for impress.js (may be needed to be configurable)
-        await pause(1000);
-        await page.screenshot({
-          path: path.join(options.screenshotDirectory, options.filename
-            .replace('.pdf', `_${context.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`)),
-          fullPage: false,
-          omitBackground: true,
-        });
-        await page.setViewport(options.size);
-        await pause(1000);
-      }
+  if (options.screenshots) {
+    for (let resolution of options.screenshotSizes || [options.size]) {
+      await page.setViewport(resolution);
+      // Delay page rendering to wait for the resize event to complete,
+      // e.g. for impress.js (may be needed to be configurable)
+      await pause(1000);
+      await page.screenshot({
+        path: path.join(options.screenshotDirectory, options.filename
+          .replace('.pdf', `_${context.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`)),
+        fullPage: false,
+        omitBackground: true,
+      });
+      await page.setViewport(options.size);
+      await pause(1000);
     }
   }
+}
 
-  async function printSlide(pdf, slide, context) {
-    const duplicatedEntries = [];
-    const [page] = await pdf.copyPages(slide, [0]);
-    pdf.addPage(page);
-    // Traverse the page to consolidate duplicates
-    parseResources(page.node);
-    // And delete all the collected duplicates
-    duplicatedEntries.forEach(ref => pdf.context.delete(ref));
+async function printSlide(pdf, slide, context) {
+  const duplicatedEntries = [];
+  const [page] = await pdf.copyPages(slide, [0]);
+  pdf.addPage(page);
+  // Traverse the page to consolidate duplicates
+  parseResources(page.node);
+  // And delete all the collected duplicates
+  duplicatedEntries.forEach(ref => pdf.context.delete(ref));
 
-    function parseResources(dictionary) {
-      const resources = dictionary.get(PDFName.Resources);
-      if (resources.has(PDFName.XObject)) {
-        const xObject = resources.get(PDFName.XObject);
-        xObject.entries().forEach(entry => parseXObject(entry, xObject));
-      }
-      if (resources.has(PDFName.Font)) {
-        resources.get(PDFName.Font).entries().forEach(parseFont);
-      }
+  function parseResources(dictionary) {
+    const resources = dictionary.get(PDFName.Resources);
+    if (resources.has(PDFName.XObject)) {
+      const xObject = resources.get(PDFName.XObject);
+      xObject.entries().forEach(entry => parseXObject(entry, xObject));
     }
-
-    function parseXObject([name, entry], xObject) {
-      const object = page.node.context.lookup(entry);
-      const subtype = object.dict.get(PDFName.of('Subtype'));
-      if (subtype === PDFName.of('Image')) {
-        const digest = crypto.createHash('SHA1').update(object.contents).digest('hex');
-        if (!context.pdfXObjects[digest]) {
-          context.pdfXObjects[digest] = entry;
-        } else {
-          xObject.set(name, context.pdfXObjects[digest]);
-          duplicatedEntries.push(entry);
-        }
-      } else {
-        parseResources(object.dict);
-      }
-    };
-
-    function parseFont([_, entry]) {
-      const object = page.node.context.lookup(entry);
-      const subtype = object.get(PDFName.of('Subtype'));
-      // See "Introduction to Font Data Structures" from PDF specification
-      if (subtype === PDFName.of('Type0')) {
-        // TODO: properly support composite fonts with multiple descendants
-        const descendant = page.node.context.lookup(object.get(PDFName.of('DescendantFonts')).get(0));
-        if (descendant.get(PDFName.of('Subtype')) === PDFName.of('CIDFontType2')) {
-          const descriptor = page.node.context.lookup(descendant.get(PDFName.of('FontDescriptor')));
-          const ref = descriptor.get(PDFName.of('FontFile2'));
-          const file = page.node.context.lookup(ref);
-          if (!file) {
-            // The font has already been processed and removed
-            return;
-          }
-          const bytes = decodePDFRawStream(file).decode();
-          const font = Font.create(Buffer.from(bytes), { type: 'ttf', hinting: true });
-          // Some fonts happen to have no metadata, which is required by fonteditor
-          if (!font.data.name) {
-            font.data.name = {};
-          }
-          // PDF font name does not contain sub family on Windows 10,
-          // so a more robust key is computed from the font metadata
-          const id = descriptor.get(PDFName.of('FontName')).value() + ' - ' + fontMetadataKey(font.data.name);
-          if (context.pdfFonts[id]) {
-            const f = context.pdfFonts[id].font;
-            font.data.glyf.forEach((g, i) => {
-              if (g.contours && g.contours.length > 0) {
-                if (!f.data.glyf[i] || !f.data.glyf[i].contours || f.data.glyf[i].contours.length === 0) {
-                  mergeGlyph(f, i, g);
-                }
-              } else if (g.compound) {
-                if (!f.data.glyf[i] || typeof f.data.glyf[i].compound === 'undefined') {
-                  mergeGlyph(f, i, g);
-                }
-              }
-            });
-            descriptor.set(PDFName.of('FontFile2'), context.pdfFonts[id].ref);
-            duplicatedEntries.push(ref);
-          } else {
-            context.pdfFonts[id] = { ref: ref, font: font };
-          }
-        }
-      }
-    };
-
-    function mergeGlyph(font, index, glyf) {
-      if (font.data.glyf.length <= index) {
-        for (let i = font.data.glyf.length; i < index; i++) {
-          font.data.glyf.push({ contours: Array(0), advanceWidth: 0, leftSideBearing: 0 });
-        }
-        font.data.glyf.push(glyf);
-      } else {
-        font.data.glyf[index] = glyf;
-      }
-    }
-
-    function fontMetadataKey(font) {
-      const keys = ['fontFamily', 'fontSubFamily', 'fullName', 'preferredFamily', 'preferredSubFamily', 'uniqueSubFamily'];
-      return Object.entries(font)
-        .filter(([key, _]) => keys.includes(key))
-        .reduce((r, [k, v], i) => r + (i > 0 ? ',' : '') + k + '=' + v, '');
+    if (resources.has(PDFName.Font)) {
+      resources.get(PDFName.Font).entries().forEach(parseFont);
     }
   }
 
-  async function hasNextSlide(plugin, context) {
-    if (typeof plugin.hasNextSlide === 'function') {
-      return await plugin.hasNextSlide();
+  function parseXObject([name, entry], xObject) {
+    const object = page.node.context.lookup(entry);
+    const subtype = object.dict.get(PDFName.of('Subtype'));
+    if (subtype === PDFName.of('Image')) {
+      const digest = crypto.createHash('SHA1').update(object.contents).digest('hex');
+      if (!context.pdfXObjects[digest]) {
+        context.pdfXObjects[digest] = entry;
+      } else {
+        xObject.set(name, context.pdfXObjects[digest]);
+        duplicatedEntries.push(entry);
+      }
     } else {
-      return context.currentSlide < context.totalSlides;
+      parseResources(object.dict);
+    }
+  };
+
+  function parseFont([_, entry]) {
+    const object = page.node.context.lookup(entry);
+    const subtype = object.get(PDFName.of('Subtype'));
+    // See "Introduction to Font Data Structures" from PDF specification
+    if (subtype === PDFName.of('Type0')) {
+      // TODO: properly support composite fonts with multiple descendants
+      const descendant = page.node.context.lookup(object.get(PDFName.of('DescendantFonts')).get(0));
+      if (descendant.get(PDFName.of('Subtype')) === PDFName.of('CIDFontType2')) {
+        const descriptor = page.node.context.lookup(descendant.get(PDFName.of('FontDescriptor')));
+        const ref = descriptor.get(PDFName.of('FontFile2'));
+        const file = page.node.context.lookup(ref);
+        if (!file) {
+          // The font has already been processed and removed
+          return;
+        }
+        const bytes = decodePDFRawStream(file).decode();
+        const font = Font.create(Buffer.from(bytes), { type: 'ttf', hinting: true });
+        // Some fonts happen to have no metadata, which is required by fonteditor
+        if (!font.data.name) {
+          font.data.name = {};
+        }
+        // PDF font name does not contain sub family on Windows 10,
+        // so a more robust key is computed from the font metadata
+        const id = descriptor.get(PDFName.of('FontName')).value() + ' - ' + fontMetadataKey(font.data.name);
+        if (context.pdfFonts[id]) {
+          const f = context.pdfFonts[id].font;
+          font.data.glyf.forEach((g, i) => {
+            if (g.contours && g.contours.length > 0) {
+              if (!f.data.glyf[i] || !f.data.glyf[i].contours || f.data.glyf[i].contours.length === 0) {
+                mergeGlyph(f, i, g);
+              }
+            } else if (g.compound) {
+              if (!f.data.glyf[i] || typeof f.data.glyf[i].compound === 'undefined') {
+                mergeGlyph(f, i, g);
+              }
+            }
+          });
+          descriptor.set(PDFName.of('FontFile2'), context.pdfFonts[id].ref);
+          duplicatedEntries.push(ref);
+        } else {
+          context.pdfFonts[id] = { ref: ref, font: font };
+        }
+      }
+    }
+  };
+
+  function mergeGlyph(font, index, glyf) {
+    if (font.data.glyf.length <= index) {
+      for (let i = font.data.glyf.length; i < index; i++) {
+        font.data.glyf.push({ contours: Array(0), advanceWidth: 0, leftSideBearing: 0 });
+      }
+      font.data.glyf.push(glyf);
+    } else {
+      font.data.glyf[index] = glyf;
     }
   }
 
-  async function nextSlide(plugin, context) {
-    context.currentSlide++;
-    return plugin.nextSlide();
+  function fontMetadataKey(font) {
+    const keys = ['fontFamily', 'fontSubFamily', 'fullName', 'preferredFamily', 'preferredSubFamily', 'uniqueSubFamily'];
+    return Object.entries(font)
+      .filter(([key, _]) => keys.includes(key))
+      .reduce((r, [k, v], i) => r + (i > 0 ? ',' : '') + k + '=' + v, '');
   }
+}
 
-  // TODO: add progress bar, duration, ETA and file size
-  async function progressBar(plugin, context, { skip } = { skip : false }) {
-    const cols = [];
-    const index = await plugin.currentSlideIndex();
-    cols.push(`${skip ? 'Skipping' : 'Printing'} slide `);
-    cols.push(`#${index}`.padEnd(8));
-    cols.push(' (');
-    cols.push(`${context.currentSlide}`.padStart(context.totalSlides ? context.totalSlides.toString().length : 3));
-    cols.push('/');
-    cols.push(context.totalSlides || ' ?');
-    cols.push(') ...');
-    // erase overflowing slide fragments
-    cols.push(' '.repeat(Math.max(context.progressBarOverflow - Math.max(index.length + 1 - 8, 0), 0)));
-    context.progressBarOverflow = Math.max(index.length + 1 - 8, 0);
-    return cols.join('');
+async function hasNextSlide(plugin, context) {
+  if (typeof plugin.hasNextSlide === 'function') {
+    return await plugin.hasNextSlide();
+  } else {
+    return context.currentSlide < context.totalSlides;
   }
-})();
+}
+
+async function nextSlide(plugin, context) {
+  context.currentSlide++;
+  return plugin.nextSlide();
+}
+
+async function writePdf(filename, pdf) {
+  const pdfDir = path.dirname(filename);
+  try {
+    fs.accessSync(pdfDir, fs.constants.F_OK);
+  } catch {
+    fs.mkdirSync(pdfDir, { recursive: true });
+  }
+  fs.writeFileSync(filename, await pdf.save({ addDefaultPage: false }));
+}
+
+// TODO: add progress bar, duration, ETA and file size
+async function progressBar(plugin, context, { skip } = { skip: false }) {
+  const cols = [];
+  const index = await plugin.currentSlideIndex();
+  cols.push(`${skip ? 'Skipping' : 'Printing'} slide `);
+  cols.push(`#${index}`.padEnd(8));
+  cols.push(' (');
+  cols.push(`${context.currentSlide}`.padStart(context.totalSlides ? context.totalSlides.toString().length : 3));
+  cols.push('/');
+  cols.push(context.totalSlides || ' ?');
+  cols.push(') ...');
+  // erase overflowing slide fragments
+  cols.push(' '.repeat(Math.max(context.progressBarOverflow - Math.max(index.length + 1 - 8, 0), 0)));
+  context.progressBarOverflow = Math.max(index.length + 1 - 8, 0);
+  return cols.join('');
+}
