@@ -3,7 +3,6 @@
 'use strict';
 
 import chalk             from 'chalk';
-import chalkTemplate     from 'chalk-template';
 import crypto            from 'crypto';
 import { Font }          from 'fonteditor-core';
 import fs                from 'fs';
@@ -203,7 +202,6 @@ specified <url> and uses it to export and write the PDF into the specified <file
 // TODO: should be deactivated as well when it does not execute in a TTY context
 if (os.name === 'windows') parser.nocolors();
 
-
 const color = type => {
   switch (type) {
     case 'error': return chalk.red;
@@ -259,9 +257,9 @@ process.on('unhandledRejection', error => {
     .on('requestfailed', request => {
       // do not output warning for cancelled requests
       if (request.failure() && request.failure().errorText === 'net::ERR_ABORTED') return;
-      console.log(chalkTemplate`\n{yellow Unable to load resource from URL: ${request.url()}}`);
+      console.log(chalk.yellow('\nUnable to load resource from URL: %s'), request.url());
     })
-    .on('pageerror', error => console.log(chalkTemplate`\n{red Page error: ${error.message}}`));
+    .on('pageerror', error => console.log(chalk.red('\nPage error: %s'), error.message));
 
   console.log('Loading page', options.url, '...');
   const load = page.waitForNavigation({ waitUntil: 'load', timeout: options.urlLoadTimeout });
@@ -271,7 +269,7 @@ process.on('unhandledRejection', error => {
       .catch(error => response.status() !== 200 ? Promise.reject(error) : response)
       .then(_ => response))
     // TODO: improve message when reading file locally
-    .then(response => console.log('Loading page finished with status:', response.status()))
+    .then(response => console.log('Loading page finished with status: %s', response.status()))
     .then(delay(options.loadPause))
     .then(_ => createPlugin(page))
     .then(plugin => configurePlugin(plugin)
@@ -279,16 +277,15 @@ process.on('unhandledRejection', error => {
       .then(_ => exportSlides(plugin, page, pdf))
       .then(async context => {
         await writePdf(options.filename, pdf);
-        console.log(chalkTemplate`{green \nPrinted {bold ${context.exportedSlides}} slides}`);
+        console.log(chalk.green(`\nPrinted ${chalk.bold('%s')} slides`), context.exportedSlides);
         browser.close();
         process.exit();
       }))
     .catch(error => {
-      console.log(chalkTemplate`{red \n${error}}`);
+      console.log(chalk.red('\n%s'), error);
       browser.close();
       process.exit(1);
     });
-
 
   async function writePdf(filename, pdf) {
     const pdfDir = path.dirname(filename);
@@ -325,7 +322,7 @@ process.on('unhandledRejection', error => {
         throw Error(`Unable to activate the ${plugin.getName()} DeckTape plugin for the address: ${options.url}`);
       }
     }
-    console.log(chalkTemplate`{cyan {bold ${plugin.getName()}} plugin activated}`);
+    console.log(chalk.cyan(`${chalk.bold('%s')} plugin activated`), plugin.getName());
     return plugin;
   }
 
