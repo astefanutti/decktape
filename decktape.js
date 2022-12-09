@@ -207,7 +207,7 @@ if (os.name === 'windows') parser.nocolors();
 const color = type => {
   switch (type) {
     case 'error': return chalk.red;
-    case 'warning': return chalk.keyword('orange');
+    case 'warning': return chalk.yellow;
     default: return chalk.gray;
   }
 };
@@ -259,7 +259,7 @@ process.on('unhandledRejection', error => {
     .on('requestfailed', request => {
       // do not output warning for cancelled requests
       if (request.failure() && request.failure().errorText === 'net::ERR_ABORTED') return;
-      console.log(chalkTemplate`\n{keyword('orange') Unable to load resource from URL: ${request.url()}}`);
+      console.log(chalkTemplate`\n{yellow Unable to load resource from URL: ${request.url()}}`);
     })
     .on('pageerror', error => console.log(chalkTemplate`\n{red Page error: ${error.message}}`));
 
