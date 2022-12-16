@@ -30,7 +30,6 @@ function runDecktape(port, inputDir) {
     const outputFile = path.resolve(outputDirectory, `${inputDir}.pdf`);
     const process = childProcess.exec(
       `node ${decktapeExecutable} http://localhost:${port}/input/${inputDir}/ ${outputFile}`,
-      { stdio: "inherit" },
       (err) => {
         if (err) {
           rej(err);
