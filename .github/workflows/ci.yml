@@ -12,14 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install firefox
-    - name: Prepare pdfs
-      run: npm run test-prepare-pdfs
-    - name: Run Playwright tests
-      run: npm test
+    - run: npm ci
+    - run: npx playwright install firefox
+    - run: npm run test-prepare-pdfs
+    - run: npm test
     - uses: actions/upload-artifact@v3
       if: always()
       with:
