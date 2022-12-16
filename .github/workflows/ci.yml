@@ -15,7 +15,9 @@ jobs:
     - name: Install dependencies
       run: npm ci
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps firefox
+      run: npx playwright install firefox
+    - name: Prepare pdfs
+      run: npm run test-prepare-pdfs
     - name: Run Playwright tests
       run: npm test
     - uses: actions/upload-artifact@v3
