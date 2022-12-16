@@ -1,0 +1,23 @@
+name: Update snapshots
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - run: npm ci
+      - run: npx playwright install firefox
+      - run: npm run test-prepare-pdfs
+      - run: npm run build
+      - run: npm test --  --update-snapshots
+      - name: Commit
+        run: |
+          git config --global user.name 'Decktape bot'
+          git config --global user.email 'decktape-bot@users.noreply.github.com'
+          git pull
+          git add .
+          git commit -m "test(screenshots): update snapshots"
+          git push
