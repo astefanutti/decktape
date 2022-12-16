@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<canvas id="the-canvas"></canvas>
+		<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.1.81/build/pdf.min.js"></script>
+		<script type="module">
+            const params = new URLSearchParams(window.location.search);
+			const pdf = await pdfjsLib.getDocument(`./output/${params.get('file')}.pdf`).promise;
+			let currentPage = 1;
+			await renderPage();
+
+			window.deck = {
+				nextPage: async () => {
+					if (currentPage < pdf.numPages) {
+						currentPage++;
+						await renderPage();
+					}
+				},
+				numPages: pdf.numPages,
+			};
+			async function renderPage() {
+				const page = await pdf.getPage(currentPage);
+				const scale = 1.5;
+				const viewport = page.getViewport({ scale: scale });
+				// Support HiDPI-screens.
+				const outputScale = window.devicePixelRatio || 1;
+
+				const canvas = document.getElementById("the-canvas");
+				const canvasContext = canvas.getContext("2d");
+				canvas.width = Math.floor(viewport.width * outputScale);
+				canvas.height = Math.floor(viewport.height * outputScale);
+				canvas.style.width = Math.floor(viewport.width) + "px";
+				canvas.style.height = Math.floor(viewport.height) + "px";
+				const transform =
+					outputScale !== 1
+						? [outputScale, 0, 0, outputScale, 0, 0]
+						: null;
+
+				await page.render({ canvasContext, transform, viewport })
+					.promise;
+			}
+		</script>
+	</body>
+</html>

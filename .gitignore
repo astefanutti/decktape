@@ -11,3 +11,7 @@
 !package.json
 !npm-shrinkwrap.json
 !README.adoc
+!test/
+test/output/
+!playwright.config.ts
+!.github/
