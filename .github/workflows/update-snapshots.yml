@@ -12,8 +12,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install firefox
       - run: npm run test-prepare-pdfs
-      - run: npm run build
-      - run: npm test --  --update-snapshots
+      - run: npm test -- --update-snapshots
       - name: Commit
         run: |
           git config --global user.name 'Decktape bot'
