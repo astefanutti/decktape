@@ -5,7 +5,7 @@ on:
   pull_request: ~
   schedule:
     - cron:  '0 12 * * *'
-    
+
 jobs:
   test:
     timeout-minutes: 60
@@ -15,7 +15,7 @@ jobs:
     - name: Install dependencies
       run: npm ci
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      run: npx playwright install --with-deps firefox
     - name: Run Playwright tests
       run: npm test
     - uses: actions/upload-artifact@v3
