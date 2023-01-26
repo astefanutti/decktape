@@ -4,6 +4,7 @@
 !libs
 !plugins
 !.dockerignore
+!.gitattributes
 !.gitignore
 !.npmignore
 !decktape.js
