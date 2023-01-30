@@ -6,7 +6,10 @@ test.describe("e2e", () => {
 
   inputDirectories.forEach((input) => {
     test(`should have no visual regression for ${input}`, async ({ page }) => {
-      await page.goto(`/show-pdf.html?file=${input}`);
+      const dir = process.env.SNAPSHOT === 'true' ? 'snapshot' : 'output';
+      const url = `/show-pdf.html?file=${encodeURIComponent(`${dir}/${input}.pdf`)}`;
+      console.log(url);
+      await page.goto(url);
       await page.waitForFunction(() => typeof deck === "object");
       const theCanvas = page.locator("#the-canvas");
       const numberOfPages = await page.evaluate(async () => deck.numPages);

@@ -12,7 +12,8 @@
   },
   "scripts": {
     "start": "node decktape.js",
-    "test-prepare-pdfs": "node test/run-decktape.js",
+    "test:generate-pdfs": "node test/run-decktape.js",
+    "test:generate-snapshot-screenshots": "SNAPSHOT=true playwright test --update-snapshots",
     "test": "playwright test"
   },
   "repository": {
