@@ -34,6 +34,7 @@ class Reveal {
         controls  : false,
         progress  : false,
         fragments : fragments,
+        transition: 'none'
       }),
       // It seems passing 'fragments=true' in the URL query string does not take precedence
       // over globally configured 'fragments' and prevents from being able to toggle fragments
