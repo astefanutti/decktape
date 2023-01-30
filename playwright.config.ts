@@ -49,6 +49,7 @@ const config: PlaywrightTestConfig = {
   webServer: {
     command: `node test/run-server.js ${port}`,
     port,
+    reuseExistingServer: true,
   },
 };
 

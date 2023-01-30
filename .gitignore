@@ -14,5 +14,9 @@
 !README.adoc
 !test/
 test/output/
+
+# Snapshot screenshots are regenerated based on the snapshot pdf
+test/e2e.spec.ts-snapshots
+
 !playwright.config.ts
 !.github/

@@ -11,13 +11,13 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
       - run: npm ci
       - run: npx playwright install firefox
-      - run: npm run test-prepare-pdfs
-      - run: npm test -- --update-snapshots
+      - run: npm run test:generate-pdfs
+      - run: rm -rf test/snapshot && mv test/output test/snapshot
       - name: Commit
         run: |
           git config --global user.name 'Decktape bot'
           git config --global user.email 'decktape-bot@users.noreply.github.com'
           git pull
           git add .
-          git commit -m "test(screenshots): update snapshots"
+          git commit -m "test(snapshots): update snapshot pdfs"
           git push

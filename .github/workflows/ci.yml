@@ -14,7 +14,8 @@ jobs:
     - uses: actions/checkout@v3
     - run: npm ci
     - run: npx playwright install firefox
-    - run: npm run test-prepare-pdfs
+    - run: npm run test:generate-snapshot-screenshots
+    - run: npm run test:generate-pdfs
     - run: npm test
     - uses: actions/upload-artifact@v3
       if: always()
