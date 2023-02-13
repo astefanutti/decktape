@@ -19,5 +19,5 @@ jobs:
           git config --global user.email 'decktape-bot@users.noreply.github.com'
           git pull
           git add .
-          git commit -m "test(snapshots): update snapshot pdfs"
+          git commit -m "test: update snapshot PDFs"
           git push
