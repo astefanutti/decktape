@@ -2,6 +2,10 @@ name: CI
 
 on:
   pull_request:
+    types: 
+      - opened
+      - synchronize
+      - reopened
     branches:
       - master
     paths-ignore:
@@ -18,7 +22,7 @@ on:
       - '**.md'
       - 'LICENSE'
   schedule:
-    - cron:  '0 12 * * *'
+    - cron: '0 12 * * *'
 
 jobs:
   test:
