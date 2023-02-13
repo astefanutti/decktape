@@ -11,7 +11,7 @@ on:
       - 'LICENSE'
   push:
     branches:
-      - main
+      - master
     paths-ignore:
       - 'docs/**'
       - '**.adoc'
