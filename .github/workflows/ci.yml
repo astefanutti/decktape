@@ -1,8 +1,22 @@
 name: CI
 
 on:
-  push: ~
-  pull_request: ~
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - 'docs/**'
+      - '**.adoc'
+      - '**.md'
+      - 'LICENSE'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '**.adoc'
+      - '**.md'
+      - 'LICENSE'
   schedule:
     - cron:  '0 12 * * *'
 
