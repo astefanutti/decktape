@@ -17,11 +17,7 @@ on:
       - '**.adoc'
       - '**.md'
       - 'LICENSE'
-  workflow_run:
-    workflows:
-      - Update Snapshots
-    types:
-      - completed
+  workflow_dispatch:
   schedule:
     - cron: '0 12 * * *'
 
