@@ -17,6 +17,7 @@ on:
       - '**.adoc'
       - '**.md'
       - 'LICENSE'
+  repository_dispatch:
   schedule:
     - cron: '0 12 * * *'
 
