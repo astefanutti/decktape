@@ -21,14 +21,3 @@ jobs:
           git add .
           git commit -m "test: update snapshot PDFs"
           git push
-      - name: Trigger CI Workflow
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'ci.yml',
-              ref: context.ref,
-            })
