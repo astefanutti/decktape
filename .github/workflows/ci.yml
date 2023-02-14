@@ -17,7 +17,6 @@ on:
       - '**.adoc'
       - '**.md'
       - 'LICENSE'
-  workflow_dispatch:
   schedule:
     - cron: '0 12 * * *'
 
