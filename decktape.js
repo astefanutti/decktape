@@ -102,6 +102,16 @@ parser.script('decktape').options({
     transform : parseRange,
     help      : 'Range of slides to be exported, a combination of slide indexes and ranges (e.g. \'1-3,5,8\')',
   },
+  headed : {
+		default: false,
+		help      : 'Disable headless puppeteer.',
+  },
+  headers : {
+    type      : 'string',
+    callback  : parseHeader,
+    transform : parseHeader,
+		help      : 'Add headers to puppetter page instance. Comma deliminated list of strings. <header>,<value>. E.g. -headers "Authorization,\'Bearer ASDJASLKJALKSJDL\'"',
+  },
   // Chrome options
   chromePath : {
     full    : 'chrome-path',
@@ -136,6 +146,18 @@ parser.script('decktape').options({
     help    : 'String to set as the subject of the resulting pdf document',
   },
 });
+
+function parseHeader(headerString) {
+	const h = headerString.split(",")
+	if ((h.length % 2) != 0) {
+		return 'header flag must be a comma delimited key value pairing and should always have an even number of kv pairs'
+	}
+	let headers = {}
+	for (let i = 0; i < h.length; i += 2) {
+		headers[h[i]] = h[i+1]
+	}
+	return headers
+}
 
 function parseSize(size) {
   // we may want to support height and width labeled with units
@@ -230,18 +252,20 @@ process.on('unhandledRejection', error => {
   const options = parser.parse(process.argv.slice(2));
 
   const browser = await puppeteer.launch({
-    headless       : true,
+    headless       : !options.headed, // default is false
     // TODO: add a verbose option
     // dumpio      : true,
     executablePath : options.chromePath,
     args           : options.chromeArgs,
   });
   const page = await browser.newPage();
+	if (options.headers)
+		page.setExtraHTTPHeaders(options.headers)
   await page.emulateMediaType('screen');
   const pdf = await PDFDocument.create();
   pdf.setCreator('Decktape');
   if (options.metaAuthor)
-    pdf.setAuthor(options.metaAuthor);
+    page.setAuthor(options.metaAuthor);
   if (options.metaSubject)
     pdf.setSubject(options.metaSubject);
   if (options.metaTitle)
