@@ -110,7 +110,7 @@ parser.script('decktape').options({
     type      : 'string',
     callback  : parseHeader,
     transform : parseHeader,
-		help      : 'Add headers to puppetter page instance. Comma deliminated list of strings. <header>,<value>. E.g. -headers "Authorization,\'Bearer ASDJASLKJALKSJDL\'"',
+    help      : 'Add headers to puppetter page instance. Comma deliminated list of strings. <header>,<value>. E.g. -headers "Authorization,\'Bearer ASDJASLKJALKSJDL\'"',
   },
   // Chrome options
   chromePath : {
