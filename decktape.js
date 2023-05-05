@@ -460,7 +460,16 @@ async function printSlide(pdf, slide, context) {
           return;
         }
         const bytes = decodePDFRawStream(file).decode();
-        const font = Font.create(Buffer.from(bytes), { type: 'ttf', hinting: true });
+        let font;
+        try {
+          // Some fonts written in the PDF may be ill-formed. Let's skip font compression in that case,
+          // until it's fixed in Puppeteer > Chromium > Skia.
+          // This happens for system fonts like Helvetica Neue for which cmap table is missing.
+          font = Font.create(Buffer.from(bytes), { type: 'ttf', hinting: true });
+        } catch (e) {
+          console.log(chalk.yellow('\nSkipping font compression: %s'), e.message);
+          return;
+        }
         // Some fonts happen to have no metadata, which is required by fonteditor
         if (!font.data.name) {
           font.data.name = {};
