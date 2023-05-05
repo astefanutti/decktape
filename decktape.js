@@ -4,10 +4,10 @@
 
 import chalk             from 'chalk';
 import crypto            from 'crypto';
-import { Font }          from 'fonteditor-core';
 import fs                from 'fs';
 import os                from 'os';
 import parser            from './libs/nomnom.js';
+import opentype          from 'opentype.js'
 import path              from 'path';
 import puppeteer         from 'puppeteer';
 import URI               from 'urijs';
@@ -371,7 +371,9 @@ async function exportSlides(page, plugin, pdf, options) {
   }
   // Flush consolidated fonts
   Object.values(context.pdfFonts).forEach(({ ref, font }) => {
-    pdf.context.assign(ref, pdf.context.flateStream(font.write({ type: 'ttf', hinting: true })));
+    // Set missing glyph names to avoid opentype.js warnings
+    Object.values(font.glyphs.glyphs).forEach(g => g.name |= "name");
+    pdf.context.assign(ref, pdf.context.flateStream(new Uint8Array(font.toArrayBuffer())));
   });
   return context;
 }
@@ -465,31 +467,36 @@ async function printSlide(pdf, slide, context) {
           // Some fonts written in the PDF may be ill-formed. Let's skip font compression in that case,
           // until it's fixed in Puppeteer > Chromium > Skia.
           // This happens for system fonts like Helvetica Neue for which cmap table is missing.
-          font = Font.create(Buffer.from(bytes), { type: 'ttf', hinting: true });
+          font = opentype.parse(bytes.buffer);
         } catch (e) {
           console.log(chalk.yellow('\nSkipping font compression: %s'), e.message);
           return;
         }
-        // Some fonts happen to have no metadata, which is required by fonteditor
-        if (!font.data.name) {
-          font.data.name = {};
+        // Some fonts happen to have missing metadata
+        if (!font.names["fontFamily"]) {
+          font.names["fontFamily"] = { en: descriptor.get(PDFName.of('FontName')).value() || "fontFamily" };
+        }
+        if (!font.names["version"]) {
+          font.names["version"] = { en: "version" };
         }
         // PDF font name does not contain sub family on Windows 10,
         // so a more robust key is computed from the font metadata
-        const id = descriptor.get(PDFName.of('FontName')).value() + ' - ' + fontMetadataKey(font.data.name);
+        const id = descriptor.get(PDFName.of('FontName')).value() + ' - ' + fontMetadataKey(font.names);
         if (context.pdfFonts[id]) {
           const f = context.pdfFonts[id].font;
-          font.data.glyf.forEach((g, i) => {
-            if (g.contours && g.contours.length > 0) {
-              if (!f.data.glyf[i] || !f.data.glyf[i].contours || f.data.glyf[i].contours.length === 0) {
-                mergeGlyph(f, i, g);
+          for (let i = 0; i < font.glyphs.length; i++) {
+            const glyph = font.glyphs.glyphs[i];
+            if (i < f.glyphs.length) {
+              if (glyph.unicode > 0) {
+                const g = f.glyphs.glyphs[i];
+                if (typeof g.unicode === 'undefined') {
+                  f.glyphs.glyphs[i] = glyph;
+                }
               }
-            } else if (g.compound) {
-              if (!f.data.glyf[i] || typeof f.data.glyf[i].compound === 'undefined') {
-                mergeGlyph(f, i, g);
-              }
+            } else {
+              f.glyphs.push(i, glyph);
             }
-          });
+          };
           descriptor.set(PDFName.of('FontFile2'), context.pdfFonts[id].ref);
           duplicatedEntries.push(ref);
         } else {
@@ -499,22 +506,11 @@ async function printSlide(pdf, slide, context) {
     }
   };
 
-  function mergeGlyph(font, index, glyf) {
-    if (font.data.glyf.length <= index) {
-      for (let i = font.data.glyf.length; i < index; i++) {
-        font.data.glyf.push({ contours: Array(0), advanceWidth: 0, leftSideBearing: 0 });
-      }
-      font.data.glyf.push(glyf);
-    } else {
-      font.data.glyf[index] = glyf;
-    }
-  }
-
   function fontMetadataKey(font) {
-    const keys = ['fontFamily', 'fontSubFamily', 'fullName', 'preferredFamily', 'preferredSubFamily', 'uniqueSubFamily'];
+    const keys = ['fontFamily', 'fontSubFamily', 'fullName', 'postscriptName', 'preferredFamily', 'preferredSubFamily', 'version'];
     return Object.entries(font)
       .filter(([key, _]) => keys.includes(key))
-      .reduce((r, [k, v], i) => r + (i > 0 ? ',' : '') + k + '=' + v, '');
+      .reduce((r, [k, v], i) => r + (i > 0 ? ',' : '') + k + '=' + v.en || v, '');
   }
 }
 
