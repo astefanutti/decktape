@@ -230,7 +230,7 @@ process.on('unhandledRejection', error => {
   const options = parser.parse(process.argv.slice(2));
 
   const browser = await puppeteer.launch({
-    headless       : true,
+    headless       : 'new',
     // TODO: add a verbose option
     // dumpio      : true,
     executablePath : options.chromePath,
