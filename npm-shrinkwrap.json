@@ -10,7 +10,7 @@
       "license": "MIT",
       "dependencies": {
         "chalk": "5.1.2",
-        "fonteditor-core": "2.1.10",
+        "opentype.js": "1.3.4",
         "pdf-lib": "1.17.1",
         "puppeteer": "20.1.0",
         "puppeteer-core": "20.1.0",
@@ -25,7 +25,7 @@
         "koa-static": "5.0.0"
       },
       "engines": {
-        "node": ">=12.20"
+        "node": ">=16.0.0"
       }
     },
     "node_modules/@babel/code-frame": {
@@ -171,14 +171,6 @@
       "optional": true,
       "dependencies": {
         "@types/node": "*"
-      }
-    },
-    "node_modules/@xmldom/xmldom": {
-      "version": "0.8.6",
-      "resolved": "https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.8.6.tgz",
-      "integrity": "sha512-uRjjusqpoqfmRkTaNuLJ2VohVr67Q5YwDATW3VU7PfzTj6IRaihGrYI7zckGZjxQPBIp63nfvJbM+Yu5ICh0Bg==",
-      "engines": {
-        "node": ">=10.0.0"
       }
     },
     "node_modules/accepts": {
@@ -573,14 +565,6 @@
       "integrity": "sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==",
       "dependencies": {
         "pend": "~1.2.0"
-      }
-    },
-    "node_modules/fonteditor-core": {
-      "version": "2.1.10",
-      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-2.1.10.tgz",
-      "integrity": "sha512-NQvTBstkzkJeNTb6UUaliQs493mHj4Su0yH2d8eHQbQZQK9fIOh7X/pzKdW7BtQpDQZPSjh65ruLBqOqwGTHKQ==",
-      "dependencies": {
-        "@xmldom/xmldom": "^0.8.3"
       }
     },
     "node_modules/fresh": {
@@ -997,6 +981,21 @@
       "integrity": "sha512-Fvw+Jemq5fjjyWz6CpKx6w9s7xxqo3+JCyM0WXWeCSOboZ8ABkyvP8ID4CZuChA/wxSx+XSJmdOm8rGVyJ1hdQ==",
       "dev": true
     },
+    "node_modules/opentype.js": {
+      "version": "1.3.4",
+      "resolved": "https://registry.npmjs.org/opentype.js/-/opentype.js-1.3.4.tgz",
+      "integrity": "sha512-d2JE9RP/6uagpQAVtJoF0pJJA/fgai89Cc50Yp0EJHk+eLp6QQ7gBoblsnubRULNY132I0J1QKMJ+JTbMqz4sw==",
+      "dependencies": {
+        "string.prototype.codepointat": "^0.2.1",
+        "tiny-inflate": "^1.0.3"
+      },
+      "bin": {
+        "ot": "bin/ot"
+      },
+      "engines": {
+        "node": ">= 8.0.0"
+      }
+    },
     "node_modules/pako": {
       "version": "1.0.11",
       "resolved": "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz",
@@ -1282,6 +1281,11 @@
         "node": ">=8"
       }
     },
+    "node_modules/string.prototype.codepointat": {
+      "version": "0.2.1",
+      "resolved": "https://registry.npmjs.org/string.prototype.codepointat/-/string.prototype.codepointat-0.2.1.tgz",
+      "integrity": "sha512-2cBVCj6I4IOvEnjgO/hWqXjqBGsY+zwPmHl12Srk9IXSZ56Jwwmy+66XO5Iut/oQVR7t5ihYdLB0GMa4alEUcg=="
+    },
     "node_modules/strip-ansi": {
       "version": "6.0.1",
       "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
@@ -1334,6 +1338,11 @@
       "version": "2.3.8",
       "resolved": "https://registry.npmjs.org/through/-/through-2.3.8.tgz",
       "integrity": "sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg=="
+    },
+    "node_modules/tiny-inflate": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/tiny-inflate/-/tiny-inflate-1.0.3.tgz",
+      "integrity": "sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw=="
     },
     "node_modules/toidentifier": {
       "version": "1.0.1",
@@ -1624,11 +1633,6 @@
         "@types/node": "*"
       }
     },
-    "@xmldom/xmldom": {
-      "version": "0.8.6",
-      "resolved": "https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.8.6.tgz",
-      "integrity": "sha512-uRjjusqpoqfmRkTaNuLJ2VohVr67Q5YwDATW3VU7PfzTj6IRaihGrYI7zckGZjxQPBIp63nfvJbM+Yu5ICh0Bg=="
-    },
     "accepts": {
       "version": "1.3.8",
       "resolved": "https://registry.npmjs.org/accepts/-/accepts-1.3.8.tgz",
@@ -1903,14 +1907,6 @@
       "integrity": "sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==",
       "requires": {
         "pend": "~1.2.0"
-      }
-    },
-    "fonteditor-core": {
-      "version": "2.1.10",
-      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-2.1.10.tgz",
-      "integrity": "sha512-NQvTBstkzkJeNTb6UUaliQs493mHj4Su0yH2d8eHQbQZQK9fIOh7X/pzKdW7BtQpDQZPSjh65ruLBqOqwGTHKQ==",
-      "requires": {
-        "@xmldom/xmldom": "^0.8.3"
       }
     },
     "fresh": {
@@ -2219,6 +2215,15 @@
       "integrity": "sha512-Fvw+Jemq5fjjyWz6CpKx6w9s7xxqo3+JCyM0WXWeCSOboZ8ABkyvP8ID4CZuChA/wxSx+XSJmdOm8rGVyJ1hdQ==",
       "dev": true
     },
+    "opentype.js": {
+      "version": "1.3.4",
+      "resolved": "https://registry.npmjs.org/opentype.js/-/opentype.js-1.3.4.tgz",
+      "integrity": "sha512-d2JE9RP/6uagpQAVtJoF0pJJA/fgai89Cc50Yp0EJHk+eLp6QQ7gBoblsnubRULNY132I0J1QKMJ+JTbMqz4sw==",
+      "requires": {
+        "string.prototype.codepointat": "^0.2.1",
+        "tiny-inflate": "^1.0.3"
+      }
+    },
     "pako": {
       "version": "1.0.11",
       "resolved": "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz",
@@ -2429,6 +2434,11 @@
         "strip-ansi": "^6.0.1"
       }
     },
+    "string.prototype.codepointat": {
+      "version": "0.2.1",
+      "resolved": "https://registry.npmjs.org/string.prototype.codepointat/-/string.prototype.codepointat-0.2.1.tgz",
+      "integrity": "sha512-2cBVCj6I4IOvEnjgO/hWqXjqBGsY+zwPmHl12Srk9IXSZ56Jwwmy+66XO5Iut/oQVR7t5ihYdLB0GMa4alEUcg=="
+    },
     "strip-ansi": {
       "version": "6.0.1",
       "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
@@ -2472,6 +2482,11 @@
       "version": "2.3.8",
       "resolved": "https://registry.npmjs.org/through/-/through-2.3.8.tgz",
       "integrity": "sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg=="
+    },
+    "tiny-inflate": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/tiny-inflate/-/tiny-inflate-1.0.3.tgz",
+      "integrity": "sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw=="
     },
     "toidentifier": {
       "version": "1.0.1",
