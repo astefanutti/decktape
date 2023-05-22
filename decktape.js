@@ -102,14 +102,14 @@ parser.script('decktape').options({
     transform : parseRange,
     help      : 'Range of slides to be exported, a combination of slide indexes and ranges (e.g. \'1-3,5,8\')',
   },
-  headed : {
-    default : false,
-    help    : 'Disable headless puppeteer.',
+  headless : {
+    default : true,
+    help    : 'Control headless mode puppeteer.',
   },
   headers : {
     type      : 'string',
-    callback  : parseHeader,
-    transform : parseHeader,
+    callback  : parseHeaders,
+    transform : parseHeaders,
     help      : 'Add headers to puppetter page instance. Comma deliminated list of strings. <header>,<value>. E.g. -headers "Authorization,\'Bearer ASDJASLKJALKSJDL\'"',
   },
   // Chrome options
@@ -147,7 +147,7 @@ parser.script('decktape').options({
   },
 });
 
-function parseHeader(headerString) {
+function parseHeaders(headerString) {
   const h = headerString.split(",")
   if ((h.length % 2) != 0) {
     return 'header flag must be a comma delimited key value pairing and should always have an even number of kv pairs'
@@ -252,7 +252,7 @@ process.on('unhandledRejection', error => {
   const options = parser.parse(process.argv.slice(2));
 
   const browser = await puppeteer.launch({
-    headless       : !options.headed, // default is false
+    headless       : options.headless,
     // TODO: add a verbose option
     // dumpio      : true,
     executablePath : options.chromePath,
@@ -265,7 +265,7 @@ process.on('unhandledRejection', error => {
   const pdf = await PDFDocument.create();
   pdf.setCreator('Decktape');
   if (options.metaAuthor)
-    page.setAuthor(options.metaAuthor);
+    pdf.setAuthor(options.metaAuthor);
   if (options.metaSubject)
     pdf.setSubject(options.metaSubject);
   if (options.metaTitle)
