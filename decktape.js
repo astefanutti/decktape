@@ -103,7 +103,7 @@ parser.script('decktape').options({
     help      : 'Range of slides to be exported, a combination of slide indexes and ranges (e.g. \'1-3,5,8\')',
   },
   headless : {
-    default : true,
+    default : 'new', // false to enable headed mode and true to enable old puppeteer headless. See: https://developer.chrome.com/articles/new-headless/#new-headless-in-puppeteer
     help    : 'Control headless mode puppeteer.',
   },
   headers : {
