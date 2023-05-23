@@ -104,13 +104,13 @@ parser.script('decktape').options({
   },
   headless : {
     default : 'new', // false to enable headed mode and true to enable old puppeteer headless. See: https://developer.chrome.com/articles/new-headless/#new-headless-in-puppeteer
-    help    : 'Control headless mode puppeteer.',
+    help    : 'Puppeteer headless mode, one if [new, true, false]',
   },
   headers : {
     type      : 'string',
     callback  : parseHeaders,
     transform : parseHeaders,
-    help      : 'Add headers to puppetter page instance. Comma deliminated list of strings. <header>,<value>. E.g. -headers "Authorization,\'Bearer ASDJASLKJALKSJDL\'"',
+    help      : 'HTTP headers, comma-separated list of <header>,<value> pairs (e.g. "Authorization,\'Bearer ASDJASLKJALKSJDL\'")',
   },
   // Chrome options
   chromePath : {
@@ -131,32 +131,32 @@ parser.script('decktape').options({
     full    : 'pdf-author',
     metavar : '<arg>',
     type    : 'string',
-    help    : 'String to set as the author of the resulting pdf document',
+    help    : 'String to set as the author of the resulting PDF document',
   },
   metaTitle : {
     full    : 'pdf-title',
     metavar : '<arg>',
     type    : 'string',
-    help    : 'String to set as the title of the resulting pdf document',
+    help    : 'String to set as the title of the resulting PDF document',
   },
   metaSubject : {
     full    : 'pdf-subject',
     metavar : '<arg>',
     type    : 'string',
-    help    : 'String to set as the subject of the resulting pdf document',
+    help    : 'String to set as the subject of the resulting PDF document',
   },
 });
 
 function parseHeaders(headerString) {
-  const h = headerString.split(",")
+  const h = headerString.split(",");
   if ((h.length % 2) != 0) {
-    return 'header flag must be a comma delimited key value pairing and should always have an even number of kv pairs'
+    return 'header flag must be a comma delimited key value pairing and should always have an even number of kv pairs';
   }
-  let headers = {}
+  let headers = {};
   for (let i = 0; i < h.length; i += 2) {
-    headers[h[i]] = h[i+1]
+    headers[h[i]] = h[i+1];
   }
-  return headers
+  return headers;
 }
 
 function parseSize(size) {
