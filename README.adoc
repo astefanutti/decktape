@@ -124,21 +124,22 @@ filename     Filename of the output PDF file
 Options:
    -s <size>, --size <size>        Size of the slides deck viewport: <width>x<height> (e.g. '1280x720')
    -p <ms>, --pause <ms>           Duration in milliseconds before each slide is exported  [1000]
-   --load-pause <ms>               Duration in milliseconds between the page has loaded
-                                   and starting to export slides  [0]
-   --url-load-timeout <ms>         Timeout in milliseconds to use when waiting for the initial 
-                                   URL to load  [60000]
-   --page-load-timeout <ms>        Timeout in milliseconds to use when waiting for the slide deck 
-                                   page to load  [20000]
+   --load-pause <ms>               Duration in milliseconds between the page has loaded and starting to export slides  [0]
+   --url-load-timeout <ms>         Timeout in milliseconds to use when waiting for the initial URL to load  [60000]
+   --page-load-timeout <ms>        Timeout in milliseconds to use when waiting for the slide deck page to load  [20000]
+   --buffer-timeout <ms>           Timeout in milliseconds to use when waiting for a slide to finish buffering (set to 0 to disable)  [30000]
    --screenshots                   Capture each slide as an image  [false]
    --screenshots-directory <dir>   Screenshots output directory  [screenshots]
-   --screenshots-size <size>       Screenshots resolution, can be repeated  [--size]
+   --screenshots-size <size>       Screenshots resolution, can be repeated
    --screenshots-format <format>   Screenshots image format, one of [jpg, png]  [png]
-   --slides <range>                Range of slides to be exported, a combination of slide indexes
-                                   and ranges (e.g. '1-3,5,8')
-   --chrome-path <path>            Path to the Chromium or Chrome executable to run instead of the
-                                   bundled Chromium
+   --slides <range>                Range of slides to be exported, a combination of slide indexes and ranges (e.g. '1-3,5,8')
+   --headless                      Puppeteer headless mode, one if [new, true, false]  [new]
+   --headers                       HTTP headers, comma-separated list of <header>,<value> pairs (e.g. "Authorization,'Bearer ASDJASLKJALKSJDL'")
+   --chrome-path <path>            Path to the Chromium or Chrome executable to run instead of the bundled Chromium
    --chrome-arg <arg>              Additional argument to pass to the Chrome instance, can be repeated
+   --pdf-author <arg>              String to set as the author of the resulting PDF document
+   --pdf-title <arg>               String to set as the title of the resulting PDF document
+   --pdf-subject <arg>             String to set as the subject of the resulting PDF document
 
 Defaults to the automatic command.
 Iterates over the available plugins, picks the compatible one for presentation at the
