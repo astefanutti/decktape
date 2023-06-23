@@ -435,6 +435,7 @@ async function exportSlide(page, plugin, pdf, context, options) {
 async function printSlide(pdf, slide, context) {
   const duplicatedEntries = [];
   const [page] = await pdf.copyPages(slide, [0]);
+
   pdf.addPage(page);
   // Traverse the page to consolidate duplicates
   parseResources(page.node);
@@ -494,9 +495,12 @@ async function printSlide(pdf, slide, context) {
           console.log(chalk.yellow('\nSkipping font compression: %s'), e.message);
           return;
         }
-        // Some fonts happen to have no metadata, which is required by fonteditor
+        // Some fonts happen to miss some metadata and tables required by fonteditor
         if (!font.data.name) {
           font.data.name = {};
+        }
+        if (!font.data['OS/2']) {
+          font.data['OS/2'] = {};
         }
         // PDF font name does not contain sub family on Windows 10,
         // so a more robust key is computed from the font metadata
