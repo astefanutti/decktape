@@ -290,20 +290,19 @@ Besides, it is recommended to use the following options from the {uri-docker-ref
 
 Alternatively, you can use the {uri-docker-ref}/commandline/cp[`docker cp`] command, e.g.:
 
-[source,shell,subs=attributes+]
+[source,shell]
 ----
 # Run docker run without the --rm option
-$ docker run astefanutti/decktape {uri-revealjs} slides.pdf
+$ docker run astefanutti/decktape https://revealjs.com/demo/ slides.pdf
 # Copy the exported PDF from the latest used container to the local file system
 $ docker cp `docker ps -lq`:slides/slides.pdf .
 # Finally remove the latest used container
 $ docker rm `docker ps -lq`
 ----
 
-If your presentation relies on fonts installed on the host system, but not in the base Docker container, you can mount your fonts
-directory as a volume, e.g. for macOS:
+If your presentation relies on fonts installed on the host system, but not in the base Docker container, you can mount your fonts directory as a volume, e.g. for macOS:
 
-[source]
+[source,shell]
 $ docker run -v "${HOME}/Library/Fonts:/home/node/.local/share/fonts" ...
 
 == FAQ
@@ -333,11 +332,23 @@ The list of Chromium flags can be found https://peter.sh/experiments/chromium-co
 
 * *_No usable sandbox!_*
 +
-Arch Linux, among other Linux distributions may have the user namespace in the kernel disabled by default. You can verify this by accessing _chrome://sandbox_ in your chrom[e|ium] browser. You can find more about sandboxing, https://chromium.googlesource.com/chromium/src/+/master/docs/linux_sandboxing.md#User-namespaces-sandbox[here]. As a _temporary_ work-around, you can pass `--chrome-arg=--no-sandbox` as a CLI option.
+Arch Linux, among other Linux distributions may have the user namespace in the kernel disabled by default. You can verify this by accessing _chrome://sandbox_ in your Chrome browser.
+You can find more about sandboxing, https://chromium.googlesource.com/chromium/src/+/master/docs/linux_sandboxing.md#User-namespaces-sandbox[here].
+As a _temporary_ work-around, you can pass `--chrome-arg=--no-sandbox` as a CLI option.
+
+* *_Mixed Content: The page was loaded over HTTPS, but requested an insecure resource_*
++
+Chrome blocks insecure content on secure pages by default.
+This can be alleviated by passing the `--allow-running-insecure-content` flag option, e.g.:
++
+[source,shell]
+----
+$ decktape ... --chrome-arg=--allow-running-insecure-content
+----
 
 * *_Failed to read the 'rules' property from 'CSSStyleSheet': Cannot access rules_*
 +
-Starting Chromium 64, accessing CSS rules in a stylesheet loaded from the local filesystem or an external location violates CORS policies.
+Starting Chrome 64, accessing CSS rules in a stylesheet loaded from the local filesystem or an external location violates CORS policies.
 As some Decktape plugins tweak the CSS rules for better PDF printing, you need to allow access to local files or external stylesheets by setting the `--disable-web-security` flag option, e.g.:
 +
 [source,shell]
@@ -347,11 +358,14 @@ $ decktape ... --chrome-arg=--disable-web-security
 
 * *_Layout inconsistencies_*
 +
-Decktape relies on Pupeteer to convert each slide in PDF format. Slight layout inconsistencies can result as part of this transformation. One workaround is to set a specific slide size using the `-s` option. The value of `-s 1024x768` has generally worked well in such situations.
-+
+Decktape relies on Pupeteer to convert each slide in PDF format. Slight layout inconsistencies can result as part of this transformation.
+One workaround is to set a specific slide size using the `-s` option.
+The value of `-s 1024x768` has generally worked well in such situations.
+
 * *_Reveal.js slide generation never finishes_*
 +
-Decktape does not use the built-in PDF support of reveal.js, and instead captures each slide individually. Therefore you must not append `?print-pdf` or load the print stylesheets in any other way when using Decktape.
+Decktape does not use the built-in PDF support of reveal.js, and instead captures each slide individually.
+Therefore you must not append `?print-pdf` or load the print stylesheets in any other way when using Decktape.
 
 == Plugin API
 
