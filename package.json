@@ -32,7 +32,7 @@
     "urijs": "1.19.11"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=16.3.0"
   },
   "devDependencies": {
     "koa": "2.14.1",
