@@ -10,7 +10,7 @@
       "license": "MIT",
       "dependencies": {
         "chalk": "5.1.2",
-        "fonteditor-core": "2.1.10",
+        "fonteditor-core": "2.1.11",
         "pdf-lib": "1.17.1",
         "puppeteer": "20.3.0",
         "puppeteer-core": "20.3.0",
@@ -25,7 +25,7 @@
         "koa-static": "5.0.0"
       },
       "engines": {
-        "node": ">=12.20"
+        "node": ">=16.0.0"
       }
     },
     "node_modules/@babel/code-frame": {
@@ -585,9 +585,9 @@
       }
     },
     "node_modules/fonteditor-core": {
-      "version": "2.1.10",
-      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-2.1.10.tgz",
-      "integrity": "sha512-NQvTBstkzkJeNTb6UUaliQs493mHj4Su0yH2d8eHQbQZQK9fIOh7X/pzKdW7BtQpDQZPSjh65ruLBqOqwGTHKQ==",
+      "version": "2.1.11",
+      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-2.1.11.tgz",
+      "integrity": "sha512-zgO5tHw5vzqYqkeb9jthIANbOOGwWqNWovINCMyIDLh9xmujsHPqloWJdk0PMbJHbZmiLG1F/kygfuWS8+TDfA==",
       "dependencies": {
         "@xmldom/xmldom": "^0.8.3"
       }
@@ -1926,9 +1926,9 @@
       }
     },
     "fonteditor-core": {
-      "version": "2.1.10",
-      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-2.1.10.tgz",
-      "integrity": "sha512-NQvTBstkzkJeNTb6UUaliQs493mHj4Su0yH2d8eHQbQZQK9fIOh7X/pzKdW7BtQpDQZPSjh65ruLBqOqwGTHKQ==",
+      "version": "2.1.11",
+      "resolved": "https://registry.npmjs.org/fonteditor-core/-/fonteditor-core-2.1.11.tgz",
+      "integrity": "sha512-zgO5tHw5vzqYqkeb9jthIANbOOGwWqNWovINCMyIDLh9xmujsHPqloWJdk0PMbJHbZmiLG1F/kygfuWS8+TDfA==",
       "requires": {
         "@xmldom/xmldom": "^0.8.3"
       }
