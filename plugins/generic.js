@@ -10,6 +10,10 @@ export const options = {
     metavar : '<key>',
     help    : 'Key pressed to navigate to next slide',
   },
+  secondaryKey : {
+    metavar : '<secondaryKey>',
+    help    : 'Key pressed to navigate to next slide IF usual key has no effect',
+  },
   maxSlides : {
     full    : 'max-slides',
     metavar : '<size>',
@@ -29,7 +33,8 @@ and iterates over the presentation as long as:
 - Any change to the DOM is detected by observing mutation events targeting the body element
   and its subtree,
 - Nor the number of slides exported has reached the specified --max-slides option.
-  The --key option must be one of the 'KeyboardEvent' keys and defaults to [${options.key.default}].`;
+  The --key option must be one of the 'KeyboardEvent' keys and defaults to [${options.key.default}].
+  For 2D navigation, use the --secondaryKey option.`;
 
 export const create = (page, opts) => new Generic(page, opts);
 
@@ -41,6 +46,7 @@ class Generic {
     this.isNextSlideDetected = false;
     this.key = this.options.key || options.key.default;
     this.media = this.options.media || options.media.default;
+    this.secondaryKey = this.options.secondaryKey;
   }
 
   getName() {
@@ -79,6 +85,11 @@ class Generic {
     // TODO: detect cycle to avoid infinite navigation for frameworks
     // that support loopable presentations like impress.js and flowtime.js
     await pause(1000);
+
+    if (!this.isNextSlideDetected && (typeof this.secondaryKey !== 'undefined')) {
+      await this.page.keyboard.press(this.secondaryKey);
+      await pause(1000);
+    }
     return this.isNextSlideDetected;
   }
 
