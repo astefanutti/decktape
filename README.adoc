@@ -160,15 +160,15 @@ Iterates over the available link:plugins[], picks the compatible one for present
 [#generic]
 === `generic`
 
-Emulates the end-user interaction by pressing the key with the specified `--key` option and iterates over the presentation as long as:
+Emulates the end-user interaction by pressing the key with the specified `--key` option, and iterates over the presentation as long as:
 
 [loweralpha]
-. Any change to the DOM is detected by observing mutation events targeting the body element and its subtree nor
-. the number of slides exported has reached the specified `--max-slides` option.
+. Any change to the DOM is detected by observing mutation events targeting the body element and its subtree,
+. Nor the number of slides exported has reached the specified `--max-slides` option.
 
-The `--key` value must be one of the {uri-w3c-uievents-key}[UI events `KeyboardEvent` key values] and defaults to `ArrowRight`, e.g.:
+The `--key` option must be a list of {uri-w3c-uievents-key}[UI events `KeyboardEvent` key values], and defaults to `['ArrowRight']`, e.g.:
 
- $ decktape generic --key=ArrowDown
+ $ decktape generic --key=ArrowDown --key=ArrowRight
 
 == Options
 
