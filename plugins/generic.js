@@ -78,6 +78,7 @@ class Generic {
       return false;
     }
     for (let key of this.keys) {
+      this.isNextSlideDetected = false;
       await this.page.keyboard.press(key);
       // TODO: use mutation event directly instead of relying on a timeout
       // TODO: detect cycle to avoid infinite navigation for frameworks
@@ -92,7 +93,6 @@ class Generic {
 
   nextSlide() {
     this.currentSlide++;
-    this.isNextSlideDetected = false;
   }
 
   async currentSlideIndex() {
