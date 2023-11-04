@@ -458,9 +458,12 @@ async function printSlide(pdf, slide, context) {
     const subtype = object.dict.get(PDFName.of('Subtype'));
     if (subtype === PDFName.of('Image')) {
       const digest = crypto.createHash('SHA1').update(object.contents).digest('hex');
-      if (!context.pdfXObjects[digest]) {
+      const existing = context.pdfXObjects[digest];
+      if (!existing) {
+        // Store the entry that'll replace references with the same content
         context.pdfXObjects[digest] = entry;
-      } else {
+      } else if (entry !== existing) {
+        // Only remove references from different pages
         xObject.set(name, context.pdfXObjects[digest]);
         duplicatedEntries.push(entry);
       }
