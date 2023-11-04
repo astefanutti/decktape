@@ -27,8 +27,8 @@
     "chalk": "5.1.2",
     "fonteditor-core": "2.1.11",
     "pdf-lib": "1.17.1",
-    "puppeteer": "20.9.0",
-    "puppeteer-core": "20.9.0",
+    "puppeteer": "21.4.1",
+    "puppeteer-core": "21.4.1",
     "urijs": "1.19.11"
   },
   "engines": {
