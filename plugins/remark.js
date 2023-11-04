@@ -15,37 +15,6 @@ class Remark {
       typeof remark === 'object' && typeof slideshow === 'object');
   }
 
-  async configure() {
-    await this.page.evaluate(_ => {
-      for (let j = 0; j < document.styleSheets.length; j++) {
-        const sheet = document.styleSheets[j];
-        if (!sheet.rules) continue;
-        for (let i = sheet.rules.length - 1; i >= 0; i--) {
-          if (sheet.rules[i] instanceof window.CSSPageRule) {
-            sheet.deleteRule(i);
-          }
-        }
-      }
-      // Add a style to adjust for PDF export
-      const style = document.createElement('style');
-      document.head.appendChild(style);
-      style.sheet.insertRule(`
-      @media screen {
-        .remark-slide {
-          /* Default 'table' diplay does not work with Chrome PDF export */
-          display: inline-table;
-        }
-        .remark-slide-content {
-          display: table-cell;
-        }
-        .remark-slide-scaler {
-          /* Remove slides box shadows */
-          box-shadow: none;
-        }
-      }`);
-    });
-  }
-
   size() {
     return this.page.evaluate(_ => {
       const [referenceWidth, referenceHeight] = [908, 681];
