@@ -273,7 +273,7 @@ process.on('unhandledRejection', error => {
 
   page
     .on('console', async msg => {
-      const args = msg.args().length
+      const args = msg.type() !== 'log'
         ? await Promise.all(msg.args().map(arg => arg.executionContext().evaluate(obj => obj, arg)))
         : [msg.text()];
       console.log(...args.map(arg => color(msg.type())(util.format(arg))));
