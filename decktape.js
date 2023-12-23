@@ -276,7 +276,8 @@ process.on('unhandledRejection', error => {
       const args = msg.type() !== 'log'
         ? await Promise.all(msg.args().map(arg => arg.executionContext().evaluate(obj => obj, arg)))
         : [msg.text()];
-      console.log(...args.map(arg => color(msg.type())(util.format(arg))));
+      if (args.length > 0)
+        console.log(...args.map(arg => color(msg.type())(util.format(arg))));
     })
     .on('requestfailed', request => {
       // do not output warning for cancelled requests
