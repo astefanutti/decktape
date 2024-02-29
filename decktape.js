@@ -303,12 +303,14 @@ process.on('unhandledRejection', error => {
       .then(async context => {
         await writePdf(options.filename, pdf);
         console.log(chalk.green(`\nPrinted ${chalk.bold('%s')} slides`), context.exportedSlides);
-        browser.close();
+        // Wait for the browser to close before exiting the process
+        await browser.close();
         process.exit();
       }))
-    .catch(error => {
+    .catch(async error => {
       console.log(chalk.red('\n%s'), error);
-      browser.close();
+      // Wait for the browser to close before exiting the process
+      await browser.close();
       process.exit(1);
     });
 })();
