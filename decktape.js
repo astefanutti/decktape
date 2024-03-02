@@ -227,7 +227,7 @@ if (os.name === 'windows') parser.nocolors();
 const color = type => {
   switch (type) {
     case 'error': return chalk.red;
-    case 'warning': return chalk.yellow;
+    case 'warn': return chalk.yellow;
     default: return chalk.gray;
   }
 };
@@ -273,11 +273,12 @@ process.on('unhandledRejection', error => {
 
   page
     .on('console', async msg => {
-      const args = msg.type() !== 'log'
-        ? await Promise.all(msg.args().map(arg => arg.executionContext().evaluate(obj => obj, arg)))
-        : [msg.text()];
-      if (args.length > 0)
+      if (msg.type() === 'log') {
+        const args = await Promise.all(msg.args().map(arg => arg.evaluate(obj => obj, arg)));
         console.log(...args.map(arg => color(msg.type())(util.format(arg))));
+      } else {
+        console.log(color(msg.type())(util.format(msg.text())));
+      }
     })
     .on('requestfailed', request => {
       // do not output warning for cancelled requests
