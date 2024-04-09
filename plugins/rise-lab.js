@@ -20,7 +20,7 @@ class RISElab {
   }
 
   isActive() {
-    return true;
+    return this.page.evaluate(_ => { return document.title == 'Rise' });
   }
 
   async configure() {
