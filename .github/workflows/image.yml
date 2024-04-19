@@ -27,7 +27,8 @@ on:
 
 jobs:
   buildx:
-    if: github.repository_owner == 'astefanutti'
+    # Also build the image from this repository
+    # if: github.repository_owner == 'astefanutti'
     name: buildx
     runs-on: ubuntu-20.04
 
