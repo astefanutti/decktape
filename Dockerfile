@@ -40,9 +40,9 @@ RUN apk update && apk upgrade && \
     nss \
     ttf-freefont \
     wqy-zenhei && \
+    # /etc/fonts/conf.d/44-wqy-zenhei.conf overrides 'monospace' matching FreeMono.ttf in /etc/fonts/conf.d/69-unifont.conf
     mv /etc/fonts/conf.d/44-wqy-zenhei.conf /etc/fonts/conf.d/74-wqy-zenhei.conf && \
     rm -rf /var/cache/apk/*
-    # /etc/fonts/conf.d/44-wqy-zenhei.conf overrides 'monospace' matching FreeMono.ttf in /etc/fonts/conf.d/69-unifont.conf
 
 # Node.js
 COPY --from=builder /usr/local/bin/node /usr/local/bin/
