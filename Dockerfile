@@ -18,7 +18,7 @@ FROM alpine:3.19.1
 
 LABEL org.opencontainers.image.source="https://github.com/astefanutti/decktape"
 
-ARG CHROMIUM_VERSION=122.0.6261.94-r0
+ARG CHROMIUM_VERSION=123.0.6312.122-r0
 ENV TERM xterm-color
 
 RUN <<EOF cat > /etc/apk/repositories
