@@ -46,10 +46,11 @@ class Reveal {
   configure() {
     return this.page.evaluate(config => {
         Reveal.configure({
-          controls  : false,
-          progress  : config.progress,
-          fragments : config.fragments,
-          transition: 'none'
+          controls   : false,
+          progress   : config.progress,
+          fragments  : config.fragments,
+          transition : 'none',
+          autoAnimate: false,
         });
 
         // This is a workaround to disable the open button of the RevealMenu plugin.
