@@ -50,7 +50,7 @@ class Reveal {
           progress   : config.progress,
           fragments  : config.fragments,
           transition : 'none',
-          autoAnimate: false
+          autoAnimate: false,
         });
 
         // This is a workaround to disable the open button of the RevealMenu plugin.
