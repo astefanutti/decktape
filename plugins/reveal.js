@@ -3,10 +3,12 @@ import URI from 'urijs';
 export const options = {
   fragments: {
     default : false,
+    flag    : true,
     help    : 'Enable or disable fragments',
   },
   progress: {
     default : false,
+    flag    : true,
     help    : 'Enable or disable progress bar',
   },
 };
@@ -17,9 +19,8 @@ class Reveal {
 
   constructor(page, opts) {
     this.page = page;
-    this.options = opts;
-    this.fragments = this.options.fragments;
-    this.progress = this.options.progress;
+    this.fragments = opts.fragments;
+    this.progress = opts.progress;
   }
 
   getName() {
