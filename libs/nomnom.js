@@ -423,18 +423,27 @@ class ArgParser {
     }
     return str;
   }
-  opt(arg) {
+  opt(arg, value) {
     // get the specified opt for this parsed arg
-    var match = Opt({});
+    var match;
     this.specs.forEach(function (opt) {
       if (opt.matches(arg)) {
         match = opt;
       }
     });
+    if (!match) {
+      if (typeof value == "string") {
+        this.print("invalid argument '" + value + "'"
+              + " \n\n" + this.getUsage(), 1);
+      } else {
+        this.print("invalid option '" + (arg.length == 1 ? "-" : "--") + arg + "'"
+        + " \n\n" + this.getUsage(), 1);
+      }
+    }
     return match;
   }
   setOption(options, arg, value) {
-    var option = this.opt(arg);
+    var option = this.opt(arg, value);
     if (option.callback) {
       var message = option.callback(value);
 
