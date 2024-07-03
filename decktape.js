@@ -389,7 +389,6 @@ async function exportSlides(page, plugin, pdf, options) {
   let hasNext = await hasNextSlide(plugin, context);
   while (hasNext && context.currentSlide < maxSlide) {
     await nextSlide(plugin, context);
-    await fontsLoaded(page);
     await pause(options.pause);
     if (options.slides && !options.slides[context.currentSlide]) {
       process.stdout.write('\r' + await progressBar(plugin, context, { skip: true }));
@@ -565,12 +564,6 @@ async function hasNextSlide(plugin, context) {
 async function nextSlide(plugin, context) {
   context.currentSlide++;
   return plugin.nextSlide();
-}
-
-async function fontsLoaded(page) {
-  await page.evaluate(async () => {
-    await document.fonts?.ready
-  });
 }
 
 async function writePdf(filename, pdf) {
