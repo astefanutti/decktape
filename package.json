@@ -27,8 +27,8 @@
     "chalk": "5.3.0",
     "fonteditor-core": "2.4.0",
     "pdf-lib": "1.17.1",
-    "puppeteer": "22.11.2",
-    "puppeteer-core": "22.11.2",
+    "puppeteer": "22.12.1",
+    "puppeteer-core": "22.12.1",
     "urijs": "1.19.11"
   },
   "engines": {
@@ -37,6 +37,6 @@
   "devDependencies": {
     "koa": "2.15.3",
     "koa-static": "5.0.0",
-    "@playwright/test": "1.44.1"
+    "@playwright/test": "1.45.1"
   }
 }
