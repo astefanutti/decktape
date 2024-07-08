@@ -10,7 +10,7 @@
 !decktape.js
 !Dockerfile
 !package.json
-!npm-shrinkwrap.json
+!package-lock.json
 !README.adoc
 !test/
 test/output/

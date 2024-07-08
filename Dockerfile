@@ -1,18 +1,18 @@
 # syntax=docker/dockerfile:1.3.0-labs
 
-FROM node:20.11-alpine3.19 as builder
+FROM node:20.15-alpine3.19 as builder
 
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 WORKDIR /decktape
 
-COPY package.json npm-shrinkwrap.json ./
+COPY package.json package-lock.json ./
 COPY libs libs/
 COPY plugins plugins/
 COPY decktape.js ./
 
-RUN npm install
+RUN npm ci --omit=dev
 
 FROM alpine:3.19.1
 

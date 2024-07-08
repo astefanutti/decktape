@@ -3,4 +3,4 @@
 !plugins
 !decktape.js
 !package.json
-!npm-shrinkwrap.json
+!package-lock.json
