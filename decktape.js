@@ -497,7 +497,7 @@ async function printSlide(pdf, slide, context) {
           // Some fonts written in the PDF may be ill-formed. Let's skip font compression in that case,
           // until it's fixed in Puppeteer > Chromium > Skia.
           // This happens for system fonts like Helvetica Neue for which cmap table is missing.
-          font = Font.create(Buffer.from(bytes), { type: 'ttf', hinting: true });
+          font = Font.create(Buffer.from(bytes), { type: fontType(bytes), hinting: true });
         } catch (e) {
           console.log(chalk.yellow('\nSkipping font compression: %s'), e.message);
           return;
@@ -533,6 +533,16 @@ async function printSlide(pdf, slide, context) {
       }
     }
   };
+
+  function fontType(bytes) {
+    const buffer = Buffer.from(bytes);
+    if (buffer.readInt32BE() === 0x10000) {
+      return 'ttf';
+    }
+    if (buffer.toString('utf8', 0, 4) === 'OTTO') {
+      return 'otf';
+    }
+  }
 
   function mergeGlyph(font, index, glyf) {
     if (font.data.glyf.length <= index) {
