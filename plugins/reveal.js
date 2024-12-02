@@ -82,7 +82,8 @@ class Reveal {
   }
 
   nextSlide() {
-    return this.page.evaluate(_ => Reveal.next());
+    this.page.evaluate(_ => Reveal.next());
+    return this.page.evaluate(_ => Reveal.layout());
   }
 
   currentSlideIndex() {
