@@ -35,7 +35,7 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "koa": "2.15.3",
+    "koa": "2.16.1",
     "koa-static": "5.0.0",
     "@playwright/test": "1.45.1"
   }
