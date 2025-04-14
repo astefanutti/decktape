@@ -5,35 +5,36 @@ on:
     branches:
       - master
     paths-ignore:
-      - 'docs/**'
-      - '**.adoc'
-      - '**.md'
-      - 'LICENSE'
+      - "docs/**"
+      - "**.adoc"
+      - "**.md"
+      - "LICENSE"
   push:
     branches:
       - master
     paths-ignore:
-      - 'docs/**'
-      - '**.adoc'
-      - '**.md'
-      - 'LICENSE'
+      - "docs/**"
+      - "**.adoc"
+      - "**.md"
+      - "LICENSE"
   schedule:
-    - cron: '0 12 * * *'
+    - cron: "0 12 * * *"
 
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - run: npm ci
-    - run: npx playwright install firefox
-    - run: npm run test:generate-snapshot-screenshots
-    - run: npm run test:generate-pdfs
-    - run: npm test
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - uses: actions/checkout@v4
+      - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - run: npm ci
+      - run: npx playwright install firefox
+      - run: npm run test:generate-snapshot-screenshots
+      - run: npm run test:generate-pdfs
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
