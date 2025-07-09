@@ -293,7 +293,7 @@ Alternatively, you can use the {uri-docker-ref}/commandline/cp[`docker cp`] comm
 # Run docker run without the --rm option
 $ docker run ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
 # Copy the exported PDF from the latest used container to the local file system
-$ docker cp `docker ps -lq`:slides/slides.pdf .
+$ docker cp `docker ps -lq`:/slides/slides.pdf .
 # Finally remove the latest used container
 $ docker rm `docker ps -lq`
 ----
