@@ -22,8 +22,8 @@ ARG CHROMIUM_VERSION=138.0.7204.93-r0
 ENV TERM xterm-color
 
 RUN <<EOF cat > /etc/apk/repositories
-http://dl-cdn.alpinelinux.org/alpine/edge/main
-http://dl-cdn.alpinelinux.org/alpine/edge/community
+https://dl-cdn.alpinelinux.org/alpine/latest-stable/main
+https://dl-cdn.alpinelinux.org/alpine/latest-stable/community
 EOF
 
 # Chromium, CA certificates, fonts
