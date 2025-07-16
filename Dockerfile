@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.3.0-labs
 
-FROM node:20.15-alpine3.19 as builder
+FROM node:22.17.0-alpine3.22 as builder
 
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
@@ -14,7 +14,7 @@ COPY decktape.js ./
 
 RUN npm ci --omit=dev
 
-FROM alpine:3.19.1
+FROM alpine:3.22
 
 LABEL org.opencontainers.image.source="https://github.com/astefanutti/decktape"
 
