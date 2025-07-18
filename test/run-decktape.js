@@ -29,7 +29,7 @@ function runDecktape(port, inputDir) {
     console.log(`Generating ${inputDir}`);
     const outputFile = path.resolve(outputDirectory, `${inputDir}.pdf`);
     const process = childProcess.exec(
-      `node ${decktapeExecutable} http://localhost:${port}/input/${inputDir}/ ${outputFile}`,
+      `node ${decktapeExecutable} -p 3000 http://localhost:${port}/input/${inputDir}/ ${outputFile}`,
       (err) => {
         if (err) {
           rej(err);
