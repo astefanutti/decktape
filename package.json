@@ -37,6 +37,6 @@
   "devDependencies": {
     "koa": "3.0.1",
     "koa-static": "5.0.0",
-    "@playwright/test": "1.51.1"
+    "@playwright/test": "1.56.1"
   }
 }
