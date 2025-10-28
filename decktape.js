@@ -509,9 +509,7 @@ async function printSlide(pdf, slide, context) {
         if (!font.data['OS/2']) {
           font.data['OS/2'] = {};
         }
-        // PDF font name does not contain sub family on Windows 10,
-        // so a more robust key is computed from the font metadata
-        const id = descriptor.get(PDFName.of('FontName')).value() + ' - ' + fontMetadataKey(font.data.name);
+        const id = crypto.createHash('SHA1').update(Buffer.from(bytes)).digest('hex');
         if (context.pdfFonts[id]) {
           const f = context.pdfFonts[id].font;
           font.data.glyf.forEach((g, i) => {
