@@ -514,14 +514,31 @@ async function printSlide(pdf, slide, context) {
         const id = descriptor.get(PDFName.of('FontName')).value() + ' - ' + fontMetadataKey(font.data.name);
         if (context.pdfFonts[id]) {
           const f = context.pdfFonts[id].font;
+          // Build a unicode-to-index map for the target font so that glyphs are
+          // matched by unicode value rather than by index. Fonts with the same name
+          // may assign different indices to the same glyphs (e.g. SVG-embedded fonts),
+          // and merging by index alone can produce duplicate unicode mappings (#389).
+          const targetUnicodeToIndex = new Map();
+          f.data.glyf.forEach((fg, idx) => {
+            if (fg.unicode) {
+              fg.unicode.forEach(u => targetUnicodeToIndex.set(u, idx));
+            }
+          });
           font.data.glyf.forEach((g, i) => {
+            let targetIndex = i;
+            if (g.unicode) {
+              const existingIndex = g.unicode.map(u => targetUnicodeToIndex.get(u)).find(idx => idx !== undefined);
+              if (existingIndex !== undefined) {
+                targetIndex = existingIndex;
+              }
+            }
             if (g.contours && g.contours.length > 0) {
-              if (!f.data.glyf[i] || !f.data.glyf[i].contours || f.data.glyf[i].contours.length === 0) {
-                mergeGlyph(f, i, g);
+              if (!f.data.glyf[targetIndex] || !f.data.glyf[targetIndex].contours || f.data.glyf[targetIndex].contours.length === 0) {
+                mergeGlyph(f, targetIndex, g);
               }
             } else if (g.compound) {
-              if (!f.data.glyf[i] || typeof f.data.glyf[i].compound === 'undefined') {
-                mergeGlyph(f, i, g);
+              if (!f.data.glyf[targetIndex] || typeof f.data.glyf[targetIndex].compound === 'undefined') {
+                mergeGlyph(f, targetIndex, g);
               }
             }
           });
