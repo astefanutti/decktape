@@ -407,8 +407,8 @@ async function exportSlides(page, plugin, pdf, options) {
 async function exportSlide(page, plugin, pdf, context, options) {
   process.stdout.write('\r' + await progressBar(plugin, context));
 
-  // Pause all videos to ensure deterministic rendering across PDF captures
-  await page.evaluate(() => document.querySelectorAll('video').forEach(v => v.pause()));
+  // Pause videos and seek to start to ensure deterministic rendering
+  await page.evaluate(() => document.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; }));
 
   const buffer = await page.pdf({
     width               : options.size.width,
