@@ -104,7 +104,7 @@ parser.script('decktape').options({
   },
   headless : {
     default : 'new', // false to enable headed mode and true to enable old puppeteer headless. See: https://developer.chrome.com/articles/new-headless/#new-headless-in-puppeteer
-    help    : 'Puppeteer headless mode, one if [new, true, false]',
+    help    : 'Puppeteer headless mode, one of [new, true, false]',
   },
   headers : {
     type      : 'string',
