@@ -100,7 +100,7 @@ Or locally:
 
 ```sh
 $ npm install decktape
-$ `npm bin`/decktape
+$ npm exec decktape
 ```
 
 See the <<faq,FAQ>> for troubleshooting / alternatives.
