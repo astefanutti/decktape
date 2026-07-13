@@ -43,6 +43,8 @@ RUN apk update && apk upgrade && \
     mv /etc/fonts/conf.d/44-wqy-zenhei.conf /etc/fonts/conf.d/74-wqy-zenhei.conf && \
     rm -rf /var/cache/apk/*
 
+COPY quicksand/* /usr/share/fonts/
+RUN fc-cache -f /usr/share/fonts
 # Node.js
 COPY --from=builder /usr/local/bin/node /usr/local/bin/
 
