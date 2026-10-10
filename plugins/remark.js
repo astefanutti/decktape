@@ -15,6 +15,19 @@ class Remark {
       typeof remark === 'object' && typeof slideshow === 'object');
   }
 
+  async configure() {
+    // Remark's fixed 4:3 @page size can clip slides even with screen media emulation.
+    // Let the PDF dimensions supplied by DeckTape determine the page size instead.
+    await this.page.addStyleTag({
+      content: `
+        @page {
+          size: auto !important;
+          margin: 0 !important;
+        }
+      `,
+    });
+  }
+
   size() {
     return this.page.evaluate(_ => {
       const [referenceWidth, referenceHeight] = [908, 681];
