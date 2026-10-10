@@ -465,7 +465,7 @@
           <pre><code class="hljs html" style="word-wrap: break-word;">&lt;section data-background-transition="zoom"&gt;</code></pre>
         </section>
         <section
-          data-background-iframe="https://hakim.se"
+          data-background-iframe="iframe/index.html"
           data-background-interactive
         >
           <div
@@ -639,6 +639,13 @@ Reveal.on( 'customevent', function() {
         </section>
       </div>
     </div>
+    <script>
+      // Keep the iframe on a different local origin to exercise cross-origin printing.
+      const iframeSlide = document.querySelector('[data-background-iframe]');
+      const iframeURL = new URL(iframeSlide.dataset.backgroundIframe, location.href);
+      iframeURL.hostname = location.hostname === 'localhost' ? '127.0.0.1' : 'localhost';
+      iframeSlide.dataset.backgroundIframe = iframeURL.href;
+    </script>
     <script src="main.js" defer="defer"></script>
   </body>
 </html>

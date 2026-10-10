@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hakim El Hattab — iframe test fixture</title>
+    <!--
+      Static version of the introduction visible in the https://hakim.se iframe,
+      captured on 2026-10-10. Keep the original content, typography, and icon,
+      with local assets so visual tests do not depend on the live site or its CDN.
+      The bundled Libre Caslon font is distributed under the adjacent OFL.txt.
+    -->
+    <style>
+      @font-face {
+        font-family: LibreCaslonCondensed;
+        src: url("LibreCaslonCondensed-SemiBold.woff2") format("woff2");
+        font-weight: 600;
+        font-style: normal;
+      }
+
+      * { box-sizing: border-box; }
+      html { background: #fff; }
+      body { margin: 0; font-family: LibreCaslonCondensed, sans-serif; font-size: 24px; color: #222; }
+      button { font: inherit; margin: 0; border: 0; background: transparent; line-height: initial; }
+      .he-body { text-align: left; line-height: 1.4; }
+      .he-section { margin: 2.5em auto; width: 100%; max-width: 1700px; }
+      .he-text { position: relative; width: 72%; max-width: 1224px; font-size: 3em; font-weight: 600; }
+      .he-text > :first-child { margin-top: 0; }
+      .he-text > :last-child { margin-bottom: 0; }
+      .he-text a { color: #0068b7; padding: 0 .1em; text-decoration: none; }
+      .he-expand-trigger { padding: 0 4px; color: rgba(0, 0, 0, .2); cursor: pointer; text-align: left; }
+      .he-header-links { position: absolute; top: 1vmin; right: 1vmin; }
+      .he-social-button { position: relative; display: inline-block; margin: 0 .2%; line-height: 1; width: 6em; height: 6em; padding: 1em; text-align: center; }
+      .he-social-button svg { position: relative; width: 50%; height: 50%; }
+      .he-social-button svg path { fill: #222; }
+
+      @media screen and (max-width: 1700px) {
+        .he-text { width: 68%; font-size: 2.4em; }
+      }
+      @media screen and (max-width: 1300px) {
+        .he-text { width: 80%; font-size: 2.4em; }
+      }
+      @media screen and (max-width: 1000px) {
+        .he-text { width: 90%; font-size: 2.4em; }
+        .he-header-links { font-size: 14px; }
+      }
+      @media screen and (max-width: 700px) {
+        body { font-size: 20px; }
+        .he-text { font-size: 2em; }
+      }
+      @media screen and (max-width: 500px) {
+        .he-text { font-size: 1.7em; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="he-header-links">
+      <a href="https://twitter.com/hakimel" target="_blank" class="he-social-button" aria-label="@hakimel on Twitter">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M32 7.075c-1.175.525-2.444.875-3.77 1.03 1.357-.812 2.395-2.1 2.888-3.63-1.27.75-2.675 1.3-4.17 1.594C25.75 4.793 24.044 4 22.156 4c-3.625 0-6.563 2.938-6.563 6.563 0 .512.056 1.012.17 1.494C10.304 11.782 5.466 9.17 2.23 5.195c-.563.97-.887 2.1-.887 3.3 0 2.275 1.156 4.287 2.92 5.463-1.076-.03-2.088-.33-2.976-.82v.082c0 3.18 2.263 5.838 5.27 6.437-.55.15-1.132.23-1.732.23-.425 0-.83-.043-1.237-.118.838 2.605 3.263 4.505 6.13 4.562-2.25 1.762-5.074 2.813-8.155 2.813-.53 0-1.05-.03-1.57-.094C2.908 28.92 6.357 30 10.064 30c12.075 0 18.68-10.005 18.68-18.68 0-.287-.005-.57-.018-.85 1.28-.92 2.394-2.075 3.275-3.394z"/></svg>
+      </a>
+    </header>
+    <article class="he-body">
+      <section class="he-section he-text">
+        <p>
+          I'm Hakim El Hattab, a Swedish front-end developer and interface designer. I co-founded and am working on <a target="_blank" href="https://slides.com">Slides</a>.
+          <span><button class="he-expand-trigger">+++</button></span>
+        </p>
+      </section>
+    </article>
+  </body>
+</html>
