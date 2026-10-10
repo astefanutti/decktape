@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Remark PDF page size regression</title>
+    <style>
+      .remark-slide-content {
+        padding: 0;
+      }
+      .remark-slide-number {
+        display: none;
+      }
+      .edge {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 10%;
+      }
+      .left {
+        left: 0;
+        background: rgb(255, 0, 0);
+      }
+      .right {
+        right: 0;
+        background: rgb(0, 0, 255);
+      }
+      .second .left {
+        background: rgb(0, 255, 0);
+      }
+      .second .right {
+        background: rgb(255, 0, 255);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Pin the remark version used by the reproducer in issue #392. -->
+    <script src="https://remarkjs.com/downloads/remark-0.14.1.min.js"></script>
+    <script>
+      var slideshow = remark.create({
+        ratio: new URLSearchParams(location.search).get('ratio') || '16:9',
+        source: '<div class="edge left"></div><div class="edge right"></div>\n\n---\n\nclass: second\n\n<div class="edge left"></div><div class="edge right"></div>',
+      });
+    </script>
+  </body>
+</html>
