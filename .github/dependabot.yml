@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      puppeteer:
+        patterns:
+          - puppeteer
+          - puppeteer-core
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      image-bases:
+        patterns:
+          - node
+          - debian

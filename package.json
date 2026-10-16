@@ -27,12 +27,12 @@
     "chalk": "5.4.1",
     "fonteditor-core": "2.4.1",
     "pdf-lib": "1.17.1",
-    "puppeteer": "24.40.0",
-    "puppeteer-core": "24.40.0",
+    "puppeteer": "25.14.0",
+    "puppeteer-core": "25.14.0",
     "urijs": "1.19.11"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22.12.0"
   },
   "devDependencies": {
     "koa": "3.1.2",

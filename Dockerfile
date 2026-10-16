@@ -1,56 +1,58 @@
-# syntax=docker/dockerfile:1.3.0-labs
+# syntax=docker/dockerfile:1
 
-FROM node:22.17.0-alpine3.22 as builder
+FROM node:24.22.0-bookworm-slim@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5 AS builder
 
-ENV NODE_ENV production
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ENV NODE_ENV=production \
+    PUPPETEER_SKIP_DOWNLOAD=true \
+    PUPPETEER_CACHE_DIR=/opt/puppeteer
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends unzip && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /decktape
 
 COPY package.json package-lock.json ./
-COPY libs libs/
-COPY plugins plugins/
-COPY decktape.js ./
 
-RUN npm ci --omit=dev
+# Install only the Chrome version selected by the locked Puppeteer dependency.
+# The default install also downloads chrome-headless-shell, which DeckTape does not use.
+RUN npm ci --omit=dev && \
+    npx --no-install puppeteer browsers install chrome
 
-FROM alpine:3.22
+FROM debian:bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587
 
 LABEL org.opencontainers.image.source="https://github.com/astefanutti/decktape"
 
-ARG CHROMIUM_VERSION=147.0.7727.101-r0
-ENV TERM xterm-color
-
-RUN <<EOF cat > /etc/apk/repositories
-https://dl-cdn.alpinelinux.org/alpine/latest-stable/main
-https://dl-cdn.alpinelinux.org/alpine/latest-stable/community
-EOF
-
-# Chromium, CA certificates, fonts
-# https://git.alpinelinux.org/cgit/aports/log/community/chromium
-RUN apk update && apk upgrade && \
-    apk add --no-cache \
-    ca-certificates \
-    libstdc++ \
-    chromium=${CHROMIUM_VERSION} \
-    font-noto-emoji \
-    freetype \
-    harfbuzz \
-    nss \
-    ttf-freefont \
-    wqy-zenhei && \
-    # /etc/fonts/conf.d/44-wqy-zenhei.conf overrides 'monospace' matching FreeMono.ttf in /etc/fonts/conf.d/69-unifont.conf
-    mv /etc/fonts/conf.d/44-wqy-zenhei.conf /etc/fonts/conf.d/74-wqy-zenhei.conf && \
-    rm -rf /var/cache/apk/*
+ENV NODE_ENV=production \
+    PUPPETEER_CACHE_DIR=/opt/puppeteer \
+    TERM=xterm-color
 
 # Node.js
 COPY --from=builder /usr/local/bin/node /usr/local/bin/
 
-# DeckTape
+# Production dependencies and Chrome, without npm or the build tools.
 COPY --from=builder /decktape /decktape
+COPY --from=builder /opt/puppeteer /opt/puppeteer
 
-RUN addgroup -g 1000 node && \
-    adduser -u 1000 -G node -s /bin/sh -D node && \
+RUN apt-get update && \
+    echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/99no-recommends && \
+    /decktape/node_modules/.bin/puppeteer browsers install chrome --install-deps && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        fonts-freefont-ttf \
+        fonts-noto-color-emoji \
+        fonts-wqy-zenhei && \
+    # Preserve FreeMono as the monospace fallback ahead of WenQuanYi.
+    mv /etc/fonts/conf.d/64-wqy-zenhei.conf /etc/fonts/conf.d/74-wqy-zenhei.conf && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY libs /decktape/libs/
+COPY plugins /decktape/plugins/
+COPY decktape.js /decktape/
+
+RUN groupadd -g 1000 node && \
+    useradd -u 1000 -g node -m -s /bin/sh node && \
     mkdir /slides && \
     chown node:node /slides
 
@@ -59,11 +61,7 @@ WORKDIR /slides
 USER node
 
 # The --no-sandbox option is required, or --cap-add=SYS_ADMIN to docker run command
-# https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#running-puppeteer-in-docker
-# https://github.com/GoogleChrome/puppeteer/issues/290
-# https://github.com/jessfraz/dockerfiles/issues/65
-# https://github.com/jessfraz/dockerfiles/issues/156
-# https://github.com/jessfraz/dockerfiles/issues/341
-ENTRYPOINT ["node", "/decktape/decktape.js", "--chrome-path", "/usr/bin/chromium-browser", "--chrome-arg=--no-sandbox", "--chrome-arg=--disable-gpu"]
+# https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md
+ENTRYPOINT ["node", "/decktape/decktape.js", "--chrome-arg=--no-sandbox", "--chrome-arg=--disable-gpu"]
 
 CMD ["-h"]
