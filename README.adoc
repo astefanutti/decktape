@@ -89,6 +89,8 @@ You can browse some slide deck <<examples,examples>> below that have been export
 
 === NPM
 
+DeckTape requires Node.js 22.12 or later.
+
 Install DeckTape globally and run it:
 
 ```sh
@@ -259,6 +261,9 @@ The following slide deck examples have been exported using DeckTape:
 
 == Docker
 
+The image uses Debian slim and the Chrome for Testing version selected by Puppeteer, on both `amd64` and `arm64`.
+Puppeteer upgrades update the browser version together with the JavaScript API.
+
 DeckTape can be executed in a container from the command-line using the {uri-docker-image}[`ghcr.io/astefanutti/decktape`] container image:
 
  $ docker run ghcr.io/astefanutti/decktape -h
@@ -302,6 +307,14 @@ If your presentation relies on fonts installed on the host system, but not in th
 
 [source,shell]
 $ docker run -v "${HOME}/Library/Fonts:/home/node/.local/share/fonts" ...
+
+To build and smoke-test the image locally:
+
+[source,shell]
+----
+$ docker build -t decktape:test .
+$ bash test/smoke-image.sh decktape:test
+----
 
 == FAQ
 

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8">
+  <title>DeckTape image smoke test</title>
+  <style>
+    body { font-family: sans-serif; background: white; }
+    code { font-family: monospace; }
+  </style>
+  <h1>Slide <span id="slide">1</span></h1>
+  <p>Latin, 中文, 😀</p>
+  <code>const answer = 42;</code>
+  <script>
+    document.addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight') {
+        document.getElementById('slide').textContent = '2';
+        document.body.style.background = 'lightblue';
+      }
+    });
+  </script>
+</html>
