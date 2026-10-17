@@ -601,16 +601,17 @@ async function nextSlide(plugin, context) {
 // Checking before the slides are exported, as the PDF is only written once
 // the whole deck has been printed, which can take a while for large decks.
 function checkOutputPath(filename) {
-  // Writing follows symbolic links, so the link target is the path to check.
-  let output = path.resolve(filename);
-  for (let links = 0; tryStat(output, fs.lstatSync)?.isSymbolicLink(); links++) {
+  // Let the filesystem resolve existing paths; only follow dangling links explicitly.
+  let output = resolveOutputPath(filename);
+  let stats = tryStat(output);
+  for (let links = 0; !stats && tryStat(output, fs.lstatSync)?.isSymbolicLink(); links++) {
     if (links === 40) {
       exitWithError('Too many levels of symbolic links: %s', output);
     }
-    output = path.resolve(path.dirname(output), fs.readlinkSync(output));
+    output = resolveOutputPath(fs.readlinkSync(output), path.dirname(output));
+    stats = tryStat(output);
   }
 
-  const stats = tryStat(output);
   if (stats) {
     if (!stats.isFile()) {
       exitWithError('The output path is not a file: %s', output);
@@ -632,6 +633,13 @@ function checkOutputPath(filename) {
   }
   // Creating a file or subdirectory also requires search permission on the directory.
   checkAccess(directory, fs.constants.W_OK | fs.constants.X_OK, 'directory');
+}
+
+// Make the path absolute without collapsing .. across unresolved directory symlinks.
+function resolveOutputPath(filename, directory = process.cwd()) {
+  const root = path.parse(filename).root;
+  const base = root ? path.resolve(directory, root) : directory;
+  return base + (base.endsWith(path.sep) ? '' : path.sep) + filename.slice(root.length);
 }
 
 // Returns undefined when the path cannot be stat-ed, as it does not exist,

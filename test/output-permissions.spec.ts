@@ -112,3 +112,24 @@ test('rejects a link to a missing file in a read-only directory before launching
     await chmod(directory, 0o555);
     await expectPermissionError(filename, directory);
   });
+
+for (const output of ['shortcut/link.pdf', 'shortcut/../slides.pdf']) {
+  test(`preserves filesystem symlink resolution for ${output}`, async ({}, testInfo) => {
+    const directory = testInfo.outputPath('symlinks');
+    const actual = path.join(directory, 'actual');
+    const target = path.join(actual, 'slides.pdf');
+    const unrelated = path.join(directory, 'slides.pdf');
+    await fs.mkdir(path.join(actual, 'child'), { recursive: true });
+    await fs.symlink('actual/child', path.join(directory, 'shortcut'));
+    await fs.symlink('../slides.pdf', path.join(actual, 'child', 'link.pdf'));
+    await fs.writeFile(target, 'previous output');
+    await fs.chmod(target, 0o600);
+    await fs.writeFile(unrelated, 'unrelated file');
+    await chmod(unrelated, 0o400, 0o600);
+
+    // Do not use path.join here: it would remove the .. that must follow the symlink.
+    await exportPdf(`${directory}/${output}`);
+    await expectTwoSlides(target);
+    expect(await fs.readFile(unrelated, 'utf8')).toBe('unrelated file');
+  });
+}
