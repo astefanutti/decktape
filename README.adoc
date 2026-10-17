@@ -272,15 +272,15 @@ For example:
 
 * To convert an online HTML presentation and have it exported into the working directory under the `slides.pdf` filename:
 [source,shell,subs=attributes+]
-$ docker run --rm -t -v `pwd`:/slides ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
+$ docker run --rm -t -v "$(pwd):/slides" ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
 
 * Or, to convert an HTML presentation that's stored on the local file system in the `home` directory:
 [source,shell]
-$ docker run --rm -t -v `pwd`:/slides -v ~:/home/user ghcr.io/astefanutti/decktape /home/user/slides.html slides.pdf
+$ docker run --rm -t -v "$(pwd):/slides" -v ~:/home/user ghcr.io/astefanutti/decktape /home/user/slides.html slides.pdf
 
 * Or, to convert an HTML presentation that's deployed on the local host:
 [source,shell]
-$ docker run --rm -t --net=host -v `pwd`:/slides ghcr.io/astefanutti/decktape http://localhost:8000 slides.pdf
+$ docker run --rm -t --net=host -v "$(pwd):/slides" ghcr.io/astefanutti/decktape http://localhost:8000 slides.pdf
 +
 You may have to use `host.docker.internal` instead of `localhost` on macOS and Windows.
 
@@ -293,7 +293,8 @@ Besides, it is recommended to use the following options from the {uri-docker-ref
 
 The container runs as the non-root `node` user, with UID 1000.
 Writing the exported PDF into a mounted volume requires that UID to have write permission on the mounted directory.
-When bind mounts preserve host UIDs, as with a rootful Podman machine, run the container with the UID and GID that own the mounted directory:
+Docker Desktop remaps the ownership of the bind mounts transparently, while runtimes that preserve the host UIDs, like Docker Engine on Linux or a rootful Podman machine, make DeckTape fail with `EACCES: permission denied`, unless your UID happens to be 1000.
+In that case, run the container with the UID and GID that own the mounted directory:
 
 [source,shell]
 $ podman run --rm -t --user "$(id -u):$(id -g)" -v "$(pwd):/slides" ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
@@ -310,9 +311,9 @@ Alternatively, you can use the {uri-docker-ref}/commandline/cp[`docker cp`] comm
 # Run docker run without the --rm option
 $ docker run ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
 # Copy the exported PDF from the latest used container to the local file system
-$ docker cp `docker ps -lq`:/slides/slides.pdf .
+$ docker cp "$(docker ps -lq):/slides/slides.pdf" .
 # Finally remove the latest used container
-$ docker rm `docker ps -lq`
+$ docker rm "$(docker ps -lq)"
 ----
 
 If your presentation relies on fonts installed on the host system, but not in the container image, you can mount your fonts directory as a volume, e.g. for macOS:
