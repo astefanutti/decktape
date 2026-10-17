@@ -251,7 +251,7 @@ process.on('unhandledRejection', error => {
   });
   const options = parser.parse(process.argv.slice(2));
 
-  checkOutputDirectory(options.filename);
+  checkOutputPath(options.filename);
 
   const browser = await puppeteer.launch({
     headless       : options.headless,
@@ -600,18 +600,24 @@ async function nextSlide(plugin, context) {
 
 // Checking before the slides are exported, as the PDF is only written once
 // the whole deck has been printed, which can take a while for large decks.
-function checkOutputDirectory(filename) {
-  // Missing directories are created when the PDF is written,
-  // so the closest existing ancestor is the one that must be writable.
-  let directory = path.resolve(path.dirname(filename));
-  while (!fs.existsSync(directory) && path.dirname(directory) !== directory) {
-    directory = path.dirname(directory);
+function checkOutputPath(filename) {
+  // Overwriting an existing file does not require write permission on its directory.
+  const existingOutput = fs.existsSync(filename);
+  let target = filename;
+  if (!existingOutput) {
+    // Missing directories are created when the PDF is written,
+    // so the closest existing ancestor is the one that must be writable.
+    target = path.resolve(path.dirname(filename));
+    while (!fs.existsSync(target) && path.dirname(target) !== target) {
+      target = path.dirname(target);
+    }
   }
   try {
-    fs.accessSync(directory, fs.constants.W_OK);
+    fs.accessSync(target, fs.constants.W_OK);
   } catch {
     const uid = typeof process.getuid === 'function' ? ` as UID ${process.getuid()}` : '';
-    console.log(chalk.red('Unable to write into the output directory %s%s'), directory, uid);
+    const type = existingOutput ? 'file' : 'directory';
+    console.log(chalk.red('Unable to write into the output %s %s%s'), type, target, uid);
     process.exit(1);
   }
 }
