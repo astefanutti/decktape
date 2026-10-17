@@ -615,11 +615,12 @@ function checkOutputPath(filename) {
   }
 
   if (stats) {
-    if (stats.isDirectory()) {
+    // Existing files, FIFOs and devices only need write access to the destination,
+    // while the other types, like sockets, cannot be written to at all.
+    if (!outputType(stats)) {
       exitWithError('The output path is not a file: %s', displayPath(output));
     }
-    // Existing files, FIFOs and devices only need write access to the destination.
-    checkAccess(output, fs.constants.W_OK, 'output file');
+    checkAccess(output, fs.constants.W_OK, `output ${outputType(stats)}`);
     return;
   }
 
@@ -628,6 +629,10 @@ function checkOutputPath(filename) {
   let directory = path.dirname(output);
   let directoryStats;
   while (!(directoryStats = tryIO(() => fs.statSync(directory))) && path.dirname(directory) !== directory) {
+    // A dangling symbolic link exists, so it cannot be created as a directory.
+    if (tryIO(() => fs.lstatSync(directory))) {
+      exitWithError('The output path is a broken symbolic link: %s', directory);
+    }
     directory = path.dirname(directory);
   }
   if (!directoryStats?.isDirectory()) {
@@ -642,6 +647,14 @@ function resolveOutputPath(filename, directory = process.cwd()) {
   const root = path.parse(filename).root;
   const base = root ? path.resolve(directory, root) : directory;
   return base + (base.endsWith(path.sep) ? '' : path.sep) + filename.slice(root.length);
+}
+
+// Returns undefined for the types the PDF cannot be written to, like directories and sockets.
+function outputType(stats) {
+  if (stats.isFile()) return 'file';
+  if (stats.isFIFO()) return 'FIFO';
+  if (stats.isCharacterDevice() || stats.isBlockDevice()) return 'device';
+  return undefined;
 }
 
 // The checked path is kept unresolved, so that the filesystem resolves the symbolic

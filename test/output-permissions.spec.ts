@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
+import net from 'node:net';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify, stripVTControlCharacters } from 'node:util';
@@ -138,6 +140,37 @@ for (const output of ['shortcut/link.pdf', 'shortcut/../slides.pdf']) {
   });
 }
 
+test('rejects a socket as output before launching Chrome', async () => {
+  // Socket paths are limited to about a hundred characters, hence the short
+  // temporary directory, resolved as the error message reports canonical paths.
+  const directory = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'decktape-')));
+  const filename = path.join(directory, 'slides.sock');
+  const server = net.createServer();
+  try {
+    await new Promise(resolve => server.listen(filename, resolve as () => void));
+    await expectOutputError(filename, `The output path is not a file: ${filename}`);
+  } finally {
+    server.close();
+    await fs.rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('rejects a broken link as output directory before launching Chrome', async ({}, testInfo) => {
+  const link = testInfo.outputPath('broken');
+  await fs.mkdir(path.dirname(link), { recursive: true });
+  await fs.symlink('missing', link);
+  await expectOutputError(path.join(link, 'slides.pdf'),
+    `The output path is a broken symbolic link: ${link}`);
+});
+
+test('rejects an unwritable FIFO before launching Chrome', async ({}, testInfo) => {
+  const filename = testInfo.outputPath('slides.pdf');
+  await fs.mkdir(path.dirname(filename), { recursive: true });
+  await run('mkfifo', [filename]);
+  await chmod(filename, 0o400, 0o600);
+  await expectPermissionError(filename, filename, 'FIFO');
+});
+
 test('exports to a writable character device', async () => {
   const { stdout } = await exportPdf('/dev/null');
   expect(stripVTControlCharacters(stdout)).toContain('Printed 2 slides');
@@ -148,7 +181,9 @@ test('exports a valid PDF through a FIFO', async ({}, testInfo) => {
   await run('mkfifo', [filename]);
   const controller = new AbortController();
   abortControllers.push(controller);
-  const reading = run('cat', [filename], { encoding: 'buffer', signal: controller.signal });
+  // Reading the PDF without the default output size limit of child processes.
+  const reading = run('cat', [filename],
+    { encoding: 'buffer', maxBuffer: Infinity, signal: controller.signal });
   try {
     const [{ stdout }] = await Promise.all([
       reading,
