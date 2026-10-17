@@ -76,3 +76,14 @@ test('creates missing output directories under a writable ancestor', async ({}, 
   await exportPdf(filename);
   await expectTwoSlides(filename);
 });
+
+test('rejects a directory without search permission before launching Chrome', async ({}, testInfo) => {
+  const directory = testInfo.outputPath('no-search');
+  await fs.mkdir(directory, { recursive: true });
+  await fs.chmod(directory, 0o200);
+  try {
+    await expectPermissionError(path.join(directory, 'slides.pdf'), directory);
+  } finally {
+    await fs.chmod(directory, 0o755);
+  }
+});

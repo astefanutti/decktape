@@ -613,7 +613,9 @@ function checkOutputPath(filename) {
     }
   }
   try {
-    fs.accessSync(target, fs.constants.W_OK);
+    // Creating a file or subdirectory also requires search permission on the directory.
+    const mode = fs.constants.W_OK | (existingOutput ? 0 : fs.constants.X_OK);
+    fs.accessSync(target, mode);
   } catch {
     const uid = typeof process.getuid === 'function' ? ` as UID ${process.getuid()}` : '';
     const type = existingOutput ? 'file' : 'directory';
