@@ -601,27 +601,61 @@ async function nextSlide(plugin, context) {
 // Checking before the slides are exported, as the PDF is only written once
 // the whole deck has been printed, which can take a while for large decks.
 function checkOutputPath(filename) {
-  // Overwriting an existing file does not require write permission on its directory.
-  const existingOutput = fs.existsSync(filename);
-  let target = filename;
-  if (!existingOutput) {
-    // Missing directories are created when the PDF is written,
-    // so the closest existing ancestor is the one that must be writable.
-    target = path.resolve(path.dirname(filename));
-    while (!fs.existsSync(target) && path.dirname(target) !== target) {
-      target = path.dirname(target);
+  // Writing follows symbolic links, so the link target is the path to check.
+  let output = path.resolve(filename);
+  for (let links = 0; tryStat(output, fs.lstatSync)?.isSymbolicLink(); links++) {
+    if (links === 40) {
+      exitWithError('Too many levels of symbolic links: %s', output);
     }
+    output = path.resolve(path.dirname(output), fs.readlinkSync(output));
   }
+
+  const stats = tryStat(output);
+  if (stats) {
+    if (!stats.isFile()) {
+      exitWithError('The output path is not a file: %s', output);
+    }
+    // Overwriting an existing file does not require write permission on its directory.
+    checkAccess(output, fs.constants.W_OK, 'file');
+    return;
+  }
+
+  // Missing directories are created when the PDF is written,
+  // so the closest existing ancestor is the one that must be writable.
+  let directory = path.dirname(output);
+  let directoryStats;
+  while (!(directoryStats = tryStat(directory)) && path.dirname(directory) !== directory) {
+    directory = path.dirname(directory);
+  }
+  if (!directoryStats?.isDirectory()) {
+    exitWithError('The output path is not a directory: %s', directory);
+  }
+  // Creating a file or subdirectory also requires search permission on the directory.
+  checkAccess(directory, fs.constants.W_OK | fs.constants.X_OK, 'directory');
+}
+
+// Returns undefined when the path cannot be stat-ed, as it does not exist,
+// or one of its ancestors is not a directory, or is not searchable.
+function tryStat(target, stat = fs.statSync) {
   try {
-    // Creating a file or subdirectory also requires search permission on the directory.
-    const mode = fs.constants.W_OK | (existingOutput ? 0 : fs.constants.X_OK);
+    return stat(target);
+  } catch {
+    return undefined;
+  }
+}
+
+function checkAccess(target, mode, type) {
+  try {
     fs.accessSync(target, mode);
   } catch {
     const uid = typeof process.getuid === 'function' ? ` as UID ${process.getuid()}` : '';
-    const type = existingOutput ? 'file' : 'directory';
-    console.log(chalk.red('Unable to write into the output %s %s%s'), type, target, uid);
-    process.exit(1);
+    exitWithError('Unable to write into the output %s %s%s', type, target, uid);
   }
+}
+
+function exitWithError(format, ...args) {
+  console.log(chalk.red(format), ...args);
+  process.exit(1);
 }
 
 async function writePdf(filename, pdf) {

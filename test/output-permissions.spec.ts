@@ -13,18 +13,34 @@ const fixture = new URL('./fixtures/image.html', import.meta.url).href;
 test.skip(process.platform === 'win32' || process.getuid?.() === 0,
   'These POSIX permission checks require an unprivileged user.');
 
+const restoreModes: [string, number][] = [];
+
+// Restoring permissions from a hook, as it also runs when a test times out, contrary to
+// the test body. A left over unwritable directory breaks the output directory cleanup.
+test.afterEach(async () => {
+  for (const [target, mode] of restoreModes.splice(0)) {
+    await fs.chmod(target, mode);
+  }
+});
+
+async function chmod(target: string, mode: number, restored = 0o755) {
+  restoreModes.push([target, restored]);
+  await fs.chmod(target, mode);
+}
+
 async function exportPdf(filename: string, extraArgs: string[] = []) {
   return run(process.execPath, [executable, 'generic', '--max-slides', '2',
     '--pause', '100', ...extraArgs, fixture, filename]);
 }
 
-async function expectPermissionError(filename: string, target: string, type = 'directory') {
+async function expectOutputError(filename: string, message: string) {
   // A missing browser makes the test fail if the output check reaches browser launch.
   await expect(exportPdf(filename, ['--chrome-path', `${filename}.missing-browser`]))
-    .rejects.toMatchObject({
-      code: 1,
-      stdout: expect.stringContaining(`Unable to write into the output ${type} ${target}`),
-    });
+    .rejects.toMatchObject({ code: 1, stdout: expect.stringContaining(message) });
+}
+
+async function expectPermissionError(filename: string, target: string, type = 'directory') {
+  await expectOutputError(filename, `Unable to write into the output ${type} ${target}`);
 }
 
 async function expectTwoSlides(filename: string) {
@@ -36,37 +52,28 @@ test('overwrites a writable PDF in an unwritable directory', async ({}, testInfo
   const directory = testInfo.outputPath('read-only');
   const filename = path.join(directory, 'slides.pdf');
   await fs.mkdir(directory, { recursive: true });
-  await fs.writeFile(filename, 'previous output', { mode: 0o600 });
-  await fs.chmod(directory, 0o555);
-  try {
-    await exportPdf(filename);
-    await expectTwoSlides(filename);
-  } finally {
-    await fs.chmod(directory, 0o755);
-  }
+  await fs.writeFile(filename, 'previous output');
+  // Setting the mode explicitly, as fs.writeFile only applies it when creating the file.
+  await fs.chmod(filename, 0o600);
+  await chmod(directory, 0o555);
+  await exportPdf(filename);
+  await expectTwoSlides(filename);
 });
 
 test('rejects a read-only output file before launching Chrome', async ({}, testInfo) => {
   const filename = testInfo.outputPath('slides.pdf');
   await fs.mkdir(path.dirname(filename), { recursive: true });
-  await fs.writeFile(filename, 'previous output', { mode: 0o400 });
-  try {
-    await expectPermissionError(filename, filename, 'file');
-    expect(await fs.readFile(filename, 'utf8')).toBe('previous output');
-  } finally {
-    await fs.chmod(filename, 0o600);
-  }
+  await fs.writeFile(filename, 'previous output');
+  await chmod(filename, 0o400, 0o600);
+  await expectPermissionError(filename, filename, 'file');
+  expect(await fs.readFile(filename, 'utf8')).toBe('previous output');
 });
 
 test('rejects a missing output under a read-only ancestor before launching Chrome', async ({}, testInfo) => {
   const directory = testInfo.outputPath('read-only');
   await fs.mkdir(directory, { recursive: true });
-  await fs.chmod(directory, 0o500);
-  try {
-    await expectPermissionError(path.join(directory, 'missing', 'slides.pdf'), directory);
-  } finally {
-    await fs.chmod(directory, 0o755);
-  }
+  await chmod(directory, 0o500);
+  await expectPermissionError(path.join(directory, 'missing', 'slides.pdf'), directory);
 });
 
 test('creates missing output directories under a writable ancestor', async ({}, testInfo) => {
@@ -80,10 +87,28 @@ test('creates missing output directories under a writable ancestor', async ({}, 
 test('rejects a directory without search permission before launching Chrome', async ({}, testInfo) => {
   const directory = testInfo.outputPath('no-search');
   await fs.mkdir(directory, { recursive: true });
-  await fs.chmod(directory, 0o200);
-  try {
-    await expectPermissionError(path.join(directory, 'slides.pdf'), directory);
-  } finally {
-    await fs.chmod(directory, 0o755);
-  }
+  await chmod(directory, 0o200);
+  await expectPermissionError(path.join(directory, 'slides.pdf'), directory);
 });
+
+test('rejects an existing directory as output before launching Chrome', async ({}, testInfo) => {
+  const directory = testInfo.outputPath('output-directory');
+  await fs.mkdir(directory, { recursive: true });
+  await expectOutputError(directory, `The output path is not a file: ${directory}`);
+});
+
+test('rejects an output path under a regular file before launching Chrome', async ({}, testInfo) => {
+  const file = testInfo.outputPath('not-a-directory');
+  await fs.writeFile(file, 'not a directory');
+  await expectOutputError(path.join(file, 'slides.pdf'), `The output path is not a directory: ${file}`);
+});
+
+test('rejects a link to a missing file in a read-only directory before launching Chrome',
+  async ({}, testInfo) => {
+    const directory = testInfo.outputPath('read-only');
+    const filename = testInfo.outputPath('link.pdf');
+    await fs.mkdir(directory, { recursive: true });
+    await fs.symlink(path.join(directory, 'slides.pdf'), filename);
+    await chmod(directory, 0o555);
+    await expectPermissionError(filename, directory);
+  });
