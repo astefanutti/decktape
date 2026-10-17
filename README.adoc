@@ -293,16 +293,16 @@ Besides, it is recommended to use the following options from the {uri-docker-ref
 
 The container runs as the non-root `node` user, with UID 1000.
 Writing the exported PDF into a mounted volume requires that UID to have write permission on the mounted directory.
-Docker Desktop remaps the ownership of the bind mounts transparently, while runtimes that preserve the host UIDs, like Docker Engine on Linux or a rootful Podman machine, can make DeckTape fail with `EACCES: permission denied` when UID 1000 lacks write permission on the mounted directory.
+Docker Desktop remaps the ownership of the bind mounts transparently, while runtimes that preserve the host UIDs, like Docker Engine on Linux or a rootful Podman machine, can make DeckTape fail with `EACCES: permission denied`.
 In that case, run the container with the UID and GID that own the mounted directory:
 
 [source,shell]
-$ podman run --rm -t --user "$(id -u):$(id -g)" -v "$(pwd):/slides" ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
+$ docker run --rm -t --user "$(id -u):$(id -g)" -v "$(pwd):/slides" ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
 
-For rootless Podman on Linux, use `--userns=keep-id` to map your UID and GID to the same IDs inside the container:
+For rootless Podman on Linux, use `--userns=keep-id` to map your UID and GID to the ones of the `node` user, as the container keeps running as that user:
 
 [source,shell]
-$ podman run --rm -t --userns=keep-id -v "$(pwd):/slides" ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
+$ podman run --rm -t --userns=keep-id:uid=1000,gid=1000 -v "$(pwd):/slides" ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
 
 Alternatively, you can use the {uri-docker-ref}/commandline/cp[`docker cp`] command, e.g.:
 
