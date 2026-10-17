@@ -39,9 +39,9 @@ async function exportPdf(filename: string, extraArgs: string[] = [], signal?: Ab
     '--pause', '100', ...extraArgs, fixture, filename], { signal });
 }
 
-async function expectOutputError(filename: string, message: string) {
+async function expectOutputError(filename: string, message: string, extraArgs: string[] = []) {
   // A missing browser makes the test fail if the output check reaches browser launch.
-  await expect(exportPdf(filename, ['--chrome-path', `${filename}.missing-browser`]))
+  await expect(exportPdf(filename, [...extraArgs, '--chrome-path', `${filename}.missing-browser`]))
     .rejects.toMatchObject({ code: 1, stdout: expect.stringContaining(message) });
 }
 
@@ -169,6 +169,22 @@ test('rejects an unwritable FIFO before launching Chrome', async ({}, testInfo) 
   await run('mkfifo', [filename]);
   await chmod(filename, 0o400, 0o600);
   await expectPermissionError(filename, filename, 'FIFO');
+});
+
+test('rejects a missing screenshots directory before launching Chrome', async ({}, testInfo) => {
+  const directory = testInfo.outputPath('missing-screenshots');
+  await expectOutputError(testInfo.outputPath('slides.pdf'),
+    `The screenshots directory does not exist: ${directory}`,
+    ['--screenshots', '--screenshots-directory', directory]);
+});
+
+test('rejects an unwritable screenshots directory before launching Chrome', async ({}, testInfo) => {
+  const directory = testInfo.outputPath('read-only-screenshots');
+  await fs.mkdir(directory, { recursive: true });
+  await chmod(directory, 0o555);
+  await expectOutputError(testInfo.outputPath('slides.pdf'),
+    `Unable to write into the screenshots directory ${directory}`,
+    ['--screenshots', '--screenshots-directory', directory]);
 });
 
 test('exports to a writable character device', async () => {

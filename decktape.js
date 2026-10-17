@@ -252,6 +252,9 @@ process.on('unhandledRejection', error => {
   const options = parser.parse(process.argv.slice(2));
 
   checkOutputPath(options.filename);
+  if (options.screenshots) {
+    checkScreenshotDirectory(options.screenshotDirectory);
+  }
 
   const browser = await puppeteer.launch({
     headless       : options.headless,
@@ -647,6 +650,16 @@ function resolveOutputPath(filename, directory = process.cwd()) {
   const root = path.parse(filename).root;
   const base = root ? path.resolve(directory, root) : directory;
   return base + (base.endsWith(path.sep) ? '' : path.sep) + filename.slice(root.length);
+}
+
+// Contrary to the PDF file, screenshots are written as the slides are exported,
+// and into a directory that is not created when it is missing.
+function checkScreenshotDirectory(directory) {
+  const target = resolveOutputPath(String(directory));
+  if (!tryIO(() => fs.statSync(target))?.isDirectory()) {
+    exitWithError('The screenshots directory does not exist: %s', displayPath(target));
+  }
+  checkAccess(target, fs.constants.W_OK | fs.constants.X_OK, 'screenshots directory');
 }
 
 // Returns undefined for the types the PDF cannot be written to, like directories and sockets.
