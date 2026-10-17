@@ -702,12 +702,8 @@ function exitWithError(format, ...args) {
 }
 
 async function writePdf(filename, pdf) {
-  const pdfDir = path.dirname(filename);
-  try {
-    fs.accessSync(pdfDir, fs.constants.F_OK);
-  } catch {
-    fs.mkdirSync(pdfDir, { recursive: true });
-  }
+  // Creating the missing directories, which is a no-op for the existing ones.
+  fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, await pdf.save({ addDefaultPage: false }));
 }
 
