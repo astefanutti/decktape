@@ -702,8 +702,11 @@ function exitWithError(format, ...args) {
 }
 
 async function writePdf(filename, pdf) {
-  // Creating the missing directories, which is a no-op for the existing ones.
-  fs.mkdirSync(path.dirname(filename), { recursive: true });
+  const directory = path.dirname(filename);
+  // Existing Windows drive roots reject mkdir, even with recursive: true.
+  if (!tryIO(() => fs.statSync(directory))?.isDirectory()) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
   fs.writeFileSync(filename, await pdf.save({ addDefaultPage: false }));
 }
 
