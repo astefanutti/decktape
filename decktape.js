@@ -602,22 +602,24 @@ async function nextSlide(plugin, context) {
 // the whole deck has been printed, which can take a while for large decks.
 function checkOutputPath(filename) {
   // Let the filesystem resolve existing paths; only follow dangling links explicitly.
-  let output = resolveOutputPath(filename);
-  let stats = tryStat(output);
-  for (let links = 0; !stats && tryStat(output, fs.lstatSync)?.isSymbolicLink(); links++) {
+  let output = resolveOutputPath(String(filename));
+  let stats = tryIO(() => fs.statSync(output));
+  for (let links = 0; !stats && tryIO(() => fs.lstatSync(output))?.isSymbolicLink(); links++) {
     if (links === 40) {
-      exitWithError('Too many levels of symbolic links: %s', output);
+      exitWithError('Too many levels of symbolic links: %s', displayPath(output));
     }
-    output = resolveOutputPath(fs.readlinkSync(output), path.dirname(output));
-    stats = tryStat(output);
+    const link = tryIO(() => fs.readlinkSync(output));
+    if (!link) break;
+    output = resolveOutputPath(link, path.dirname(output));
+    stats = tryIO(() => fs.statSync(output));
   }
 
   if (stats) {
     if (stats.isDirectory()) {
-      exitWithError('The output path is not a file: %s', output);
+      exitWithError('The output path is not a file: %s', displayPath(output));
     }
     // Existing files, FIFOs and devices only need write access to the destination.
-    checkAccess(output, fs.constants.W_OK, 'file');
+    checkAccess(output, fs.constants.W_OK, 'output file');
     return;
   }
 
@@ -625,14 +627,14 @@ function checkOutputPath(filename) {
   // so the closest existing ancestor is the one that must be writable.
   let directory = path.dirname(output);
   let directoryStats;
-  while (!(directoryStats = tryStat(directory)) && path.dirname(directory) !== directory) {
+  while (!(directoryStats = tryIO(() => fs.statSync(directory))) && path.dirname(directory) !== directory) {
     directory = path.dirname(directory);
   }
   if (!directoryStats?.isDirectory()) {
-    exitWithError('The output path is not a directory: %s', directory);
+    exitWithError('The output path is not a directory: %s', displayPath(directory));
   }
   // Creating a file or subdirectory also requires search permission on the directory.
-  checkAccess(directory, fs.constants.W_OK | fs.constants.X_OK, 'directory');
+  checkAccess(directory, fs.constants.W_OK | fs.constants.X_OK, 'output directory');
 }
 
 // Make the path absolute without collapsing .. across unresolved directory symlinks.
@@ -642,11 +644,18 @@ function resolveOutputPath(filename, directory = process.cwd()) {
   return base + (base.endsWith(path.sep) ? '' : path.sep) + filename.slice(root.length);
 }
 
-// Returns undefined when the path cannot be stat-ed, as it does not exist,
+// The checked path is kept unresolved, so that the filesystem resolves the symbolic
+// links and the .. segments it contains. Reporting its canonical form, when it can be
+// resolved, avoids printing the dot segments back to the user.
+function displayPath(target) {
+  return tryIO(() => fs.realpathSync(target)) ?? target;
+}
+
+// Returns undefined when the operation fails, e.g. the path does not exist,
 // or one of its ancestors is not a directory, or is not searchable.
-function tryStat(target, stat = fs.statSync) {
+function tryIO(operation) {
   try {
-    return stat(target);
+    return operation();
   } catch {
     return undefined;
   }
@@ -657,7 +666,7 @@ function checkAccess(target, mode, type) {
     fs.accessSync(target, mode);
   } catch {
     const uid = typeof process.getuid === 'function' ? ` as UID ${process.getuid()}` : '';
-    exitWithError('Unable to write into the output %s %s%s', type, target, uid);
+    exitWithError('Unable to write into the %s %s%s', type, displayPath(target), uid);
   }
 }
 
