@@ -613,10 +613,10 @@ function checkOutputPath(filename) {
   }
 
   if (stats) {
-    if (!stats.isFile()) {
+    if (stats.isDirectory()) {
       exitWithError('The output path is not a file: %s', output);
     }
-    // Overwriting an existing file does not require write permission on its directory.
+    // Existing files, FIFOs and devices only need write access to the destination.
     checkAccess(output, fs.constants.W_OK, 'file');
     return;
   }

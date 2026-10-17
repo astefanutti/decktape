@@ -3,7 +3,7 @@ import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
+import { promisify, stripVTControlCharacters } from 'node:util';
 import { PDFDocument } from 'pdf-lib';
 
 const run = promisify(execFile);
@@ -14,10 +14,14 @@ test.skip(process.platform === 'win32' || process.getuid?.() === 0,
   'These POSIX permission checks require an unprivileged user.');
 
 const restoreModes: [string, number][] = [];
+const abortControllers: AbortController[] = [];
 
 // Restoring permissions from a hook, as it also runs when a test times out, contrary to
 // the test body. A left over unwritable directory breaks the output directory cleanup.
 test.afterEach(async () => {
+  for (const controller of abortControllers.splice(0)) {
+    controller.abort();
+  }
   for (const [target, mode] of restoreModes.splice(0)) {
     await fs.chmod(target, mode);
   }
@@ -28,9 +32,9 @@ async function chmod(target: string, mode: number, restored = 0o755) {
   await fs.chmod(target, mode);
 }
 
-async function exportPdf(filename: string, extraArgs: string[] = []) {
+async function exportPdf(filename: string, extraArgs: string[] = [], signal?: AbortSignal) {
   return run(process.execPath, [executable, 'generic', '--max-slides', '2',
-    '--pause', '100', ...extraArgs, fixture, filename]);
+    '--pause', '100', ...extraArgs, fixture, filename], { signal });
 }
 
 async function expectOutputError(filename: string, message: string) {
@@ -133,3 +137,27 @@ for (const output of ['shortcut/link.pdf', 'shortcut/../slides.pdf']) {
     expect(await fs.readFile(unrelated, 'utf8')).toBe('unrelated file');
   });
 }
+
+test('exports to a writable character device', async () => {
+  const { stdout } = await exportPdf('/dev/null');
+  expect(stripVTControlCharacters(stdout)).toContain('Printed 2 slides');
+});
+
+test('exports a valid PDF through a FIFO', async ({}, testInfo) => {
+  const filename = testInfo.outputPath('slides.pdf');
+  await run('mkfifo', [filename]);
+  const controller = new AbortController();
+  abortControllers.push(controller);
+  const reading = run('cat', [filename], { encoding: 'buffer', signal: controller.signal });
+  try {
+    const [{ stdout }] = await Promise.all([
+      reading,
+      exportPdf(filename, [], controller.signal),
+    ]);
+    const pdf = await PDFDocument.load(stdout);
+    expect(pdf.getPageCount()).toBe(2);
+  } finally {
+    controller.abort();
+    await reading.catch(() => {});
+  }
+});
