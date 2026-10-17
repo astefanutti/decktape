@@ -6,6 +6,7 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 output="$root/test/output"
 mkdir -p "$output"
 tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
 
 # Use the normal image entrypoint and non-root user, without relying on host UID mappings.
 container=$(docker create \
