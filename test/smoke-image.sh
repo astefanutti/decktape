@@ -32,3 +32,26 @@ for (const page of pdf.getPages()) {
 }
 console.log('Image smoke test passed: exported two 1280×720 slides.');
 JS
+
+# Export again with the host UID, as the image must support writing into a bind mounted
+# directory it does not own, e.g. with runtimes that do not remap the volume ownership.
+volume="$output/volume"
+rm -rf "$volume"
+mkdir -p "$volume"
+docker run --rm --user "$(id -u):$(id -g)" \
+  --mount "type=bind,source=$root/test/fixtures,target=/fixtures,readonly" \
+  --mount "type=bind,source=$volume,target=/slides" \
+  "$image" generic --max-slides 2 --pause 100 \
+  file:///fixtures/image.html image-smoke.pdf
+
+test -s "$volume/image-smoke.pdf"
+
+# The home directory must stay within the container, so that Chrome does not
+# write its caches into the mounted directory.
+stray=$(ls -A "$volume" | grep -v '^image-smoke.pdf$' || true)
+test -z "$stray" || {
+  echo "Unexpected files written to the mounted volume: $(echo "$stray" | tr '\n' ' ')" >&2
+  exit 1
+}
+
+echo "Volume smoke test passed: exported into a bind mount as UID $(id -u)."
