@@ -54,7 +54,13 @@ COPY decktape.js /decktape/
 RUN groupadd -g 1000 node && \
     useradd -u 1000 -g node -m -s /bin/sh node && \
     mkdir /slides && \
-    chown node:node /slides
+    chown node:node /slides && \
+    # Chrome requires a writable home directory, also when the container runs with
+    # an arbitrary UID, e.g. docker run --user to match the mounted volume owner.
+    chmod 1777 /home/node
+
+# Set explicitly, so that it does not depend on the /etc/passwd entry of the running UID.
+ENV HOME=/home/node
 
 WORKDIR /slides
 

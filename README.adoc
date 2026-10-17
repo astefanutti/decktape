@@ -291,6 +291,14 @@ Besides, it is recommended to use the following options from the {uri-docker-ref
 {uri-docker-ref}/run/#clean-up-rm[`--rm`]:: DeckTape is meant to be run as a short-term foreground process so that it's not necessary to have the container's file system persisted after DeckTape exits,
 {uri-docker-ref}/commandline/run/#mount-volume-v-read-only[`-v`]:: to mount a data volume so that DeckTape can directly write to the local file system.
 
+The container runs as the non-root `node` user, with UID 1000.
+Writing the exported PDF into a mounted volume requires that UID to have write permission on the mounted directory.
+Docker Desktop remaps the ownership of the bind mounts transparently, while other runtimes, like Podman, expose the host ownership as-is, in which case DeckTape fails with `EACCES: permission denied`.
+Running the container with your own UID and GID solves it, e.g.:
+
+[source,shell]
+$ podman run --rm -t --user "$(id -u):$(id -g)" -v `pwd`:/slides ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
+
 Alternatively, you can use the {uri-docker-ref}/commandline/cp[`docker cp`] command, e.g.:
 
 [source,shell]
