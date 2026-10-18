@@ -13,8 +13,8 @@ export async function settleFrame(frame) {
   let settled;
   try {
     settled = await frame.evaluate(timeout => {
-      // Videos whose seek has already timed out once, not to wait for them on every slide.
-      const stalled = window._decktapeStalledVideos ??= new WeakSet();
+      // Sources whose seek has timed out, not to wait for them on every slide.
+      const stalled = window._decktapeStalledVideos ??= new WeakMap();
       const cleanups = [];
 
       const eventFired = (target, type) => new Promise(resolve => {
@@ -24,6 +24,10 @@ export async function settleFrame(frame) {
 
       const seekToFirstFrame = video => {
         video.pause();
+        // A completed seek or a new source allows this video to be tried again.
+        if (!video.seeking || stalled.get(video) !== video.currentSrc) {
+          stalled.delete(video);
+        }
         // Metadata is required to seek, and currentTime reports the target
         // even while the seek is still in progress.
         if (video.readyState < HTMLMediaElement.HAVE_METADATA
@@ -38,7 +42,9 @@ export async function settleFrame(frame) {
 
       const expired = new Promise(resolve => {
         const timer = setTimeout(() => {
-          document.querySelectorAll('video').forEach(video => video.seeking && stalled.add(video));
+          document.querySelectorAll('video').forEach(video => {
+            if (video.seeking) stalled.set(video, video.currentSrc);
+          });
           resolve(false);
         }, timeout);
         cleanups.push(() => clearTimeout(timer));
