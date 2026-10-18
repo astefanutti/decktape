@@ -103,6 +103,11 @@ test('rejects an existing directory as output before launching Chrome', async ({
   await expectOutputError(directory, `The output path is not a file: ${directory}`);
 });
 
+test('rejects an output path ending with a separator before launching Chrome', async ({}, testInfo) => {
+  const filename = `${testInfo.outputPath('slides.pdf')}${path.sep}`;
+  await expectOutputError(filename, `The output path is not a file: ${filename}`);
+});
+
 test('rejects an output path under a regular file before launching Chrome', async ({}, testInfo) => {
   const file = testInfo.outputPath('not-a-directory');
   await fs.writeFile(file, 'not a directory');

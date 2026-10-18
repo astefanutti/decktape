@@ -606,6 +606,9 @@ async function nextSlide(plugin, context) {
 function checkOutputPath(filename) {
   // Let the filesystem resolve existing paths; only follow dangling links explicitly.
   let output = resolveOutputPath(String(filename));
+  if (endsWithSeparator(output)) {
+    exitWithError('The output path is not a file: %s', output);
+  }
   let stats = tryIO(() => fs.statSync(output));
   for (let links = 0; !stats && tryIO(() => fs.lstatSync(output))?.isSymbolicLink(); links++) {
     if (links === 40) {
@@ -643,6 +646,12 @@ function checkOutputPath(filename) {
   }
   // Creating a file or subdirectory also requires search permission on the directory.
   checkAccess(directory, fs.constants.W_OK | fs.constants.X_OK, 'output directory');
+}
+
+// A trailing separator names a directory, which the PDF cannot be written to.
+// Only Windows accepts the backslash as a separator, it is a regular character otherwise.
+function endsWithSeparator(filename) {
+  return filename.endsWith('/') || (path.sep === '\\' && filename.endsWith('\\'));
 }
 
 // Make the path absolute without collapsing .. across unresolved directory symlinks.
