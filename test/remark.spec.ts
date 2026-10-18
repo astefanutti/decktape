@@ -1,12 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
 import { PDFDocument } from 'pdf-lib';
-
-const run = promisify(execFile);
-const executable = fileURLToPath(new URL('../decktape.js', import.meta.url));
+import { executable, run } from './helpers';
 
 const cases = [
   { ratio: '16:9', width: 1210, height: 681 },

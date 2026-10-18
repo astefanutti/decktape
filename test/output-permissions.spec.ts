@@ -1,16 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { promisify, stripVTControlCharacters } from 'node:util';
-import { PDFDocument } from 'pdf-lib';
-
-const run = promisify(execFile);
-const executable = fileURLToPath(new URL('../decktape.js', import.meta.url));
-const fixture = new URL('./fixtures/image.html', import.meta.url).href;
+import { stripVTControlCharacters } from 'node:util';
+import { exportPdf, expectTwoSlides, run } from './helpers';
 
 test.skip(process.platform === 'win32' || process.getuid?.() === 0,
   'These POSIX permission checks require an unprivileged user.');
@@ -34,24 +28,15 @@ async function chmod(target: string, mode: number, restored = 0o755) {
   await fs.chmod(target, mode);
 }
 
-async function exportPdf(filename: string, extraArgs: string[] = [], signal?: AbortSignal) {
-  return run(process.execPath, [executable, 'generic', '--max-slides', '2',
-    '--pause', '100', ...extraArgs, fixture, filename], { signal });
-}
-
 async function expectOutputError(filename: string, message: string, extraArgs: string[] = []) {
   // A missing browser makes the test fail if the output check reaches browser launch.
-  await expect(exportPdf(filename, [...extraArgs, '--chrome-path', `${filename}.missing-browser`]))
+  const args = [...extraArgs, '--chrome-path', `${filename}.missing-browser`];
+  await expect(exportPdf(filename, { args }))
     .rejects.toMatchObject({ code: 1, stdout: expect.stringContaining(message) });
 }
 
 async function expectPermissionError(filename: string, target: string, type = 'directory') {
   await expectOutputError(filename, `Unable to write into the output ${type} ${target}`);
-}
-
-async function expectTwoSlides(filename: string) {
-  const pdf = await PDFDocument.load(await fs.readFile(filename));
-  expect(pdf.getPageCount()).toBe(2);
 }
 
 test('overwrites a writable PDF in an unwritable directory', async ({}, testInfo) => {
@@ -208,10 +193,9 @@ test('exports a valid PDF through a FIFO', async ({}, testInfo) => {
   try {
     const [{ stdout }] = await Promise.all([
       reading,
-      exportPdf(filename, [], controller.signal),
+      exportPdf(filename, { signal: controller.signal }),
     ]);
-    const pdf = await PDFDocument.load(stdout);
-    expect(pdf.getPageCount()).toBe(2);
+    await expectTwoSlides(stdout);
   } finally {
     controller.abort();
     await reading.catch(() => {});
