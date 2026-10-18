@@ -665,7 +665,7 @@ function resolveOutputPath(filename, directory = process.cwd()) {
 // and into a directory that is not created when it is missing.
 function checkScreenshotDirectory(directory) {
   const target = resolveOutputPath(String(directory));
-  if (!tryIO(() => fs.statSync(target))?.isDirectory()) {
+  if (!isDirectory(target)) {
     exitWithError('The screenshots directory does not exist: %s', displayPath(target));
   }
   checkAccess(target, fs.constants.W_OK | fs.constants.X_OK, 'screenshots directory');
@@ -684,6 +684,10 @@ function outputType(stats) {
 // resolved, avoids printing the dot segments back to the user.
 function displayPath(target) {
   return tryIO(() => fs.realpathSync(target)) ?? target;
+}
+
+function isDirectory(target) {
+  return tryIO(() => fs.statSync(target))?.isDirectory() === true;
 }
 
 // Returns undefined when the operation fails, e.g. the path does not exist,
@@ -712,9 +716,11 @@ function exitWithError(format, ...args) {
 
 async function writePdf(filename, pdf) {
   const directory = path.dirname(filename);
-  // Existing Windows drive roots reject mkdir, even with recursive: true.
-  if (!tryIO(() => fs.statSync(directory))?.isDirectory()) {
+  try {
     fs.mkdirSync(directory, { recursive: true });
+  } catch (error) {
+    // Existing Windows drive roots reject mkdir, even with recursive: true.
+    if (!isDirectory(directory)) throw error;
   }
   fs.writeFileSync(filename, await pdf.save({ addDefaultPage: false }));
 }
