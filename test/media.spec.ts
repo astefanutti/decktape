@@ -1,17 +1,24 @@
 import { test, expect } from '@playwright/test';
 import { runInNewContext } from 'node:vm';
-import { settleFrame, settleTimeout } from '../libs/frames.js';
+import { seekTimeout, settleFrame, settleTimeout } from '../libs/frames.js';
 
 const font = '/input/revealjs-demo/iframe/LibreCaslonCondensed-SemiBold.woff2';
 
-function createFrame(videos: EventTarget[], timeout?: number) {
+type Timeouts = { settle: number, seek: number };
+type FakeVideo = EventTarget & Pick<HTMLVideoElement,
+  'currentSrc' | 'currentTime' | 'paused' | 'pause' | 'readyState' | 'seeking'>;
+
+function createFrame(videos: FakeVideo[], overrides?: Partial<Timeouts>) {
   const window = {};
   return {
     detached: false,
     url: () => 'about:blank',
-    evaluate(callback: (timeout: number) => unknown, requestedTimeout: number) {
-      return runInNewContext(`(${callback.toString()})(timeout)`, {
-        timeout: timeout ?? requestedTimeout,
+    evaluate(callback: (timeouts: Timeouts) => unknown, timeouts: Timeouts) {
+      // The timeouts the helper relies on, which the tests shorten to run fast.
+      expect(timeouts).toEqual({ settle: settleTimeout, seek: seekTimeout });
+      return runInNewContext(`(${callback.toString()})(timeouts)`, {
+        timeouts: { ...timeouts, ...overrides },
+        console,
         setTimeout,
         clearTimeout,
         Promise,
@@ -34,12 +41,12 @@ test('waits for a video already seeking to zero before settling the frame', asyn
     readyState: 1,
     paused: false,
     pause() { this.paused = true; },
-  });
+  }) as unknown as FakeVideo;
   const frame = createFrame([video]);
 
   // Completing the pending seek after a delay, so that waiting for it can be told
-  // apart from giving up once the settle timeout has expired.
-  const seekDuration = 500;
+  // apart from giving up once the seek timeout has expired.
+  const seekDuration = 200;
   setTimeout(() => {
     video.seeking = false;
     video.dispatchEvent(new Event('seeked'));
@@ -49,7 +56,9 @@ test('waits for a video already seeking to zero before settling the frame', asyn
   await settleFrame(frame);
   const elapsed = Date.now() - start;
 
-  expect(elapsed).toBeLessThan(settleTimeout / 2);
+  // Halved, as timers can fire slightly before the requested duration.
+  expect(elapsed).toBeGreaterThanOrEqual(seekDuration / 2);
+  expect(elapsed).toBeLessThan(seekTimeout);
   expect(video.paused).toBe(true);
   expect(video.seeking).toBe(false);
 });
@@ -64,7 +73,7 @@ for (const recovery of ['seek finishes', 'source changes']) {
       seeking: true,
       readyState: 1,
       pause() {},
-    });
+    }) as unknown as FakeVideo;
     Object.defineProperty(video, 'currentTime', {
       get: () => currentTime,
       set(value: number) {
@@ -79,13 +88,16 @@ for (const recovery of ['seek finishes', 'source changes']) {
         }
       },
     });
-    const frame = createFrame([video], 50);
+    const seek = 100;
+    const frame = createFrame([video], { seek });
 
     await settleFrame(frame);
     expect(seekCount).toBe(1);
 
-    // A seek that is still stalled must not be restarted on every slide.
+    // A seek that is still stalled must neither be restarted nor waited for again.
+    const start = Date.now();
     await settleFrame(frame);
+    expect(Date.now() - start).toBeLessThan(seek / 2);
     expect(seekCount).toBe(1);
 
     if (recovery === 'seek finishes') video.seeking = false;
@@ -100,6 +112,47 @@ for (const recovery of ['seek finishes', 'source changes']) {
     expect(video.seeking).toBe(false);
   });
 }
+
+test('gives up on a stalled video without holding up the web fonts', async () => {
+  const video = Object.assign(new EventTarget(), {
+    currentSrc: 'stalled.mp4',
+    currentTime: 3,
+    seeking: false,
+    readyState: 1,
+    pause() {},
+  }) as unknown as FakeVideo;
+  // The seek never ends, neither completed nor aborted.
+  const seek = 100;
+  const frame = createFrame([video], { seek });
+
+  const start = Date.now();
+  await settleFrame(frame);
+  const elapsed = Date.now() - start;
+
+  expect(elapsed).toBeGreaterThanOrEqual(seek / 2);
+  // The frame settles on the seek timeout rather than on the much longer settle one.
+  expect(elapsed).toBeLessThan(settleTimeout / 2);
+});
+
+test('settles the frame as soon as a seek is aborted', async () => {
+  const video = Object.assign(new EventTarget(), {
+    currentSrc: 'aborted.mp4',
+    currentTime: 3,
+    seeking: false,
+    readyState: 1,
+    pause() {},
+  }) as unknown as FakeVideo;
+  const seek = 2000;
+  const frame = createFrame([video], { seek });
+
+  // Reloading the source ends the seek without completing it, so without a seeked event.
+  setTimeout(() => video.dispatchEvent(new Event('abort')), 50);
+
+  const start = Date.now();
+  await settleFrame(frame);
+
+  expect(Date.now() - start).toBeLessThan(seek / 2);
+});
 
 test('waits for the web fonts to load before settling the frame', async ({ page }) => {
   const fontDelay = 500;
@@ -121,7 +174,8 @@ test('waits for the web fonts to load before settling the frame', async ({ page 
   await settleFrame({
     detached: false,
     url: () => page.url(),
-    evaluate: (callback: (timeout: number) => unknown, timeout: number) => page.evaluate(callback, timeout),
+    evaluate: (callback: (timeouts: Timeouts) => unknown, timeouts: Timeouts) =>
+      page.evaluate(callback, timeouts),
   });
   const elapsed = Date.now() - start;
 
