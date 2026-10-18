@@ -18,6 +18,10 @@ import { PDFDocument, PDFName, ParseSpeeds, decodePDFRawStream } from 'pdf-lib';
 
 import { delay, pause } from './libs/util.js';
 
+// Maximum duration in milliseconds to wait for the web fonts to load
+// and the videos to seek, before printing a slide.
+const settleTimeout = 5000;
+
 parser.script('decktape').options({
   url : {
     position  : 1,
@@ -407,8 +411,7 @@ async function exportSlides(page, plugin, pdf, options) {
 async function exportSlide(page, plugin, pdf, context, options) {
   process.stdout.write('\r' + await progressBar(plugin, context));
 
-  // Pause videos and seek to start to ensure deterministic rendering
-  await page.evaluate(() => document.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; }));
+  await Promise.all(page.frames().map(settleFrame));
 
   const buffer = await page.pdf({
     width               : options.size.width,
@@ -435,6 +438,38 @@ async function exportSlide(page, plugin, pdf, context, options) {
       });
       await page.setViewport(options.size);
       await pause(1000);
+    }
+  }
+}
+
+// Waits for the frame content to reach a state that renders identically across exports,
+// as videos play and web fonts load asynchronously. Frames that fail to settle, like the
+// ones detached while the slide is printed, are skipped rather than failing the export.
+async function settleFrame(frame) {
+  try {
+    await frame.evaluate(timeout => {
+      const seekToFirstFrame = video => {
+        video.pause();
+        if (video.currentTime === 0 || video.readyState < HTMLMediaElement.HAVE_METADATA) return;
+        return new Promise(resolve => {
+          video.addEventListener('seeked', resolve, { once: true });
+          video.currentTime = 0;
+        });
+      };
+      return Promise.race([
+        // Giving up rather than waiting indefinitely, e.g. for a font that never loads.
+        new Promise(resolve => setTimeout(resolve, timeout)),
+        Promise.all([
+          // Printing before the web fonts have loaded falls back to the substitute fonts.
+          document.fonts.ready,
+          // Videos keep playing, so the frame to print has to be pinned down.
+          ...Array.from(document.querySelectorAll('video'), seekToFirstFrame),
+        ]),
+      ]);
+    }, settleTimeout);
+  } catch (error) {
+    if (!frame.detached) {
+      console.log(chalk.yellow('\nUnable to settle the frame content: %s'), error.message);
     }
   }
 }
