@@ -304,6 +304,12 @@ For rootless Podman on Linux, use `--userns=keep-id` to map your UID and GID to 
 [source,shell]
 $ podman run --rm -t --userns=keep-id:uid=1000,gid=1000 -v "$(pwd):/slides" ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
 
+On the hosts enforcing SELinux, like Fedora and RHEL, the mounted directory must also be relabelled with the `:z` option, so that the container is allowed to access it.
+The UID mapping and the SELinux label are enforced independently, so both are required:
+
+[source,shell]
+$ podman run --rm -t --userns=keep-id:uid=1000,gid=1000 -v "$(pwd):/slides:z" ghcr.io/astefanutti/decktape https://revealjs.com/demo/ slides.pdf
+
 Alternatively, you can use the {uri-docker-ref}/commandline/cp[`docker cp`] command, e.g.:
 
 [source,shell]
