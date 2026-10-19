@@ -16,7 +16,7 @@ import { fileURLToPath } from 'url';
 
 import { PDFDocument, PDFName, ParseSpeeds, decodePDFRawStream } from 'pdf-lib';
 
-import { checkOutputPath, checkScreenshotDirectory, isDirectory } from './libs/files.js';
+import { InvalidPathError, checkOutputPath, checkScreenshotDirectory, isDirectory } from './libs/files.js';
 import { settleFrame } from './libs/frames.js';
 import { delay, pause } from './libs/util.js';
 
@@ -260,6 +260,9 @@ process.on('unhandledRejection', error => {
       checkScreenshotDirectory(options.screenshotDirectory);
     }
   } catch (error) {
+    // Only the invalid paths are reported as such, the unexpected failures are
+    // left to the handler reporting them with their stack trace.
+    if (!(error instanceof InvalidPathError)) throw error;
     console.log(chalk.red(error.message));
     process.exit(1);
   }

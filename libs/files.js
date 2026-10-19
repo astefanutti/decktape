@@ -3,6 +3,10 @@
 import fs from 'fs';
 import path from 'path';
 
+// Signals a path provided by the user that cannot be written to,
+// as opposed to the unexpected failures, which are bugs.
+export class InvalidPathError extends Error {}
+
 // Checking before the slides are exported, as the PDF is only written once
 // the whole deck has been printed, which can take a while for large decks.
 // Returns the path that has been checked, which is the one to write the PDF into,
@@ -11,12 +15,12 @@ export function checkOutputPath(filename) {
   // Let the filesystem resolve existing paths; only follow dangling links explicitly.
   let output = resolveOutputPath(String(filename));
   if (endsWithSeparator(output)) {
-    throw new Error(`The output path is not a file: ${output}`);
+    throw new InvalidPathError(`The output path is not a file: ${output}`);
   }
   let stats = tryIO(() => fs.statSync(output));
   for (let links = 0; !stats && tryIO(() => fs.lstatSync(output))?.isSymbolicLink(); links++) {
     if (links === 40) {
-      throw new Error(`Too many levels of symbolic links: ${displayPath(output)}`);
+      throw new InvalidPathError(`Too many levels of symbolic links: ${displayPath(output)}`);
     }
     const link = tryIO(() => fs.readlinkSync(output));
     if (!link) break;
@@ -28,7 +32,7 @@ export function checkOutputPath(filename) {
     // Existing files, FIFOs and devices only need write access to the destination,
     // while the other types, like sockets, cannot be written to at all.
     if (!outputType(stats)) {
-      throw new Error(`The output path is not a file: ${displayPath(output)}`);
+      throw new InvalidPathError(`The output path is not a file: ${displayPath(output)}`);
     }
     checkAccess(output, fs.constants.W_OK, `output ${outputType(stats)}`);
     return output;
@@ -41,12 +45,12 @@ export function checkOutputPath(filename) {
   while (!(directoryStats = tryIO(() => fs.statSync(directory))) && path.dirname(directory) !== directory) {
     // A dangling symbolic link exists, so it cannot be created as a directory.
     if (tryIO(() => fs.lstatSync(directory))) {
-      throw new Error(`The output path is a broken symbolic link: ${directory}`);
+      throw new InvalidPathError(`The output path is a broken symbolic link: ${directory}`);
     }
     directory = path.dirname(directory);
   }
   if (!directoryStats?.isDirectory()) {
-    throw new Error(`The output path is not a directory: ${displayPath(directory)}`);
+    throw new InvalidPathError(`The output path is not a directory: ${displayPath(directory)}`);
   }
   // Creating a file or subdirectory also requires search permission on the directory.
   checkAccess(directory, fs.constants.W_OK | fs.constants.X_OK, 'output directory');
@@ -71,7 +75,7 @@ function resolveOutputPath(filename, directory = process.cwd()) {
 export function checkScreenshotDirectory(directory) {
   const target = resolveOutputPath(String(directory));
   if (!isDirectory(target)) {
-    throw new Error(`The screenshots directory does not exist: ${displayPath(target)}`);
+    throw new InvalidPathError(`The screenshots directory does not exist: ${displayPath(target)}`);
   }
   checkAccess(target, fs.constants.W_OK | fs.constants.X_OK, 'screenshots directory');
 }
@@ -110,6 +114,6 @@ function checkAccess(target, mode, type) {
     fs.accessSync(target, mode);
   } catch {
     const uid = typeof process.getuid === 'function' ? ` as UID ${process.getuid()}` : '';
-    throw new Error(`Unable to write into the ${type} ${displayPath(target)}${uid}`);
+    throw new InvalidPathError(`Unable to write into the ${type} ${displayPath(target)}${uid}`);
   }
 }
