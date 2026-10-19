@@ -16,6 +16,7 @@ import { fileURLToPath } from 'url';
 
 import { PDFDocument, PDFName, ParseSpeeds, decodePDFRawStream } from 'pdf-lib';
 
+import { settleFrame } from './libs/frames.js';
 import { delay, pause } from './libs/util.js';
 
 parser.script('decktape').options({
@@ -412,8 +413,7 @@ async function exportSlides(page, plugin, pdf, options) {
 async function exportSlide(page, plugin, pdf, context, options) {
   process.stdout.write('\r' + await progressBar(plugin, context));
 
-  // Pause videos and seek to start to ensure deterministic rendering
-  await page.evaluate(() => document.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; }));
+  await Promise.all(page.frames().map(settleFrame));
 
   const buffer = await page.pdf({
     width               : options.size.width,
@@ -432,6 +432,8 @@ async function exportSlide(page, plugin, pdf, context, options) {
       // Delay page rendering to wait for the resize event to complete,
       // e.g. for impress.js (may be needed to be configurable)
       await pause(1000);
+      // Resizing re-renders the page, so the frames have to settle again.
+      await Promise.all(page.frames().map(settleFrame));
       await page.screenshot({
         path: path.join(options.screenshotDirectory, options.filename
           .replace('.pdf', `_${context.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`)),
