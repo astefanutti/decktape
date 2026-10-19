@@ -15,7 +15,7 @@ export function checkOutputPath(filename) {
   // Let the filesystem resolve existing paths; only follow dangling links explicitly.
   let output = resolveOutputPath(String(filename));
   if (endsWithSeparator(output)) {
-    throw new InvalidPathError(`The output path is not a file: ${output}`);
+    throw new InvalidPathError(`The output path is not a file: ${displayPath(output)}`);
   }
   let stats = tryIO(() => fs.statSync(output));
   for (let links = 0; !stats && tryIO(() => fs.lstatSync(output))?.isSymbolicLink(); links++) {
@@ -31,10 +31,11 @@ export function checkOutputPath(filename) {
   if (stats) {
     // Existing files, FIFOs and devices only need write access to the destination,
     // while the other types, like sockets, cannot be written to at all.
-    if (!outputType(stats)) {
+    const type = outputType(stats);
+    if (!type) {
       throw new InvalidPathError(`The output path is not a file: ${displayPath(output)}`);
     }
-    checkAccess(output, fs.constants.W_OK, `output ${outputType(stats)}`);
+    checkAccess(output, fs.constants.W_OK, `output ${type}`);
     return output;
   }
 
@@ -43,9 +44,11 @@ export function checkOutputPath(filename) {
   let directory = path.dirname(output);
   let directoryStats;
   while (!(directoryStats = tryIO(() => fs.statSync(directory))) && path.dirname(directory) !== directory) {
-    // A dangling symbolic link exists, so it cannot be created as a directory.
+    // An entry that exists but cannot be resolved cannot be created as a directory.
     if (tryIO(() => fs.lstatSync(directory))) {
-      throw new InvalidPathError(`The output path is a broken symbolic link: ${directory}`);
+      throw new InvalidPathError(errorOf(() => fs.statSync(directory))?.code === 'ELOOP'
+        ? `Too many levels of symbolic links: ${directory}`
+        : `The output path is a broken symbolic link: ${directory}`);
     }
     directory = path.dirname(directory);
   }
@@ -74,8 +77,12 @@ function resolveOutputPath(filename, directory = process.cwd()) {
 // and into a directory that is not created when it is missing.
 export function checkScreenshotDirectory(directory) {
   const target = resolveOutputPath(String(directory));
-  if (!isDirectory(target)) {
+  const stats = tryIO(() => fs.statSync(target));
+  if (!stats) {
     throw new InvalidPathError(`The screenshots directory does not exist: ${displayPath(target)}`);
+  }
+  if (!stats.isDirectory()) {
+    throw new InvalidPathError(`The screenshots path is not a directory: ${displayPath(target)}`);
   }
   checkAccess(target, fs.constants.W_OK | fs.constants.X_OK, 'screenshots directory');
 }
@@ -106,6 +113,16 @@ function tryIO(operation) {
     return operation();
   } catch {
     return undefined;
+  }
+}
+
+// Returns the error thrown by the operation, or undefined when it succeeds.
+function errorOf(operation) {
+  try {
+    operation();
+    return undefined;
+  } catch (error) {
+    return error;
   }
 }
 
