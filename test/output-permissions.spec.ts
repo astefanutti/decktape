@@ -99,6 +99,44 @@ test('rejects an output path under a regular file before launching Chrome', asyn
   await expectOutputError(path.join(file, 'slides.pdf'), `The output path is not a directory: ${file}`);
 });
 
+test('rejects a looping link as output directory before launching Chrome', async ({}, testInfo) => {
+  const link = testInfo.outputPath('loop');
+  await fs.mkdir(path.dirname(link), { recursive: true });
+  await fs.symlink(link, link);
+  await expectOutputError(path.join(link, 'slides.pdf'),
+    `Too many levels of symbolic links: ${link}`);
+});
+
+test('rejects a screenshots directory that is a file before launching Chrome', async ({}, testInfo) => {
+  const file = testInfo.outputPath('not-a-directory');
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  await fs.writeFile(file, 'not a directory');
+  await expectOutputError(testInfo.outputPath('slides.pdf'),
+    `The screenshots path is not a directory: ${file}`,
+    ['--screenshots', '--screenshots-directory', file]);
+});
+
+test('captures the screenshots into the directory that is checked', async ({}, testInfo) => {
+  const directory = testInfo.outputPath('shots');
+  const filename = path.join(testInfo.outputPath('out'), 'slides.pdf');
+  await fs.mkdir(directory, { recursive: true });
+
+  await exportPdf(filename, { args: ['--screenshots', '--screenshots-directory', directory] });
+
+  expect(await fs.readdir(directory)).toEqual(['slides_1_1280x720.png', 'slides_2_1280x720.png']);
+});
+
+test('exports through a link pointing into a missing directory', async ({}, testInfo) => {
+  const target = path.join(testInfo.outputPath('missing'), 'slides.pdf');
+  const filename = testInfo.outputPath('link.pdf');
+  await fs.mkdir(path.dirname(filename), { recursive: true });
+  await fs.symlink(target, filename);
+
+  await exportPdf(filename);
+
+  await expectTwoSlides(target);
+});
+
 test('rejects a link to a missing file in a read-only directory before launching Chrome',
   async ({}, testInfo) => {
     const directory = testInfo.outputPath('read-only');
