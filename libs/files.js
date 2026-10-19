@@ -5,6 +5,8 @@ import path from 'path';
 
 // Checking before the slides are exported, as the PDF is only written once
 // the whole deck has been printed, which can take a while for large decks.
+// Returns the path that has been checked, which is the one to write the PDF into,
+// as writing to the original one would resolve the symbolic links all over again.
 export function checkOutputPath(filename) {
   // Let the filesystem resolve existing paths; only follow dangling links explicitly.
   let output = resolveOutputPath(String(filename));
@@ -29,7 +31,7 @@ export function checkOutputPath(filename) {
       throw new Error(`The output path is not a file: ${displayPath(output)}`);
     }
     checkAccess(output, fs.constants.W_OK, `output ${outputType(stats)}`);
-    return;
+    return output;
   }
 
   // Missing directories are created when the PDF is written,
@@ -48,6 +50,7 @@ export function checkOutputPath(filename) {
   }
   // Creating a file or subdirectory also requires search permission on the directory.
   checkAccess(directory, fs.constants.W_OK | fs.constants.X_OK, 'output directory');
+  return output;
 }
 
 // A trailing separator names a directory, which the PDF cannot be written to.

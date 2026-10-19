@@ -253,8 +253,9 @@ process.on('unhandledRejection', error => {
   });
   const options = parser.parse(process.argv.slice(2));
 
+  let output;
   try {
-    checkOutputPath(options.filename);
+    output = checkOutputPath(options.filename);
     if (options.screenshots) {
       checkScreenshotDirectory(options.screenshotDirectory);
     }
@@ -314,7 +315,7 @@ process.on('unhandledRejection', error => {
       .then(_ => configurePage(page, plugin, options))
       .then(_ => exportSlides(page, plugin, pdf, options))
       .then(async context => {
-        await writePdf(options.filename, pdf);
+        await writePdf(output, pdf);
         console.log(chalk.green(`\nPrinted ${chalk.bold('%s')} slides`), context.exportedSlides);
         // Wait for the browser to close before exiting the process
         await browser.close();

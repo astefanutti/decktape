@@ -99,6 +99,17 @@ test('rejects an output path under a regular file before launching Chrome', asyn
   await expectOutputError(path.join(file, 'slides.pdf'), `The output path is not a directory: ${file}`);
 });
 
+test('exports through a link pointing into a missing directory', async ({}, testInfo) => {
+  const target = path.join(testInfo.outputPath('missing'), 'slides.pdf');
+  const filename = testInfo.outputPath('link.pdf');
+  await fs.mkdir(path.dirname(filename), { recursive: true });
+  await fs.symlink(target, filename);
+
+  await exportPdf(filename);
+
+  await expectTwoSlides(target);
+});
+
 test('rejects a link to a missing file in a read-only directory before launching Chrome',
   async ({}, testInfo) => {
     const directory = testInfo.outputPath('read-only');
