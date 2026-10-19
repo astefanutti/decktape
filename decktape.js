@@ -442,7 +442,8 @@ async function exportSlide(page, plugin, pdf, context, options) {
       // Resizing re-renders the page, so the frames have to settle again.
       await Promise.all(page.frames().map(settleFrame));
       await page.screenshot({
-        path: path.join(options.screenshotDirectory, options.filename
+        // Only the name of the PDF file, as the screenshots go into their own directory.
+        path: path.join(options.screenshotDirectory, path.basename(options.filename)
           .replace('.pdf', `_${context.currentSlide}_${resolution.width}x${resolution.height}.${options.screenshotFormat}`)),
         fullPage: false,
         omitBackground: true,

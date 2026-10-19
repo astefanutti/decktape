@@ -99,6 +99,16 @@ test('rejects an output path under a regular file before launching Chrome', asyn
   await expectOutputError(path.join(file, 'slides.pdf'), `The output path is not a directory: ${file}`);
 });
 
+test('captures the screenshots into the directory that is checked', async ({}, testInfo) => {
+  const directory = testInfo.outputPath('shots');
+  const filename = path.join(testInfo.outputPath('out'), 'slides.pdf');
+  await fs.mkdir(directory, { recursive: true });
+
+  await exportPdf(filename, { args: ['--screenshots', '--screenshots-directory', directory] });
+
+  expect(await fs.readdir(directory)).toEqual(['slides_1_1280x720.png', 'slides_2_1280x720.png']);
+});
+
 test('exports through a link pointing into a missing directory', async ({}, testInfo) => {
   const target = path.join(testInfo.outputPath('missing'), 'slides.pdf');
   const filename = testInfo.outputPath('link.pdf');
