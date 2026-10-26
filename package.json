@@ -24,7 +24,7 @@
     "url": "https://github.com/astefanutti/decktape/issues"
   },
   "dependencies": {
-    "chalk": "5.4.1",
+    "chalk": "6.0.1",
     "fonteditor-core": "2.4.1",
     "pdf-lib": "1.17.1",
     "puppeteer": "25.14.0",
