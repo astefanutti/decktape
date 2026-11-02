@@ -27,6 +27,8 @@ ENV NODE_ENV=production \
     PUPPETEER_CACHE_DIR=/opt/puppeteer \
     TERM=xterm-color
 
+COPY quicksand/* /usr/share/fonts/
+RUN fc-cache -f /usr/share/fonts
 # Node.js
 COPY --from=builder /usr/local/bin/node /usr/local/bin/
 
