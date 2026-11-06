@@ -68,7 +68,10 @@ export async function settleFrame(frame) {
             unloaded.set(video, { source, readyState: video.readyState });
             console.warn(`Unable to load the first frame of the video: ${source}`);
           }
-          // The page may have resumed playback on loadeddata, e.g. reveal.js autoplay.
+          // The page may resume playback on loadeddata, e.g. reveal.js autoplay, including from the
+          // listeners registered after this one, that only run once this resumes, as the browser
+          // dispatches the event to each listener in turn.
+          await delay(0);
           video.pause();
         }
         if (video.readyState < HTMLMediaElement.HAVE_METADATA) {

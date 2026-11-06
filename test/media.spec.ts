@@ -1,8 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { runInNewContext } from 'node:vm';
 import { seekTimeout, settleFrame, settleTimeout } from '../libs/frames.js';
 
 const font = '/input/revealjs-demo/iframe/LibreCaslonCondensed-SemiBold.woff2';
+const video = '/fixtures/video.webm';
 
 type Timeouts = { settle: number, seek: number };
 type FakeVideo = EventTarget & Pick<HTMLVideoElement,
@@ -13,6 +14,16 @@ type FakeVideo = EventTarget & Pick<HTMLVideoElement,
   play?: () => Promise<void>;
   preload?: string;
 };
+
+// The main frame of the page, as settled by DeckTape.
+function pageFrame(page: Page) {
+  return {
+    detached: false,
+    url: () => page.url(),
+    evaluate: (callback: (timeouts: Timeouts) => unknown, timeouts: Timeouts) =>
+      page.evaluate(callback, timeouts),
+  };
+}
 
 function createFrame(videos: FakeVideo[], overrides?: Partial<Timeouts>) {
   const window = {};
@@ -527,15 +538,42 @@ test('waits for the web fonts to load before settling the frame', async ({ page 
   }, font);
 
   const start = Date.now();
-  await settleFrame({
-    detached: false,
-    url: () => page.url(),
-    evaluate: (callback: (timeouts: Timeouts) => unknown, timeouts: Timeouts) =>
-      page.evaluate(callback, timeouts),
-  });
+  await settleFrame(pageFrame(page));
   const elapsed = Date.now() - start;
 
   expect(elapsed).toBeGreaterThanOrEqual(fontDelay / 2);
   expect(elapsed).toBeLessThan(settleTimeout);
   expect(await page.evaluate(() => document.fonts.check('1em Delayed'))).toBe(true);
+});
+
+test('pauses a video the page plays from a listener registered while it loads', async ({ page }) => {
+  // Delaying the video, so that it is still loading when the frame is settled.
+  await page.route(video, async route => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    await route.continue();
+  });
+  await page.goto('/fixtures/image.html');
+
+  // Registering the autoplay listener once the metadata has loaded, so after the one settling
+  // the frame, as the browser dispatches the event to each listener in turn, unlike EventTarget
+  // in the synthetic tests above.
+  await page.evaluate(src => {
+    const video = document.createElement('video');
+    video.muted = true;
+    video.addEventListener('loadedmetadata', () => video.addEventListener('loadeddata', () => {
+      video.currentTime = 0;
+      video.play();
+    }));
+    video.src = src;
+    document.body.append(video);
+  }, video);
+
+  await settleFrame(pageFrame(page));
+  // Leaving time for the playback to advance, would it have been resumed.
+  await page.waitForTimeout(200);
+
+  expect(await page.evaluate(() => {
+    const { paused, currentTime } = document.querySelector('video')!;
+    return { paused, currentTime };
+  })).toEqual({ paused: true, currentTime: 0 });
 });
