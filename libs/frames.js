@@ -35,13 +35,16 @@ export async function settleFrame(frame) {
       });
 
       const seekToFirstFrame = async video => {
-        // Skip media that has not started loading or playback, like lazy placeholders or failed
-        // sources, as it cannot make progress on its own. Loaded or active videos, including
-        // hidden sources used by a visible canvas, still need to be paused and settled.
+        // Skip media that cannot make progress on its own, like lazy placeholders without a source,
+        // failed sources, or deferred loads. Other states are not enough to tell, as a loading video
+        // can be briefly idle or without a source. Loaded or active videos, including hidden sources
+        // used by a visible canvas, still need to be paused and settled.
         if (video.readyState < HTMLMediaElement.HAVE_METADATA
           && video.paused
           && !video.seeking
-          && video.networkState !== HTMLMediaElement.NETWORK_LOADING) {
+          && (video.networkState === HTMLMediaElement.NETWORK_EMPTY
+            || video.error
+            || (video.networkState === HTMLMediaElement.NETWORK_IDLE && video.preload === 'none'))) {
           return;
         }
         video.pause();

@@ -39,7 +39,10 @@ function createFrame(videos: FakeVideo[], overrides?: Partial<Timeouts>) {
         Promise,
         WeakMap,
         window,
-        HTMLMediaElement: { HAVE_METADATA: 1, HAVE_CURRENT_DATA: 2, NETWORK_LOADING: 2, NETWORK_NO_SOURCE: 3 },
+        HTMLMediaElement: {
+          HAVE_METADATA: 1, HAVE_CURRENT_DATA: 2,
+          NETWORK_EMPTY: 0, NETWORK_IDLE: 1, NETWORK_LOADING: 2, NETWORK_NO_SOURCE: 3,
+        },
         document: {
           fonts: { ready: Promise.resolve() },
           querySelectorAll: () => videos,
@@ -153,6 +156,39 @@ test('waits for a hidden video with a child source to load', async () => {
   expect(elapsed).toBeLessThan(seekTimeout);
   expect(readyState).toBe(2);
 });
+
+// Chrome briefly reports these states for a video that is about to load, before it selects
+// its source, or once it has downloaded a small file but before it has parsed its metadata.
+for (const [state, networkState] of [['without a source', 3], ['idle', 1]] as const) {
+  test(`waits for a loading video reported as ${state}`, async () => {
+    let readyState = 0;
+    const video = Object.assign(new EventTarget(), {
+      currentSrc: '',
+      currentTime: 0,
+      seeking: false,
+      networkState,
+      error: null,
+      paused: true,
+      preload: 'auto',
+      pause() { this.paused = true; },
+    }) as unknown as FakeVideo;
+    Object.defineProperty(video, 'readyState', { get: () => readyState });
+    const frame = createFrame([video]);
+    const frameDelay = 80;
+    setTimeout(() => {
+      readyState = 2;
+      video.dispatchEvent(new Event('loadeddata'));
+    }, frameDelay);
+
+    const start = Date.now();
+    await settleFrame(frame);
+    const elapsed = Date.now() - start;
+
+    expect(elapsed).toBeGreaterThanOrEqual(frameDelay / 2);
+    expect(elapsed).toBeLessThan(seekTimeout);
+    expect(readyState).toBe(2);
+  });
+}
 
 test('skips a video with preload none until it is activated', async () => {
   const video = Object.assign(new EventTarget(), {
