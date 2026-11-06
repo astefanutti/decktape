@@ -17,6 +17,8 @@ export async function settleFrame(frame) {
     settled = await frame.evaluate(timeouts => {
       // Sources whose seek has timed out, not to wait for them on every slide.
       const stalled = window._decktapeStalledVideos ??= new WeakMap();
+      // Same for the sources whose frame data has timed out, with the state they were left in.
+      const unloaded = window._decktapeUnloadedVideos ??= new WeakMap();
       const cleanups = [];
 
       const eventFired = (target, types) => new Promise(resolve => {
@@ -48,19 +50,27 @@ export async function settleFrame(frame) {
           eventFired(video, types),
           delay(timeouts.seek),
         ]);
-        if (video.readyState < HTMLMediaElement.HAVE_METADATA
-          || (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA && video.currentTime === 0 && !video.seeking)) {
-          // Waiting for the frame data rather than the metadata, as loadedmetadata can fire when
-          // the data is already available, before the page reacts to loadeddata.
-          await waitForEvent(['loadeddata', 'abort', 'emptied', 'error']);
-          // The page may have resumed playback on loadeddata, e.g. reveal.js autoplay.
-          video.pause();
-          if (video.readyState < HTMLMediaElement.HAVE_METADATA) {
-            return;
-          }
-        }
         // The media resource, as currentSrc is empty for streams set with srcObject.
         const source = video.currentSrc || video.srcObject;
+        // Some progress or a new source allows this video to be waited for again.
+        const unloadedState = unloaded.get(video);
+        if (unloadedState?.source !== source || unloadedState?.readyState !== video.readyState) {
+          unloaded.delete(video);
+        }
+        if (!unloaded.has(video) && (video.readyState < HTMLMediaElement.HAVE_METADATA
+          || (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA && video.currentTime === 0 && !video.seeking))) {
+          // Waiting for the frame data rather than the metadata, as loadedmetadata can fire when
+          // the data is already available, before the page reacts to loadeddata.
+          if (!await waitForEvent(['loadeddata', 'abort', 'emptied', 'error'])) {
+            unloaded.set(video, { source, readyState: video.readyState });
+            console.warn(`Unable to load the first frame of the video: ${source}`);
+          }
+          // The page may have resumed playback on loadeddata, e.g. reveal.js autoplay.
+          video.pause();
+        }
+        if (video.readyState < HTMLMediaElement.HAVE_METADATA) {
+          return;
+        }
         // A completed seek or a new source allows this video to be tried again.
         if (!video.seeking || stalled.get(video) !== source) {
           stalled.delete(video);

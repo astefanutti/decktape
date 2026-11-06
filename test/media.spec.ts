@@ -411,6 +411,43 @@ for (const recovery of ['seek finishes', 'source changes']) {
   });
 }
 
+for (const recovery of ['ready state changes', 'source changes']) {
+  test(`waits again for a video whose data has timed out when its ${recovery}`, async () => {
+    let readyState = 0;
+    const video = Object.assign(new EventTarget(), {
+      currentSrc: 'first.mp4',
+      currentTime: 0,
+      seeking: false,
+      networkState: 2,
+      paused: true,
+      pause() { this.paused = true; },
+    }) as unknown as FakeVideo;
+    Object.defineProperty(video, 'readyState', { get: () => readyState });
+    // The data never loads, neither completed nor failed.
+    const seek = 100;
+    const frame = createFrame([video], { seek });
+
+    let start = Date.now();
+    await settleFrame(frame);
+    let elapsed = Date.now() - start;
+    expect(elapsed).toBeGreaterThanOrEqual(seek / 2);
+    // The frame settles on the seek timeout rather than on the much longer settle one.
+    expect(elapsed).toBeLessThan(settleTimeout / 2);
+
+    // A video that has made no progress must not be waited for again.
+    start = Date.now();
+    await settleFrame(frame);
+    expect(Date.now() - start).toBeLessThan(seek / 2);
+
+    if (recovery === 'ready state changes') readyState = 1;
+    else video.currentSrc = 'second.mp4';
+
+    start = Date.now();
+    await settleFrame(frame);
+    expect(Date.now() - start).toBeGreaterThanOrEqual(seek / 2);
+  });
+}
+
 test('gives up on a stalled video without holding up the web fonts', async () => {
   const video = Object.assign(new EventTarget(), {
     currentSrc: 'stalled.mp4',
