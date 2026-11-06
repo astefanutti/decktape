@@ -33,18 +33,13 @@ export async function settleFrame(frame) {
       });
 
       const seekToFirstFrame = async video => {
-        // Skip only media that has not started loading or playback. Loaded or active videos,
-        // including hidden sources used by a visible canvas, still need to be paused and settled.
-        const notStarted = video.readyState < HTMLMediaElement.HAVE_METADATA
+        // Skip media that has not started loading or playback, like lazy placeholders or failed
+        // sources, as it cannot make progress on its own. Loaded or active videos, including
+        // hidden sources used by a visible canvas, still need to be paused and settled.
+        if (video.readyState < HTMLMediaElement.HAVE_METADATA
           && video.paused
           && !video.seeking
-          && video.networkState !== HTMLMediaElement.NETWORK_LOADING;
-        const hasSource = video.currentSrc || video.srcObject || video.getAttribute('src')
-          || video.querySelector('source[src]')?.getAttribute('src');
-        if (notStarted && (video.error || video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE)) {
-          return;
-        }
-        if (notStarted && (video.getClientRects().length === 0 || video.preload === 'none' || !hasSource)) {
+          && video.networkState !== HTMLMediaElement.NETWORK_LOADING) {
           return;
         }
         video.pause();
@@ -53,10 +48,14 @@ export async function settleFrame(frame) {
           eventFired(video, types),
           delay(timeouts.seek),
         ]);
-        if (video.readyState < HTMLMediaElement.HAVE_METADATA) {
-          const loaded = await waitForEvent(['loadedmetadata', 'loadeddata', 'abort', 'emptied', 'error']);
-          if ((loaded !== 'loadedmetadata' && loaded !== 'loadeddata')
-            || video.readyState < HTMLMediaElement.HAVE_METADATA) {
+        if (video.readyState < HTMLMediaElement.HAVE_METADATA
+          || (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA && video.currentTime === 0 && !video.seeking)) {
+          // Waiting for the frame data rather than the metadata, as loadedmetadata can fire when
+          // the data is already available, before the page reacts to loadeddata.
+          await waitForEvent(['loadeddata', 'abort', 'emptied', 'error']);
+          // The page may have resumed playback on loadeddata, e.g. reveal.js autoplay.
+          video.pause();
+          if (video.readyState < HTMLMediaElement.HAVE_METADATA) {
             return;
           }
         }
@@ -66,24 +65,15 @@ export async function settleFrame(frame) {
         if (!video.seeking || stalled.get(video) !== source) {
           stalled.delete(video);
         }
-        // At time zero there is no seek to await, so wait until its frame data is available.
-        if (video.currentTime === 0 && !video.seeking) {
-          if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-            const loaded = await waitForEvent(['loadeddata', 'abort', 'emptied', 'error']);
-            if (loaded !== 'loadeddata' || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-              return;
-            }
-          }
-          return;
-        }
-        if (stalled.has(video)) {
+        // currentTime reports the target even while the seek is still in progress.
+        if ((video.currentTime === 0 && !video.seeking) || stalled.has(video)) {
           return;
         }
         // Also resolving on the events that end a seek without completing it, and giving up
         // on this video alone, rather than holding the whole frame up.
-        const ended = eventFired(video, ['seeked', 'abort', 'emptied', 'error']);
+        const ended = waitForEvent(['seeked', 'abort', 'emptied', 'error']);
         video.currentTime = 0;
-        if (await Promise.race([ended, delay(timeouts.seek)]) !== 'seeked') {
+        if (await ended !== 'seeked') {
           stalled.set(video, source);
           console.warn(`Unable to seek the video to its first frame: ${source}`);
         }

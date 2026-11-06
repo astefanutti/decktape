@@ -126,7 +126,7 @@ test('waits for a hidden video with a child source to load', async () => {
     seeking: false,
     paused: true,
     preload: 'auto',
-    networkState: 0,
+    networkState: 2,
     getClientRects: () => [{}],
     getAttribute: () => null,
     querySelector: () => ({ getAttribute: () => 'synthetic:local-video' }),
@@ -148,7 +148,9 @@ test('waits for a hidden video with a child source to load', async () => {
   const start = Date.now();
   await settleFrame(frame);
 
-  expect(Date.now() - start).toBeGreaterThanOrEqual((metadataDelay + frameDelay) / 2);
+  const elapsed = Date.now() - start;
+  expect(elapsed).toBeGreaterThanOrEqual((metadataDelay + frameDelay) / 2);
+  expect(elapsed).toBeLessThan(seekTimeout);
   expect(readyState).toBe(2);
 });
 
@@ -274,6 +276,52 @@ test('waits for a video already seeking to zero before settling the frame', asyn
   // Halved, as timers can fire slightly before the requested duration.
   expect(elapsed).toBeGreaterThanOrEqual(seekDuration / 2);
   expect(elapsed).toBeLessThan(seekTimeout);
+  expect(video.paused).toBe(true);
+  expect(video.seeking).toBe(false);
+});
+
+test('pauses a video the page plays as soon as its first frame has loaded', async () => {
+  let readyState = 0;
+  let currentTime = 0;
+  let seeking = false;
+  const video = Object.assign(new EventTarget(), {
+    currentSrc: 'synthetic:local-video',
+    paused: true,
+    networkState: 2,
+    pause() { this.paused = true; },
+    play() { this.paused = false; return Promise.resolve(); },
+  }) as unknown as FakeVideo;
+  Object.defineProperty(video, 'readyState', { get: () => readyState });
+  Object.defineProperty(video, 'seeking', { get: () => seeking });
+  // Seeking completes asynchronously, like in browsers.
+  Object.defineProperty(video, 'currentTime', {
+    get: () => currentTime,
+    set: (time: number) => {
+      currentTime = time;
+      seeking = true;
+      setTimeout(() => {
+        seeking = false;
+        video.dispatchEvent(new Event('seeked'));
+      }, 10);
+    },
+  });
+  // Like reveal.js autoplay, which restarts the video of the current slide on loadeddata.
+  video.addEventListener('loadeddata', () => {
+    video.currentTime = 0;
+    video.play!();
+  });
+  const frame = createFrame([video]);
+  // Browsers can fire loadedmetadata once the frame data is already available.
+  setTimeout(() => {
+    readyState = 4;
+    video.dispatchEvent(new Event('loadedmetadata'));
+    setTimeout(() => video.dispatchEvent(new Event('loadeddata')));
+  }, 40);
+
+  await settleFrame(frame);
+  // Leaving time for the page to react to the media events.
+  await new Promise(resolve => setTimeout(resolve, 50));
+
   expect(video.paused).toBe(true);
   expect(video.seeking).toBe(false);
 });
