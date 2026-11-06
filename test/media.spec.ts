@@ -7,10 +7,6 @@ const font = '/input/revealjs-demo/iframe/LibreCaslonCondensed-SemiBold.woff2';
 type Timeouts = { settle: number, seek: number };
 type FakeVideo = EventTarget & Pick<HTMLVideoElement,
   'currentSrc' | 'currentTime' | 'paused' | 'pause' | 'readyState' | 'seeking'> & {
-  getClientRects?: () => ArrayLike<unknown>;
-  getAttribute?: (name: string) => string | null;
-  querySelector?: (selector: string) => { getAttribute: (name: string) => string | null } | null;
-  src?: string;
   srcObject?: unknown;
   networkState?: number;
   error?: { code: number } | null;
@@ -19,11 +15,6 @@ type FakeVideo = EventTarget & Pick<HTMLVideoElement,
 };
 
 function createFrame(videos: FakeVideo[], overrides?: Partial<Timeouts>) {
-  videos.forEach(video => {
-    video.getClientRects ??= () => [{}];
-    video.getAttribute ??= () => null;
-    video.querySelector ??= () => null;
-  });
   const window = {};
   return {
     detached: false,
@@ -52,7 +43,10 @@ function createFrame(videos: FakeVideo[], overrides?: Partial<Timeouts>) {
   };
 }
 
-test('skips a hidden lazy video placeholder without waiting', async () => {
+test('skips a lazy video placeholder without waiting', async () => {
+  let pauses = 0;
+  // Whether hidden or not, e.g. with visibility: hidden that keeps its layout box, a placeholder
+  // whose source is only set once it is shown, like with reveal.js data-src, has none selected.
   const video = Object.assign(new EventTarget(), {
     currentSrc: '',
     currentTime: 0,
@@ -60,11 +54,7 @@ test('skips a hidden lazy video placeholder without waiting', async () => {
     readyState: 0,
     networkState: 0,
     paused: true,
-    hidden: true,
-    dataset: { src: 'synthetic:local-video' },
-    preload: 'auto',
-    getClientRects: () => [],
-    pause() { this.paused = true; },
+    pause() { pauses++; },
   }) as unknown as FakeVideo;
   const frame = createFrame([video]);
 
@@ -72,33 +62,11 @@ test('skips a hidden lazy video placeholder without waiting', async () => {
   await settleFrame(frame);
 
   expect(Date.now() - start).toBeLessThan(seekTimeout / 2);
-  expect(video.paused).toBe(true);
-});
-
-test('skips a CSS-hidden placeholder without an active source', async () => {
-  const video = Object.assign(new EventTarget(), {
-    currentSrc: '',
-    currentTime: 0,
-    seeking: false,
-    readyState: 0,
-    networkState: 0,
-    paused: true,
-    preload: 'auto',
-    getClientRects: () => [{}],
-    getAttribute: () => null,
-    querySelector: () => null,
-    pause() { this.paused = true; },
-  }) as unknown as FakeVideo;
-  const frame = createFrame([video]);
-
-  const start = Date.now();
-  await settleFrame(frame);
-
-  expect(Date.now() - start).toBeLessThan(seekTimeout / 2);
-  expect(video.paused).toBe(true);
+  expect(pauses).toBe(0);
 });
 
 test('skips a video whose media resource has already failed', async () => {
+  let pauses = 0;
   const video = Object.assign(new EventTarget(), {
     currentSrc: 'synthetic:failed-video',
     currentTime: 0,
@@ -108,9 +76,7 @@ test('skips a video whose media resource has already failed', async () => {
     paused: true,
     error: { code: 4 },
     preload: 'auto',
-    getClientRects: () => [{}],
-    getAttribute: () => 'synthetic:failed-video',
-    pause() { this.paused = true; },
+    pause() { pauses++; },
   }) as unknown as FakeVideo;
   const frame = createFrame([video]);
 
@@ -118,21 +84,18 @@ test('skips a video whose media resource has already failed', async () => {
   await settleFrame(frame);
 
   expect(Date.now() - start).toBeLessThan(seekTimeout / 2);
-  expect(video.paused).toBe(true);
+  expect(pauses).toBe(0);
 });
 
-test('waits for a hidden video with a child source to load', async () => {
+test('waits for a video with a child source to load', async () => {
   let readyState = 0;
   const video = Object.assign(new EventTarget(), {
-    currentSrc: '',
+    currentSrc: 'synthetic:local-video',
     currentTime: 0,
     seeking: false,
     paused: true,
     preload: 'auto',
     networkState: 2,
-    getClientRects: () => [{}],
-    getAttribute: () => null,
-    querySelector: () => ({ getAttribute: () => 'synthetic:local-video' }),
     pause() { this.paused = true; },
   }) as unknown as FakeVideo;
   Object.defineProperty(video, 'readyState', { get: () => readyState });
@@ -191,6 +154,7 @@ for (const [state, networkState] of [['without a source', 3], ['idle', 1]] as co
 }
 
 test('skips a video with preload none until it is activated', async () => {
+  let pauses = 0;
   const video = Object.assign(new EventTarget(), {
     currentSrc: 'synthetic:local-video',
     currentTime: 0,
@@ -199,8 +163,7 @@ test('skips a video with preload none until it is activated', async () => {
     networkState: 1,
     paused: true,
     preload: 'none',
-    getClientRects: () => [{}],
-    pause() { this.paused = true; },
+    pause() { pauses++; },
   }) as unknown as FakeVideo;
   const frame = createFrame([video]);
 
@@ -208,7 +171,7 @@ test('skips a video with preload none until it is activated', async () => {
   await settleFrame(frame);
 
   expect(Date.now() - start).toBeLessThan(seekTimeout / 2);
-  expect(video.paused).toBe(true);
+  expect(pauses).toBe(0);
 });
 
 test('waits for a visible preload-none video activated by play before metadata', async () => {
@@ -220,7 +183,6 @@ test('waits for a visible preload-none video activated by play before metadata',
     seeking: false,
     paused: true,
     preload: 'none',
-    getClientRects: () => [{}],
     play() { this.paused = false; networkState = 2; return Promise.resolve(); },
     pause() { this.paused = true; },
   }) as unknown as FakeVideo;
@@ -262,7 +224,6 @@ test('pauses and rewinds a loaded hidden video used by a visible canvas', async 
     readyState: 2,
     paused: false,
     preload: 'auto',
-    getClientRects: () => [],
     pause() { this.paused = true; },
   }) as unknown as FakeVideo;
   Object.defineProperty(video, 'currentTime', {
