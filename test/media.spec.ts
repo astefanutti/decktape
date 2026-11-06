@@ -486,6 +486,30 @@ test('settles the frame as soon as a seek is aborted', async () => {
   expect(Date.now() - start).toBeLessThan(seek / 2);
 });
 
+for (const type of ['abort', 'emptied', 'error']) {
+  test(`stops waiting for the video data on ${type}`, async () => {
+    const video = Object.assign(new EventTarget(), {
+      currentSrc: 'synthetic:local-video',
+      currentTime: 0,
+      seeking: false,
+      readyState: 0,
+      networkState: 2,
+      paused: true,
+      pause() { this.paused = true; },
+    }) as unknown as FakeVideo;
+    const seek = 2000;
+    const frame = createFrame([video], { seek });
+
+    // Loading ends without any data, e.g. as the source is reloaded or fails.
+    setTimeout(() => video.dispatchEvent(new Event(type)), 50);
+
+    const start = Date.now();
+    await settleFrame(frame);
+
+    expect(Date.now() - start).toBeLessThan(seek / 2);
+  });
+}
+
 test('waits for the web fonts to load before settling the frame', async ({ page }) => {
   const fontDelay = 500;
   await page.route(font, async route => {
